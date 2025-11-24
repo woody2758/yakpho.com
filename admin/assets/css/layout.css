@@ -214,6 +214,7 @@ body.sidebar-collapsed .main {
 body.sidebar-collapsed .sidebar .brand-text,
 body.sidebar-collapsed .sidebar .menu-item span {
     display: none;
+    z-index: 1000;
 }
 
 body.sidebar-collapsed .menu-item i {
@@ -260,6 +261,7 @@ body.sidebar-collapsed .menu-item {
     backdrop-filter: blur(14px);
     padding: 10px;
     display: none;
+    z-index: 1000;
 }
 
 .profile-dropdown.open {
