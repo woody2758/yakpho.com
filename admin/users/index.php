@@ -11,9 +11,10 @@ $limit  = 20;
 $offset = ($page - 1) * $limit;
 $search = trim($_GET['search'] ?? '');
 $role   = trim($_GET['role'] ?? '');
+$sort   = trim($_GET['sort'] ?? 'desc'); // desc = newest first, asc = oldest first
 
 // Query
-$users      = get_all_users($limit, $offset, $search, $role);
+$users      = get_all_users($limit, $offset, $search, $role, $sort);
 $totalUsers = count_all_users($search, $role);
 $totalPages = ceil($totalUsers / $limit);
 
@@ -71,7 +72,22 @@ ob_start();
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th class="ps-4">ID</th>
+                            <th class="ps-4">
+                                <?php
+                                // Build query params for sort toggle
+                                $currentParams = $_GET;
+                                $currentParams['sort'] = ($sort === 'desc') ? 'asc' : 'desc';
+                                $sortUrl = '?' . http_build_query($currentParams);
+                                ?>
+                                <a href="<?= $sortUrl ?>" class="text-decoration-none text-dark d-flex align-items-center gap-1">
+                                    ID
+                                    <?php if ($sort === 'desc'): ?>
+                                        <i data-lucide="arrow-down" style="width:14px;height:14px;"></i>
+                                    <?php else: ?>
+                                        <i data-lucide="arrow-up" style="width:14px;height:14px;"></i>
+                                    <?php endif; ?>
+                                </a>
+                            </th>
                             <th>รูป</th>
                             <th>ชื่อ - นามสกุล</th>
                             <th>ข้อมูลติดต่อ</th>
@@ -390,18 +406,34 @@ function changeRole(userId, currentRole) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">วางข้อมูลลูกค้าทั้งหมดที่นี่:</label>
-                    <textarea id="customerDataPaste" class="form-control" rows="5" placeholder="วางข้อมูลลูกค้าทั้งหมดที่นี่...
-ตัวอย่าง:
-สมชาย ใจดี
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">วางข้อมูลลูกค้าทั้งหมดที่นี่:</label>
+                        <textarea id="customerDataPaste" class="form-control" rows="5" placeholder="ตัวอย่าง:
+สมชาย ใจดี ชาย
 123/45 หมู่ 1 ต.บางเขน อ.เมือง
 จ.นนทบุรี 11000
-0812345678"></textarea>
-                    <button type="button" onclick="parseCustomerData()" class="btn btn-sm btn-secondary mt-2">
-                        <i data-lucide="zap" style="width:14px;height:14px;"></i> แยกข้อมูลอัตโนมัติ
-                    </button>
+0812345678
+youremail@gmail.com
+หมายเหตุการจัดส่ง
+"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mt-2 mb-0"><strong>รูปแบบการป้อนข้อมูล</strong></p>
+                        <ol class="small ms-3">
+                            <li>ชื่อ-นามสกุล ชื่อเล่น (ถ้ามี) – แบ่งโดยเว้นวรรค</li>
+                            <li>เลขที่ ชื่อหมู่บ้าน/คอนโด ชั้น ห้อง/หมู่ ถนน ซอย</li>
+                            <li>ตำบล/แขวง อำเภอ/เขต</li>
+                            <li>จังหวัด รหัสไปรษณีย์ – แบ่งโดยเว้นวรรค</li>
+                            <li>เบอร์โทรศัพท์ – ต้องมี</li>
+                            <li>อีเมล (ถ้ามี) – หากไม่มีให้เว้นบรรทัดเปล่า</li>
+                            <li>หมายเหตุ (ถ้ามี)</li>
+                        </ol>
+                    </div>
                 </div>
+                <button type="button" onclick="parseCustomerData()" class="btn btn-sm btn-secondary mt-2">
+                    <i data-lucide="zap" style="width:14px;height:14px;"></i> แยกข้อมูลอัตโนมัติ
+                </button>
                 <hr>
                 <form id="addCustomerForm">
                     <div class="row g-3">

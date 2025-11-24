@@ -4,17 +4,20 @@
 /**
  * Get all users with pagination and filtering
  */
-function get_all_users($limit = 20, $offset = 0, $search = '', $role = '') {
+function get_all_users($limit = 20, $offset = 0, $search = '', $role = '', $sort = 'desc') {
     global $db;
     
     $sql = "SELECT * FROM user WHERE user_del = 0";
     $params = [];
     
     if (!empty($search)) {
-        $sql .= " AND (user_name LIKE ? OR user_email LIKE ? OR user_mobile LIKE ?)";
+        // Strip 'C' or 'c' prefix for user_id search
+        $userId = (stripos($search, 'C') === 0) ? substr($search, 1) : $search;
+        $sql .= " AND (user_name LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
         $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
+        $params[] = $userId;
     }
     
     if (!empty($role)) {
@@ -22,7 +25,9 @@ function get_all_users($limit = 20, $offset = 0, $search = '', $role = '') {
         $params[] = $role;
     }
     
-    $sql .= " ORDER BY user_id DESC LIMIT $limit OFFSET $offset";
+    // Add sorting
+    $orderDirection = ($sort === 'asc') ? 'ASC' : 'DESC';
+    $sql .= " ORDER BY user_id {$orderDirection} LIMIT $limit OFFSET $offset";
     
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
@@ -39,10 +44,13 @@ function count_all_users($search = '', $role = '') {
     $params = [];
     
     if (!empty($search)) {
-        $sql .= " AND (user_name LIKE ? OR user_email LIKE ? OR user_mobile LIKE ?)";
+        // Strip 'C' or 'c' prefix for user_id search
+        $userId = (stripos($search, 'C') === 0) ? substr($search, 1) : $search;
+        $sql .= " AND (user_name LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
         $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
+        $params[] = $userId;
     }
     
     if (!empty($role)) {
