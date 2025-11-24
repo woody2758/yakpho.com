@@ -381,6 +381,91 @@ function changeRole(userId, currentRole) {
 }
 </script>
 
+<!-- Add Customer Modal -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">เพิ่มลูกค้าใหม่</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">วางข้อมูลลูกค้าทั้งหมดที่นี่:</label>
+                    <textarea id="customerDataPaste" class="form-control" rows="5" placeholder="วางข้อมูลลูกค้าทั้งหมดที่นี่...
+ตัวอย่าง:
+สมชาย ใจดี
+123/45 หมู่ 1 ต.บางเขน อ.เมือง
+จ.นนทบุรี 11000
+0812345678"></textarea>
+                    <button type="button" onclick="parseCustomerData()" class="btn btn-sm btn-secondary mt-2">
+                        <i data-lucide="zap" style="width:14px;height:14px;"></i> แยกข้อมูลอัตโนมัติ
+                    </button>
+                </div>
+                <hr>
+                <form id="addCustomerForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">ชื่อ <span class="text-danger">*</span></label>
+                            <input type="text" id="customerName" name="name" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">นามสกุล <span class="text-danger">*</span></label>
+                            <input type="text" id="customerLastname" name="lastname" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">ชื่อเล่น</label>
+                            <input type="text" id="customerNickname" name="nickname" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+                            <input type="text" id="customerMobile" name="mobile" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">อีเมล</label>
+                            <input type="email" id="customerEmail" name="email" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">ที่อยู่บรรทัด 1 <span class="text-danger">*</span></label>
+                            <input type="text" id="customerAddrDetail" name="addr_detail" class="form-control" placeholder="เลขที่ หมู่บ้าน/คอนโด ชั้น ห้อง ถนน ซอย" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">ที่อยู่บรรทัด 2 <span class="text-danger">*</span></label>
+                            <input type="text" id="customerAddrDetail2" name="addr_detail2" class="form-control" placeholder="ตำบล/แขวง อำเภอ/เขต" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">จังหวัด <span class="text-danger">*</span></label>
+                            <select id="customerProvince" name="province_id" class="form-select" required>
+                                <option value="">-- เลือกจังหวัด --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">รหัสไปรษณีย์ <span class="text-danger">*</span></label>
+                            <input type="text" id="customerPostcode" name="postcode" class="form-control" maxlength="5" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">ประเภทที่อยู่</label>
+                            <select id="customerAddrType" name="addr_type" class="form-select">
+                                <option value="ที่บ้าน" selected>ที่บ้าน</option>
+                                <option value="ที่ทำงาน">ที่ทำงาน</option>
+                                <option value="ที่อยู่สำหรับออกใบกำกับภาษี">ที่อยู่สำหรับออกใบกำกับภาษี</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">หมายเหตุ</label>
+                            <input type="text" id="customerForword" name="addr_forword" class="form-control">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" onclick="saveCustomer()" class="btn btn-primary">บันทึก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Load external JS file for user management functions -->
 <script src="<?= ADMIN_ASSETS ?>/js/users.js<?= $ver ?>"></script>
 

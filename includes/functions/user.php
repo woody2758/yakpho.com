@@ -11,7 +11,8 @@ function get_all_users($limit = 20, $offset = 0, $search = '', $role = '') {
     $params = [];
     
     if (!empty($search)) {
-        $sql .= " AND (user_name LIKE ? OR user_email LIKE ?)";
+        $sql .= " AND (user_name LIKE ? OR user_email LIKE ? OR user_mobile LIKE ?)";
+        $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
     }
@@ -38,7 +39,8 @@ function count_all_users($search = '', $role = '') {
     $params = [];
     
     if (!empty($search)) {
-        $sql .= " AND (user_name LIKE ? OR user_email LIKE ?)";
+        $sql .= " AND (user_name LIKE ? OR user_email LIKE ? OR user_mobile LIKE ?)";
+        $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
     }
