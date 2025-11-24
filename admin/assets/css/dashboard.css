@@ -1,0 +1,146 @@
+/* ===========================================================
+   YakPho Aroma Admin — Dashboard Styles
+   File: dashboard.css
+   Only for dashboard.php
+   =========================================================== */
+
+/* ================================
+   Dashboard Grid (Summary Cards)
+================================ */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 22px;
+}
+
+.dashboard-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px;
+}
+
+/* Icon */
+.dashboard-card .card-icon i {
+    width: 38px;
+    height: 38px;
+    color: var(--yak-gold);
+    stroke-width: 1.8;
+}
+
+/* Titles */
+.dashboard-card .card-title {
+    font-size: 14px;
+    opacity: .85;
+    margin-bottom: 4px;
+}
+
+.dashboard-card .card-value {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* Sub text */
+.dashboard-card .card-sub {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+/* ================================
+   2-Column Grid (Charts + Actions)
+================================ */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 22px;
+}
+
+@media (max-width: 1100px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Chart */
+#salesChart {
+    width: 100%;
+    height: 240px !important;
+}
+
+/* ================================
+   Quick Actions
+================================ */
+.quick-btn {
+    display: block;
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    border-radius: var(--radius);
+    background: var(--bg-alt);
+    border: 1px solid var(--border-soft);
+    color: var(--fg);
+    font-size: 14px;
+    transition: 0.15s ease;
+}
+
+.quick-btn:hover {
+    background: var(--sidebar-hover);
+}
+
+.quick-btn.primary {
+    background: var(--yak-gold);
+    color: #111;
+    font-weight: 600;
+    border: none;
+}
+
+.quick-btn.primary:hover {
+    filter: brightness(0.92);
+}
+
+/* ================================
+   Tables (Recent Orders)
+================================ */
+.card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.card table th {
+    text-align: left;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+}
+
+.card table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 14px;
+}
+
+.card table tr:hover {
+    background: var(--sidebar-hover);
+}
+
+/* Light Mode alternate rows */
+[data-theme="light"] .card table tr:nth-child(odd) {
+    background: #fafafa;
+}
+
+/* Dark Mode alternate rows */
+[data-theme="dark"] .card table tr:nth-child(odd) {
+    background: rgba(255,255,255,0.05);
+}
+
+/* ================================
+   Section Title
+================================ */
+h1.page-title,
+h2 {
+    font-family: 'Noto Sans Thai','Roboto',sans-serif;
+    font-weight: 700;
+    margin-bottom: 12px;
+}

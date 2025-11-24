@@ -1,0 +1,37 @@
+/* ใช้เฉพาะหน้า Login admin/index.php */
+
+.login-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background: #01241d;
+    background: linear-gradient(123deg, rgba(1, 36, 29, 1) 0%, rgba(10, 61, 52, 1) 50%, rgba(66, 52, 24, 1) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 26px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 22px;
+    color: #111;
+}
+
+.login-subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #666;
+}

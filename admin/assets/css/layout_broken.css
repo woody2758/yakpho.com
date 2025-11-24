@@ -1,0 +1,587 @@
+/* ===========================================
+   YakPho Admin – Premium Layout System FIXED
+   =========================================== */
+
+body.admin-layout {
+    display: block;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Noto Sans Thai', 'Roboto', sans-serif;
+    min-height: 100vh;
+}
+
+/* ============================== */
+/* Sidebar                        */
+/* ============================== */
+
+.sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    padding: 24px 18px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: width 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Branding */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--sidebar-border);
+}
+
+.yak-logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: radial-gradient(circle at 30% 0%, #fdf4e3 0, #b37c2b 40%, #5e3c10 100%);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-main {
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--yak-gold);
+}
+
+.brand-sub {
+    font-size: 11px;
+    opacity: .7;
+}
+
+/* Menu */
+.sidebar-menu {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--sidebar-fg);
+    transition: 0.18s ease;
+}
+
+.menu-item i {
+    width: 18px;
+    height: 18px;
+}
+
+.menu-item:hover {
+    background: var(--sidebar-hover);
+}
+
+.menu-item.active {
+    background: linear-gradient(120deg, rgba(209, 165, 90, 0.2), rgba(209, 165, 90, 0.06));
+    border-left: 3px solid var(--yak-gold);
+    padding-left: 9px;
+    height: 24px !important;
+}
+
+/* ============================== */
+/* Main Wrapper                   */
+/* ============================== */
+
+.main {
+    margin-left: 240px;
+    width: auto;
+    transition: margin-left 0.25s ease;
+    display: block;
+}
+
+/* ============================== */
+/* Topbar                         */
+/* ============================== */
+
+.topbar {
+    height: 65px;
+    background: var(--topbar-bg);
+    border-bottom: 1px solid var(--sidebar-border);
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    left: 240px;
+    right: 0;
+    width: auto;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: left 0.25s ease;
+}
+
+.topbar-left,
+.topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* กล่องขวาทุกชิ้นใน topbar ให้จัดกลางเหมือนกัน */
+.topbar-right>* {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sidebar toggle Button */
+.btn-sidebar-toggle {
+    border: 1px solid var(--sidebar-border);
+    background: var(--sidebar-hover);
+    border-radius: 999px;
+    width: 34px;
+    height: 34px;
+    color: var(--sidebar-fg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Settings button */
+/* ปุ่มฟันเฟือง */
+.btn-topbar-icon {
+    background: var(--sidebar-hover);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* กล่องครอบรูปโปรไฟล์ ให้เท่าปุ่ม */
+.profile-wrapper {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* รูปด้านในย่อให้พอดีกล่อง */
+.profile-pic {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid var(--sidebar-border);
+    background: var(--sidebar-hover);
+}
+
+/* ============================== */
+/* Content Area                   */
+/* ============================== */
+
+.container-admin {
+    margin-top: 75px;
+    padding: 15px;
+    width: auto;
+    /* margin-left is handled by .main */
+}
+
+/* ============================== */
+/* Collapsed State                */
+/* ============================== */
+
+body.sidebar-collapsed .sidebar {
+    width: 64px;
+}
+
+body.sidebar-collapsed .main {
+    margin-left: 64px;
+}
+
+body.sidebar-collapsed .topbar {
+    left: 64px;
+}
+
+body.sidebar-collapsed .sidebar .brand-text,
+body.sidebar-collapsed .sidebar .menu-item span {
+    display: none;
+}
+
+/* Fix icon size when collapsed */
+width: 34px;
+height: 34px;
+border-radius: 12px;
+background: radial-gradient(circle at 30% 0%, #fdf4e3 0, #b37c2b 40%, #5e3c10 100%);
+box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-main {
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--yak-gold);
+}
+
+.brand-sub {
+    font-size: 11px;
+    opacity: .7;
+}
+
+/* Menu */
+.sidebar-menu {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--sidebar-fg);
+    transition: 0.18s ease;
+}
+
+.menu-item i {
+    width: 18px;
+    height: 18px;
+}
+
+.menu-item:hover {
+    background: var(--sidebar-hover);
+}
+
+.menu-item.active {
+    background: linear-gradient(120deg, rgba(209, 165, 90, 0.2), rgba(209, 165, 90, 0.06));
+    border-left: 3px solid var(--yak-gold);
+    padding-left: 9px;
+    height: 24px !important;
+}
+
+/* ============================== */
+/* Main Wrapper                   */
+/* ============================== */
+
+.main {
+    margin-left: 240px;
+    width: auto;
+    transition: margin-left 0.25s ease;
+    display: block;
+}
+
+/* ============================== */
+/* Topbar                         */
+/* ============================== */
+
+.topbar {
+    height: 65px;
+    background: var(--topbar-bg);
+    border-bottom: 1px solid var(--sidebar-border);
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    left: 240px;
+    right: 0;
+    width: auto;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: left 0.25s ease;
+}
+
+.topbar-left,
+.topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* กล่องขวาทุกชิ้นใน topbar ให้จัดกลางเหมือนกัน */
+.topbar-right>* {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sidebar toggle Button */
+.btn-sidebar-toggle {
+    border: 1px solid var(--sidebar-border);
+    background: var(--sidebar-hover);
+    border-radius: 999px;
+    width: 34px;
+    height: 34px;
+    color: var(--sidebar-fg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Settings button */
+/* ปุ่มฟันเฟือง */
+.btn-topbar-icon {
+    background: var(--sidebar-hover);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* กล่องครอบรูปโปรไฟล์ ให้เท่าปุ่ม */
+.profile-wrapper {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* รูปด้านในย่อให้พอดีกล่อง */
+.profile-pic {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid var(--sidebar-border);
+    background: var(--sidebar-hover);
+}
+
+/* ============================== */
+/* Content Area                   */
+/* ============================== */
+
+.container-admin {
+    margin-top: 75px;
+    padding: 15px;
+    width: auto;
+    /* margin-left is handled by .main */
+}
+
+/* ============================== */
+/* Collapsed State                */
+/* ============================== */
+
+body.sidebar-collapsed .sidebar {
+    width: 64px;
+}
+
+body.sidebar-collapsed .main {
+    margin-left: 64px;
+}
+
+body.sidebar-collapsed .topbar {
+    left: 64px;
+}
+
+body.sidebar-collapsed .sidebar .brand-text,
+body.sidebar-collapsed .sidebar .menu-item span {
+    display: none;
+}
+
+/* Fix icon size when collapsed */
+body.sidebar-collapsed .menu-item i {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+body.sidebar-collapsed .menu-item {
+    justify-content: center;
+    /* ให้ไอคอนอยู่กลาง */
+    padding: 12px 0;
+    /* ลด padding ซ้ายขวา */
+    gap: 0;
+    /* ไม่ต้องมีช่องว่างเพราะไม่มี text แล้ว */
+}
+
+/* ============================== */
+/* Mobile Responsive              */
+/* ============================== */
+
+@media (max-width: 991px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main {
+        margin-left: 0;
+    }
+
+    .topbar {
+        left: 0;
+    }
+}
+
+/* ============================== */
+/* Profile Dropdown               */
+/* ============================== */
+
+.profile-pic {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid var(--sidebar-border);
+    background: var(--sidebar-hover);
+}
+
+.profile-wrapper {
+    position: relative;
+}
+
+.profile-dropdown {
+    position: absolute;
+    right: 0;
+    top: 48px;
+    width: 200px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(14px);
+    padding: 10px;
+    display: none;
+}
+
+.profile-dropdown.open {
+    display: block;
+}
+
+.pd-info {
+    padding: 6px 4px 10px;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.pd-name {
+    font-weight: 700;
+}
+
+.pd-role {
+    font-size: 12px;
+    opacity: .7;
+}
+
+/* Dropdown items */
+.pd-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 6px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.pd-item i {
+    width: 16px;
+    height: 16px;
+}
+
+.pd-item:hover {
+    background: var(--sidebar-hover);
+}
+
+.pd-item.logout {
+    color: #c94444;
+}
+
+/* Sidebar Footer (Theme Switch)*/
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    justify-content: center;
+}
+
+.btn-theme-switch {
+    width: 40px;
+    height: 40px;
+    background: var(--sidebar-hover);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tooltip ตอนย่อ Sidebar */
+.sidebar-tooltip {
+    position: fixed;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-fg);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    border: 1px solid var(--sidebar-border);
+    z-index: 9999;
+    pointer-events: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

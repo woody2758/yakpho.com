@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# ให้ใช้ไฟล์จริงก่อน
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# ถ้าเป็น .html → .php
+RewriteRule ^(.+)\.html$ $1.php [L]
+
+# ไฟล์หลักของ Admin
+RewriteRule ^([^/]+)/?$ $1.php [L]

@@ -1,0 +1,157 @@
+/* ===========================================================
+   YakPho Aroma Admin – Components (Updated)
+=========================================================== */
+
+/* ---------------------------------
+   BUTTON: Premium Gold
+--------------------------------- */
+.btn-yakpho {
+    background: linear-gradient(135deg, var(--yak-gold), #f7db97, #b38222);
+    color: #111;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+.btn-yakpho:hover {
+    filter: brightness(0.92);
+}
+
+/* ---------------------------------
+   BUTTON: Outline
+--------------------------------- */
+.btn-yakpho-outline {
+    border-radius: 999px;
+    border: 1px solid var(--border-soft);
+    background: transparent;
+    color: var(--fg);
+    font-size: 13px;
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+.btn-yakpho-outline:hover {
+    background: var(--sidebar-hover);
+}
+
+/* ---------------------------------
+   CARD
+--------------------------------- */
+.card-yakpho {
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: 20px 22px;
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(14px);
+}
+
+/* ---------------------------------
+   TABLE
+--------------------------------- */
+.table-yakpho {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.table-yakpho thead {
+    background: var(--yak-emerald-dark);
+    color: var(--yak-cream);
+}
+.table-yakpho thead th {
+    padding: 10px 14px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--sidebar-border);
+}
+
+.table-yakpho tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.table-yakpho tbody tr:nth-child(odd) {
+    background: rgba(255,255,255,0.08);
+}
+
+[data-theme="light"] .table-yakpho tbody tr:nth-child(odd) {
+    background: #fafafa;
+}
+
+.table-yakpho tbody tr:hover {
+    background: rgba(255,255,255,0.12);
+}
+
+[data-theme="light"] .table-yakpho tbody tr:hover {
+    background: #f0f0f0;
+}
+
+/* ---------------------------------
+   BADGES (Status)
+--------------------------------- */
+.badge-status {
+    border-radius: 999px;
+    font-size: 11px;
+    padding: 4px 10px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.badge-status-success {
+    background: rgba(20,120,40,0.25);
+    color: #a4f5b4;
+}
+
+.badge-status-danger {
+    background: rgba(140,20,20,0.25);
+    color: #ffb1b1;
+}
+
+.badge-status-warning {
+    background: rgba(180,150,40,0.25);
+    color: #f9e8b5;
+}
+
+/* Light Mode Badges */
+[data-theme="light"] .badge-status-success {
+    background: #e6f7e8;
+    color: #267339;
+}
+[data-theme="light"] .badge-status-danger {
+    background: #fde8e8;
+    color: #a83232;
+}
+[data-theme="light"] .badge-status-warning {
+    background: #fff7d8;
+    color: #8a6e1e;
+}
+
+/* ---------------------------------
+   LOADING BUTTON
+--------------------------------- */
+.btn-loading {
+    position: relative;
+    opacity: 0.75;
+    pointer-events: none;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    animation: yak-spin 0.7s linear infinite;
+}
+
+@keyframes yak-spin {
+    to { transform: translateY(-50%) rotate(360deg); }
+}

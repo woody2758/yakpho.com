@@ -1,0 +1,23 @@
+# ============================================================
+# YakPho Aroma – Clean URLs & Rewrite Rules
+# ============================================================
+Options +FollowSymLinks
+RewriteEngine On
+RewriteBase /yakpho/
+
+# ✅ ให้เรียก .html แล้วไปหาไฟล์ .php
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+)\.html$ $1.php [L]
+
+# ✅ Redirect /order.html → /order.php โดยตรง (ถ้ามีการเรียก URL นี้)
+RewriteRule ^order\.html$ order.php [L]
+
+# ให้เข้าถึง /order ได้เลย โดยไม่ต้องพิมพ์ .html หรือ .php
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^/]+)/?$ $1.php [L]
+
+
+# ✅ ป้องกันการเข้าถึงไฟล์ระบบที่ไม่ต้องการ
+<FilesMatch "\.(htaccess|env|log|bak|ini)$">
+  Require all denied
+</FilesMatch>

@@ -1,0 +1,1413 @@
+/* ============================================================
+   💎 YakPho Aroma E-Catalog – StageTimer CSS
+   Version: 2.1 (2025-11-09)
+   Author: ChatGPT & Woody
+   Description: Fixed Hero spacing + Soft Gold Gradient + Topbar padding adjust
+============================================================ */
+
+:root{
+  --bg:#ffffff;
+  --fg:#111111;
+  --muted:#525252;
+  --soft:#f6f7f9;
+  --line:#eaecef;
+  --brand:#554205;
+  --brand-ink:#111111;
+  --radius:14px;
+  --mx:1100px;
+}
+
+/* ================================
+   Base Reset
+================================ */
+*{box-sizing:border-box}
+
+html,body{
+  margin: 0;
+  padding: 0;
+  color: var(--fg);
+  font-family: 'Noto Sans Thai', 'Roboto', sans-serif;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* ✅ Gradient พื้นหลังจาก 3 สูตร */
+  background: linear-gradient(135deg, #EAD7A6 0%, #B8D0B0 50%, #A6D3E0 100%);
+  background-attachment: fixed;
+  background-size: cover;
+
+}
+
+h1,h2,h3,h4,h5,h6{
+  font-family:'Noto Sans Thai','Roboto',sans-serif;
+  font-weight:700;
+}
+
+button,input,.btn,.topbar{
+  font-family:'Roboto','Noto Sans Thai',sans-serif;
+  font-weight:500;
+}
+
+img{max-width:100%;display:block}
+a{color:var(--fg);text-decoration:none}
+.wrap{max-width:var(--mx);margin:0 auto;padding:0 20px}
+.section{padding:20px 0} 
+.section-sm{padding:15px 0}
+.hr{height:1px;background:var(--line);margin:24px 0}
+.muted{color:var(--muted)}
+.center{text-align:center}
+
+/* ================================
+   🧭 Topbar Fixed
+================================ */
+.topbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:100;
+  background:rgba(255,255,255,0.26);
+  backdrop-filter:saturate(1.3) blur(10px);
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+.topbar .inner{
+  max-width:var(--mx);
+  margin:0 auto;
+  padding:12px 20px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  justify-content:space-between;
+}
+
+
+
+
+
+/* ================================
+   Hero Section (v2.1 update)
+================================ */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 0vh;
+  padding-top: 90px;
+  padding-bottom: 80px;
+  position: relative;
+  
+ }
+
+
+.card {
+  border: 0px solid #eee;   /* 👈 ตัวต้นเหตุ */
+  border-radius: 8px;
+  overflow: hidden;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.1fr;
+  align-items: center;
+  gap: 40px;
+}
+
+/* 🧘‍♀️ Hero Text */
+.hero-text .h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: #111;
+}
+.hero-text .p {
+  line-height: 1.7;
+  color: #444;
+}
+
+/* ============================================================
+💎 YakPho Aroma – Hero Fade Transparent (v2.1)
+============================================================ */
+.fade-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0px !important;
+}
+
+.fade-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* ✨ ขอบเฟดใสรอบด้าน (โปร่งใส ไม่ขาว) */
+.fade-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(
+      circle at center,
+      rgba(255,255,255,0) 60%,      /* กลางภาพใส */
+      rgba(255,255,255,0.15) 75%,   /* ค่อย ๆ จาง */
+      rgba(255,255,255,0.35) 90%,   /* ขอบเริ่มนุ่ม */
+      rgba(255,255,255,0.55) 100%   /* ขอบสุดโปร่งเบา */
+  );
+  mix-blend-mode: lighten; /* ให้กลืนกับพื้นหลังโดยไม่ฟุ้งขาว */
+}
+
+
+/* ================================
+   📱 Background Yak Responsive
+================================ */
+@media (max-width: 768px) {
+
+  .hero {
+    min-height: 65vh;
+    padding-top: 20px;
+    padding-bottom: 80px;
+    background-position: center bottom !important;   /* ✅ ย้ายจาก left → center */
+    background-size: auto 100% !important;           /* ✅ ย่อให้สูงพอดี Hero */
+    background-repeat: no-repeat;
+  }
+
+  /* ถ้าใช้แบบ pseudo (::after) */
+  .hero::after {
+    background-position: center bottom !important;
+    background-size: auto 100% !important;
+    opacity: 0.9;
+  }
+
+  /* ✅ Text ยังคงอยู่ในพื้นที่ปลอดภัย */
+  .hero-text {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 20px; /* เว้นจากภาพนิดหน่อย */
+    text-align: left; /* หรือ center ถ้าชอบให้อยู่กลาง */
+  }
+
+  /* ถ้าต้องการให้ข้อความอยู่กลาง */
+  .hero-text p {
+  font-size: 1.2rem;
+  }
+
+  .hero-text .h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+    color: #111;
+  }
+  /* ปรับ container hero-grid ให้เต็มจอ */
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* ลบขอบซ้ายขวาของ wrap */
+  .hero .wrap {
+    padding-left: 0 !important;
+    padding-right: 0  !important;
+  }
+
+  /* ให้รูปเต็มจอแนวนอน */
+  .hero-image {
+    width: 100vw;              /* กินเต็ม viewport */
+    margin-left: calc(-50vw + 50%); /* ดึงออกจาก container */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .fade-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0px !important;
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 0 !important; /* เอามุมโค้งออกถ้าอยากเต็มขอบ */
+  }
+}
+
+.has-bg-white {
+  background-color: #eaecef !important;
+}
+
+.section.formula {
+  background: rgba(255,255,255,0.26);
+  backdrop-filter: saturate(1.3) blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.4);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding: 40px 0;
+}
+
+
+
+.h1{font-size:clamp(34px,6vw,64px);line-height:1.06;margin:0 0 10px;font-weight:900;letter-spacing:.2px}
+.h2{font-size:clamp(22px,3vw,36px);line-height:1.2;margin:0 0 8px;font-weight:900}
+.h3{font-size:clamp(18px,2.2vw,22px);margin:0 0 6px;font-weight:800}
+.p{font-size:clamp(14px,1.3vw,18px);line-height:1.7;color:var(--muted)}
+
+
+/* ================================
+   Buttons
+================================ */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  border-radius:12px;
+  padding:12px 18px;
+  font-weight:800;
+  border:1px solid var(--line);
+  transition:transform .06s ease, background .2s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+.btn.secondary{background:#fff;color:var(--fg)}
+
+.lead-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.badge-h {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #333;
+  background: rgba(246, 247, 249, 0.7);   /* ✅ โปร่งใส 70% ของ var(--soft) */
+  border: 1px solid rgba(234, 236, 239, 0.8); /* ✅ ขอบโปร่งเล็กน้อย */
+  border-radius: 999px;
+  padding: 6px 10px;
+  backdrop-filter: blur(6px);              /* 💎 เพิ่ม soft blur เบา ๆ */
+}
+
+/* ================================
+   Cards & Grids
+================================ */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.card .body{padding:16px}
+.grid-2,.grid-3,.grid-4{display:grid;gap:18px}
+
+.scent-image {
+  width: 100%;
+  height: 50px;
+  background: #f0f0f0;
+  overflow: hidden;
+}
+
+@media(min-width:900px){
+  .grid-2{grid-template-columns:1.1fr .9fr}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:899px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* ================================
+   Pricing Table
+================================ */
+table{width:100%;border-collapse:collapse}
+th,td{padding:12px;border-bottom:1px solid var(--line);text-align:center}
+thead th{color:#222}
+
+/* ================================
+   Gallery
+================================ */
+.gallery{display:grid;gap:10px}
+@media(min-width:1000px){.gallery{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:999px) and (min-width:680px){.gallery{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:679px){.gallery{grid-template-columns:repeat(2,1fr)}}
+/* .gallery a{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.gallery img{transition:transform .25s ease,opacity .25s ease}
+.gallery a:hover img{transform:scale(1.02);opacity:.96} */
+
+/* ================================
+   Sticky CTA
+================================ */
+.sticky-footer{
+  position:fixed;left:0;right:0;bottom:0;
+  background: rgba(255,255,255,0.26);
+  backdrop-filter: saturate(1.3) blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.4);
+  z-index:50;
+}
+.sticky-inner{
+  max-width:var(--mx);margin:0 auto;padding:10px 20px;
+  display:flex;gap:12px;align-items:center;justify-content:space-between;
+}
+
+
+.btn.chat {
+  background: linear-gradient(90deg, #B89458 0%, #D6B879 100%);
+}
+.box-contact {
+  padding-bottom: 180px;
+}
+
+
+/* ================================
+   Animations
+================================ */
+.reveal{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.reveal.show{opacity:1;transform:none}
+.zoom{opacity:0;transform:scale(.98);transition:opacity .5s ease,transform .5s ease}
+.zoom.show{opacity:1;transform:scale(1)}
+
+/* ================================
+   Lightbox (fixed)
+================================ */
+.lightbox{
+  display:none;
+  position:fixed;
+  inset:0;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.85);
+  z-index:-1;
+  opacity:0;
+  transition:opacity .3s ease,z-index 0s .3s;
+}
+.lightbox.active{
+  display:flex;
+  opacity:1;
+  z-index:9999;
+  transition:opacity .3s ease;
+}
+
+/* ================================
+   WebLitePro UI helpers
+================================ */
+@media (max-width:600px){ .hero-grid{gap:24px;padding-top:40px} }
+.btn-weblitepro{
+  background:linear-gradient(135deg,#4F8BFF,#8A68EF);color:#fff;border:none;
+  padding:8px 14px;border-radius:10px;font-weight:700;cursor:pointer;transition:all .25s ease;
+}
+.btn-weblitepro:hover{transform:translateY(-1px);box-shadow:0 0 10px rgba(138,104,239,.35)}
+.input-weblitepro{
+  background:#f8f9fb;border:1px solid #d4d7e1;border-radius:10px;padding:8px 12px;font-size:14px;
+  transition:all .25s ease;color:#111;
+}
+.input-weblitepro:focus{outline:none;border-color:#8A68EF;box-shadow:0 0 0 3px rgba(143,104,239,.15)}
+
+/* ================================
+   Layer Order – ปรับสมดุล z-index
+================================ */
+main,.section{
+  position:relative;
+  z-index:10;
+  background:transparent;
+}
+
+
+/* ================================
+   🔍 Topbar Search (Balanced layout)
+================================ */
+.topbar .inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.brand {
+  display: inline-block;
+  text-align: center;
+  line-height: 1.05;
+  font-family: "Prompt", sans-serif;
+  color: #111;
+}
+
+.brand-line1 {
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.brand-line2 {
+  font-weight: 300;
+  font-size: 12px;
+  text-transform: uppercase;
+  /* เดิม calc((26 / 18) * 1px) = 1.44px → เพิ่มอีกนิด */
+  letter-spacing: calc((26 / 18) * 1.15px);
+}
+
+
+/* กล่องค้นหา */
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 300px;           /* ✅ ลดความยาวลงเพื่อให้ brand อยู่บรรทัดเดียว */
+}
+
+/* ช่องค้นหา */
+.search-input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;               /* ✅ เท่ากับปุ่ม */
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* ปุ่มแว่น */
+.search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;               /* ✅ เท่าช่อง input */
+  width: 40px;
+  padding: 0;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .search-wrap {
+    max-width: 70%;
+  }
+}
+
+/* ================================
+💰 Pricing Table – v2.4
+================================ */
+.price-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 28px;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+}
+.price-table th {
+  background: #fffaf0;
+  color: var(--brand);
+  font-weight: 800;
+  font-size: 16px;
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.price-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+  color: #333;
+}
+.price-table tr:last-child td { border-bottom: none; }
+.price-table tbody tr:hover {
+  background: #fff8e0;
+  transition: background .2s;
+}
+@media (max-width:768px){
+  .price-table th, .price-table td { font-size:14px; padding:10px; }
+}
+
+
+/* ============================================================
+💬 Contact Buttons – v2.4
+============================================================ */
+.contact-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:14px;
+  margin-top:24px;
+}
+
+.contact-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  border-radius:999px;
+  font-weight:600;
+  color:#fff;
+  text-decoration:none;
+  transition:all .25s ease;
+  box-shadow:0 4px 14px rgba(0,0,0,.08);
+}
+.contact-btn i{
+  width:18px;
+  height:18px;
+  stroke-width:2;
+}
+
+/* 🎨 Theme colors */
+.contact-btn.line{ background:#06C755; }
+.contact-btn.messenger{ background:#0084FF; }
+.contact-btn.whatsapp{ background:#25D366; }
+.contact-btn.email{ background:#D93025; }
+
+.contact-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(0,0,0,.12);
+}
+
+/* Responsive */
+@media(max-width:600px){
+  .contact-buttons{ gap:10px; }
+  .contact-btn{ flex:1; justify-content:center; font-size:14px; }
+}
+
+
+/* ============================================================
+💎 CTA Button – YakPho Aroma Gradient (3 สูตร)
+============================================================ */
+
+.order-btn {
+  display: inline-flex;           /* ✅ ทำให้จัดแนวนอนได้ */
+  align-items: center;            /* ✅ จัดให้อยู่กลางแนวตั้ง */
+  justify-content: center;        /* จัดกลางแนวนอน */
+  gap: 8px;                       /* ระยะห่างระหว่างไอคอนกับข้อความ */
+  line-height: 1;                 /* ล็อกไม่ให้ตัวอักษรลอยขึ้น */
+  background: linear-gradient(90deg, #C7A15A 0%, #0F5F91 50%, #2BAA8A 100%);
+  background-size: 300% 100%;
+  color: #fff;
+  font-weight: 800;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: all .3s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  animation: yakpho-gradient 6s ease infinite;
+}
+@keyframes yakpho-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.order-btn i {
+  width: 20px;         /* ✅ ขนาดไอคอนเท่ากันทุกอัน */
+  height: 20px;
+  stroke-width: 2.2;
+  vertical-align: middle;
+  margin-top: -1px;    /* ปรับจูนเล็กน้อยให้ระดับสายตาพอดี */
+}
+.btn.secondary {
+  background: #B58A44;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  transition: all .25s ease;
+}
+.btn.secondary:hover {
+  background: #A47A39;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+
+/* ============================================================
+💎 Brand Story – Touch of Thai Wellness
+============================================================ */
+#brand-story {
+  background: linear-gradient(180deg, #ffffff 0%, #faf9f6 100%);
+  position: relative;
+}
+#brand-story .grid-2 {
+  display: grid;
+  grid-template-columns: 1.1fr 1.2fr;
+  gap: 40px;
+  align-items: center;
+}
+#brand-story .brand-photo img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+#brand-story .brand-body .h2 {
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+#brand-story .text-brand {
+  color: #C7A15A;
+}
+#brand-story .p {
+  line-height: 1.75;
+  margin-bottom: 14px;
+  color: #444;
+}
+#brand-story .h3 {
+  margin-top: 20px;
+  font-weight: 700;
+  color: #111;
+}
+#brand-story blockquote {
+  border-left: 3px solid #C7A15A;
+  padding-left: 14px;
+  font-style: italic;
+  color: #666;
+}
+@media(max-width: 900px){
+  #brand-story .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  #brand-story .brand-photo {
+    order: 1;
+  }
+  #brand-story .brand-body {
+    order: 2;
+  }
+}
+/* ============================================================
+📸 YakPho Aroma – Gallery
+============================================================ */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  justify-items: center;
+}
+.gallery a {
+  display: block;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.gallery a:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+.gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.gallery img.loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+/* 📱 Mobile: แสดง 2 คอลัมน์ */
+@media (max-width: 640px) {
+  .gallery {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+
+/* ============================================================
+💎 YakPho Aroma Floating Menu v3.2 – Slide Right + Glow
+============================================================ */
+.floating-menu-btn {
+  position: fixed;
+  top: 50%;
+  right: 10px; /* 👉 ปุ่มอยู่ด้านขวา */
+  transform: translateY(-50%);
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 38px;
+  height: 34px;
+  padding: 6px;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  z-index: 999;
+  cursor: pointer;
+  transition: all .3s ease;
+}
+.floating-menu-btn:hover {
+  box-shadow: 0 0 12px rgba(199,161,90,0.6); /* ✨ แสงทองเบา ๆ */
+}
+.floating-menu-btn .bar {
+  height: 3px;
+  width: 100%;
+  background: #222;
+  border-radius: 2px;
+  transition: all .3s ease;
+}
+.floating-menu-btn.active .bar:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.floating-menu-btn.active .bar:nth-child(2) { opacity: 0; }
+.floating-menu-btn.active .bar:nth-child(3) { transform: rotate(-45deg) translate(6px,-6px); }
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -280px; /* 👉 เปลี่ยนจาก left เป็น right */
+  width: 240px;
+  height: 100vh;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: -4px 0 25px rgba(199,161,90,0.15); /* glow ทอง */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 80px 24px;
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: right .4s cubic-bezier(.4,0,.2,1), opacity .4s ease;
+  background: url("../img/Pho/yakbg.webp") no-repeat center top / auto 100%;
+
+}
+.side-menu.open {
+  right: 0;
+  opacity: 1;
+  pointer-events: auto;
+  box-shadow: -8px 0 30px rgba(199,161,90,0.25);
+}
+.side-menu a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #222;
+  transition: color .25s, transform .25s;
+}
+.side-menu a:hover {
+  color: #0F5F91;
+  transform: translateX(-4px);
+}
+
+/* ============================================================
+💫 Side Menu Icons – YakPho Aroma Style
+============================================================ */
+.side-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  color: #222;
+  transition: color .25s, transform .25s;
+}
+
+.side-menu a i {
+  width: 18px;
+  height: 18px;
+  color: #C7A15A; /* โทนทองอ่อน YakPho */
+  flex-shrink: 0;
+  opacity: 0.8;
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+.side-menu a:hover {
+  color: #0F5F91;
+  transform: translateX(-4px);
+}
+
+.side-menu a:hover i {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+
+
+
+/* 🪶 ปุ่มแสดงเมื่อเริ่ม scroll */
+body.show-float-menu .floating-menu-btn {
+  display: flex;
+}
+
+
+/* ============================================================
+🌿 Section Background Image Overlay
+============================================================ */
+.section.with-bg {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.section.with-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0) 100%),
+    url("../img/Pho/yakbg.webp") left center / cover no-repeat;
+  opacity: 0.25;             /* ความโปร่งใสของภาพ */
+  z-index: -1;               /* อยู่หลังเนื้อหา */
+  pointer-events: none;
+}
+
+
+/* ============================================================
+💎 YakPho Aroma – Order UI Cleanup (Safe Commented Version)
+============================================================ */
+
+/* ------------------------------------------------------------
+✅ [เก็บไว้ใช้จริง] ปุ่มสีตามสูตร YakPho Gradient
+------------------------------------------------------------ */
+.cell[data-formula="H"] .btn{ background:#C7A15A; color:#fff; border:none; }
+.cell[data-formula="H"] .btn:hover{ background:linear-gradient(135deg,#C7A15A,#b38b45); }
+.cell[data-formula="C"] .btn{ background:#0F5F91; color:#fff; border:none; }
+.cell[data-formula="C"] .btn:hover{ background:linear-gradient(135deg,#0F5F91,#1772B5); }
+.cell[data-formula="B"] .btn{ background:#2BAA8A; color:#fff; border:none; }
+.cell[data-formula="B"] .btn:hover{ background:linear-gradient(135deg,#2BAA8A,#35C5A2); }
+
+.qty{ display:inline-block; min-width:28px; text-align:center; font-weight:800; color:#111; }
+
+/* ============================================================
+💎 YakPho Aroma – Active Highlight เมื่อคลิกเลือก สินค้า
+============================================================ */
+.cell.active {
+  animation: cellGlow 0.8s ease;
+  box-shadow: 0 0 0 3px rgba(173,153,95,0.35);
+  border-radius: 10px;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* สีพื้นตามสูตร */
+.cell.active[data-formula="H"] { background: rgba(199,161,90,0.25); }   /* สูตรร้อน */
+.cell.active[data-formula="C"] { background: rgba(15,95,145,0.25); }    /* สูตรเย็น */
+.cell.active[data-formula="B"] { background: rgba(43,170,138,0.25); }   /* สูตรนวดตัว */
+
+@keyframes cellGlow {
+  from { box-shadow: 0 0 0 0 rgba(173,153,95,0.0); }
+  to   { box-shadow: 0 0 0 3px rgba(173,153,95,0.35); }
+}
+
+/* ------------------------------------------------------------
+✅ [เก็บไว้ใช้จริง] Sticky Footer (Desktop + Mobile)
+------------------------------------------------------------ */
+.sticky-footer-order {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.26);
+  backdrop-filter: saturate(1.3) blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.4);
+  z-index: 50;
+}
+.sticky-inner-order {
+  max-width: var(--mx);
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* 📱 Sticky Footer – 2 บรรทัดใน Mobile */
+@media (max-width: 768px) {
+  .sticky-inner-order {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .sticky-inner-order .order-summary {
+    width: 100%;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+  }
+  .sticky-inner-order .order-btn {
+    width: 100%;
+    max-width: 480px;
+    display: block;
+    text-align: center;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+}
+
+
+
+
+
+
+/* ------------------------------------------------------------
+✅ [เก็บไว้ใช้จริง] Mobile Layout – ชื่อกลิ่นอยู่บนสุด (Final Tuned)
+------------------------------------------------------------ */
+
+  /* ชื่อกลิ่น */
+  #orderTable th[scope="row"] {
+    text-align: left;
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    color: #111;
+  }
+
+  #orderTable tr:hover {
+    background: rgba(255, 255, 255, 0.20);
+  }
+    #orderTable .head {
+    background: rgba(255, 255, 255, 0.20);
+  }
+
+.sku {margin-left: 2px;}
+
+
+/* ============================================================
+💎 YakPho Aroma – Mobile Layout v2.9 (Final Align Lock)
+============================================================ */
+@media (max-width: 768px) {
+
+  #orderTable,
+  #orderTable tbody,
+  #orderTable tr,
+  #orderTable td,
+  #orderTable th {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  #orderTable {
+    border-collapse: separate;
+    border-spacing: 0 14px;
+    width: 100%;
+  }
+
+  #orderTable thead { display: none; }
+
+  #orderTable tr {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    padding: 16px 14px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== ชื่อกลิ่น ===== */
+  #orderTable th[scope="row"] {
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin-bottom: 0px;
+    color: #111;
+    /* border: 1px solid #0084FF; */
+    padding: 3px;
+  }
+
+  #orderTable .scent-sub {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ===== layout ช่องสูตร ===== */
+  #orderTable td {
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:0px;                    /* 🔹 ลดช่องว่างหลัก */
+    /* border: 1px solid #0084FF; */
+    padding:2px;
+
+  }
+
+  /* label สูตรร้อน / เย็น / นวดตัว */
+#orderTable td::before {
+  content: attr(data-label);
+  width: 95px;
+  display: flex;
+  /* align-items: center;
+  justify-content: flex-end; */
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  transform: translateY(10px);   /* ✅ เลื่อนลงแบบปลอดภัยแทน margin-bottom */
+  flex-shrink: 0;
+  /* border: 1px solid #0084FF; */
+  text-align: left !important;
+  padding-left: 3px;
+}
+
+
+  /* กลุ่มปุ่ม + − และจำนวน */
+  #orderTable .cell {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: right;     /* 🔹 คุมตำแหน่งตรงกลางจริง */
+    gap: 4px;
+    min-width: 100px;
+    margin-top:-20px;
+  }
+
+  /* .btn {
+    flex: 0 0 28px;
+  } */
+
+  .qty {
+    flex: 0 0 28px;
+    text-align: center;
+  }
+
+  /* SKU ชิดขวาแนวเดียวกัน */
+  #orderTable .cell .sku {
+    flex-shrink: 0;
+    min-width: 70px;
+    text-align: left;
+    font-size: 0.8rem;
+    color: #777;
+    line-height: 1;
+      /* border: 1px solid #0084FF; */
+  }
+}
+
+
+/* =============================================
+💎 Soft UX Motion Effect – YakPho Order Add
+============================================= */
+
+/* วัตถุชั่วคราวที่ใช้บิน */
+.fly-item {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  border-radius: 10%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.9;
+  transform: scale(1);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Pulse เมื่อถึงปลายทาง */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Shake summary */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* ============================================================
+💎 Highlight สีตัวเลข YakPho Aroma – Premium Motion
+============================================================ */
+
+/* ปุ่มลบตอน 0 */
+.btn.minus[disabled],
+.btn-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: grayscale(30%);
+}
+.back-btn {
+  position: absolute;
+  top: 14px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  color: #555;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.back-btn:hover {
+  opacity: 1;
+  color: #111;
+  transform: translateX(-2px);
+}
+.back-btn i {
+  width: 18px;
+  height: 18px;
+}
+.tophome {
+  padding-top:90px;
+}
+
+/* ============================================================
+💫 Global Loading Overlay
+============================================================ */
+#yakpho-loader {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(6px) saturate(1.2);
+  z-index: 9999;
+  transition: opacity .3s ease;
+  opacity: 0;
+}
+#yakpho-loader.active {
+  display: flex;
+  opacity: 1;
+}
+.loader-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(0,0,0,0.1);
+  border-top: 4px solid #6d28d9; /* YakPho purple */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.loader-text {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+body.blurred {
+  overflow: hidden;
+}
+/* ช่องค้นห้า */
+mark.highlight {
+  background: #FFFF99;
+  color: #000;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+.endofsection {
+  padding-bottom: 180px;
+
+}
+
+/* ============================================================
+💎 YakPho Aroma – Best Seller Section (Top 10)
+============================================================ */
+.best-seller {
+  background: linear-gradient(180deg,#fafafa 0%,#fff 100%);
+  padding: 60px 20px;
+  text-align: center;
+}
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #2b2440;
+  margin-bottom: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title i {
+  color: #ff7043;
+}
+
+.best-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  max-width: 1000px;
+  margin: 0 auto 20px;
+}
+
+.item {
+  position: relative;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  padding: 10px 14px 20px;
+  transition: all 0.25s ease;
+}
+.item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.badge {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: #6d28d9;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.rank-1 .badge { background: linear-gradient(135deg,#ff9800,#ff5722); }
+.rank-2 .badge { background: linear-gradient(135deg,#ffb74d,#ff8a65); }
+.rank-3 .badge { background: linear-gradient(135deg,#ffcc80,#ffb74d); }
+
+.item h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #333;
+}
+.item span {
+  display: block;
+  font-weight: 500;
+  color: #6d28d9;
+  font-size: 0.9rem;
+}
+
+.note {
+  color: #777;
+  font-size: 0.85rem;
+  margin-top: 14px;
+}
+.swal2-popup a:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  transition: all 0.15s ease;
+ 
+}
+/* ================= YakPho Floating Mini Cart – Left-Side Compact ================= */
+
+/* ปุ่มรถเข็นลอยด้านซ้ายกลางจอ */
+.yakcart-fab {
+  position: fixed;
+  left: 10px;                /* 🔹 จากขวา → ซ้าย */
+  top: 50%;                  /* 🔹 กลางจอแนวตั้ง */
+  transform: translateY(-50%);
+  z-index: 2000;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6d28d9, #9b5de5);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.yakcart-fab:hover {
+  transform: translateY(-50%) scale(1.05);
+}
+.yakcart-fab i[data-lucide] {
+  width: 20px;
+  height: 20px;
+}
+#yakcartBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* กล่องตะกร้า */
+.yakcart-panel {
+  position: fixed;
+  left: 68px;                /* 🔹 เปิดจากข้างซ้าย */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 270px;
+  max-height: 65vh;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
+  display: none;
+  font-size: 13px;           /* 🔹 ขนาดฟอนต์เล็กลง */
+}
+.yakcart-panel.active {
+  display: block;
+  animation: yakcartIn 0.25s ease;
+}
+@keyframes yakcartIn {
+  from { opacity: 0; transform: translate(-10px, -50%); }
+  to { opacity: 1; transform: translate(0, -50%); }
+}
+
+/* หัว-ตัว-ท้าย */
+.yakcart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #6d28d9;
+  color: #fff;
+  font-size: 13px;
+}
+.yakcart-close {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.yakcart-body { max-height: 38vh; overflow: auto; padding: 8px; }
+.yakcart-list { list-style: none; margin: 0; padding: 0; }
+.yakcart-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 4px;
+  border-bottom: 1px dashed #eee;
+  font-size: 12.5px;         /* 🔹 ลดขนาดอีกนิด */
+}
+.yakcart-empty {
+  text-align: center;
+  color: #777;
+  padding: 10px 0;
+  border-bottom: 0;
+}
+.yakcart-foot {
+  padding: 8px 10px 10px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+  font-size: 13px;
+}
+.yakcart-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  color: #333;
+}
+.yakcart-checkout {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #6d28d9;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.yakcart-checkout i[data-lucide] { width: 16px; height: 16px; }
+@media (max-width:768px){
+  .yakcart-panel {
+    left: 10px;
+    width: calc(100vw - 20px);
+    top: auto;
+    bottom: 100px;
+    transform: none;
+  }
+  .yakcart-fab {
+    top: auto;
+    bottom: 80px;
+    transform: none;
+  }
+}

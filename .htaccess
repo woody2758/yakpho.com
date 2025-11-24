@@ -1,0 +1,59 @@
+# ============================================================
+# YakPho Aroma v2 – Clean URLs + Multilang + Pretty Routes
+# ============================================================
+
+Options +FollowSymLinks
+RewriteEngine On
+
+# หากเว็บอยู่ภายใต้โฟลเดอร์ เช่น /yakpho.com/
+RewriteBase /yakpho.com/
+
+# 🛡 ห้าม Frontend จับ route ของ /admin/*
+RewriteCond %{REQUEST_URI} ^/yakpho.com/admin/ [NC]
+RewriteRule ^ - [L]
+
+# ------------------------------------------------------------
+# 1) Clean URL: rewrite .html → .php (เช่น /order.html → order.php)
+# ------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+)\.html$ $1.php [L]
+
+# กรณีเรียก /order.html → /order.php โดยตรง
+RewriteRule ^order\.html$ order.php [L]
+
+# ------------------------------------------------------------
+# 2) Clean URL แบบไม่ต้องใส่ .php เช่น /order → order.php
+# ------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^/]+)/?$ $1.php [L]
+
+# ------------------------------------------------------------
+# 3) Multilang Routing เช่น:
+#    /th/products
+#    /en/product/5161
+# ------------------------------------------------------------
+RewriteRule ^(th|en)/(.*)$ index.php?lang=$1&route=$2 [QSA,L]
+
+# ------------------------------------------------------------
+# 4) Pretty URL หลัก เช่น:
+#    /products
+#    /product/5161
+# ------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]
+
+# ------------------------------------------------------------
+# 5) ป้องกันเข้าถึงไฟล์ระบบ
+# ------------------------------------------------------------
+
+
+# เปลี่ยน *.html → *.php
+RewriteRule ^(.*)\.html$ $1.php [L]
+
+
+
+<FilesMatch "\.(htaccess|env|log|bak|ini)$">
+  Require all denied
+</FilesMatch>

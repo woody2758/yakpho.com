@@ -1,0 +1,5 @@
+assets/img/product/
+admin/users/index.php.backup
+*.log
+.DS_Store
+Thumbs.db
