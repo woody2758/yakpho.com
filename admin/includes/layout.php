@@ -150,6 +150,8 @@ if (!isset($content))    { $content = ""; }
             // Exclude AJAX-handled links (pagination, sort)
             if (link.classList.contains('page-link') || 
                 link.classList.contains('sort-link')) {
+                // Hide loader immediately if it's showing
+                loader.style.display = 'none';
                 return; // Don't show loader for AJAX links
             }
             
@@ -157,7 +159,7 @@ if (!isset($content))    { $content = ""; }
             if (link.href && !link.target && !link.download) {
                 loader.style.display = 'flex';
             }
-        });
+        }, true); // Use capture phase to run before other handlers
 
         // Toggle Sidebar Function (Desktop: save to localStorage, Mobile: just toggle)
         window.toggleSidebar = function() {
