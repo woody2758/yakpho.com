@@ -258,7 +258,7 @@ function changeStatus(userId, currentStatus) {
     
     Swal.fire({
         title: 'ยืนยันการเปลี่ยนสถานะ?',
-        text: `คุณต้องการเปลี่ยนสถานะเป็น "${statusText}" ใช่หรือไม่?`,
+        text: `คุณต้องการเปลี่ยนสถานะเป็น \"${statusText}\" ใช่หรือไม่?`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'ใช่, เปลี่ยนเลย',
@@ -287,6 +287,22 @@ function changeStatus(userId, currentStatus) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Update badge dynamically without page reload
+                    const badge = document.getElementById(`status-badge-${userId}`);
+                    if (badge) {
+                        if (newStatus === 1) {
+                            badge.className = 'badge bg-success bg-opacity-10 text-success rounded-pill';
+                            badge.style.cursor = 'pointer';
+                            badge.innerHTML = 'Active <i class="fas fa-pen ms-1" style="font-size: 10px;"></i>';
+                            badge.setAttribute('onclick', `changeStatus(${userId}, 1)`);
+                        } else {
+                            badge.className = 'badge bg-secondary bg-opacity-10 text-secondary rounded-pill';
+                            badge.style.cursor = 'pointer';
+                            badge.innerHTML = 'Inactive <i class="fas fa-pen ms-1" style="font-size: 10px;"></i>';
+                            badge.setAttribute('onclick', `changeStatus(${userId}, 0)`);
+                        }
+                    }
+                    
                     Swal.fire({
                         icon: 'success',
                         title: 'สำเร็จ!',
@@ -296,7 +312,6 @@ function changeStatus(userId, currentStatus) {
                         background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
                         color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
                     });
-                    setTimeout(() => location.reload(), 1500);
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -365,6 +380,27 @@ function changeRole(userId, currentRole) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Update badge dynamically without page reload
+                    const badge = document.getElementById(`role-badge-${userId}`);
+                    if (badge) {
+                        // Determine badge color based on role
+                        let badgeClass = 'badge rounded-pill';
+                        if (newRole === 'owner' || newRole === 'admin') {
+                            badgeClass += ' bg-danger';
+                        } else if (newRole === 'manager') {
+                            badgeClass += ' bg-warning text-dark';
+                        } else if (newRole === 'editor' || newRole === 'staff') {
+                            badgeClass += ' bg-info text-dark';
+                        } else {
+                            badgeClass += ' bg-secondary';
+                        }
+                        
+                        badge.className = badgeClass;
+                        badge.style.cursor = 'pointer';
+                        badge.innerHTML = `${newRole.charAt(0).toUpperCase() + newRole.slice(1)} <i class="fas fa-pen ms-1" style="font-size: 10px;"></i>`;
+                        badge.setAttribute('onclick', `changeRole(${userId}, '${newRole}')`);
+                    }
+                    
                     Swal.fire({
                         icon: 'success',
                         title: 'สำเร็จ!',
@@ -374,7 +410,6 @@ function changeRole(userId, currentRole) {
                         background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
                         color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
                     });
-                    setTimeout(() => location.reload(), 1500);
                 } else {
                     Swal.fire({
                         icon: 'error',
