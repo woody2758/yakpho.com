@@ -145,7 +145,8 @@ ob_start();
                                         ?>
                                         
                                         <?php if ($canChangeRole && $u['user_id'] != $_SESSION['admin_id']): ?>
-                                            <span class="badge <?= $roleBadge ?> rounded-pill cursor-pointer" 
+                                            <span class="badge <?= $roleBadge ?> rounded-pill" 
+                                                  style="cursor: pointer;"
                                                   onclick="changeRole(<?= $u['user_id'] ?>, '<?= $u['role'] ?>')"
                                                   id="role-badge-<?= $u['user_id'] ?>"
                                                   title="คลิกเพื่อเปลี่ยนตำแหน่ง">
@@ -164,14 +165,16 @@ ob_start();
                                         ?>
                                         <?php if ($canChangeStatus && $u['user_id'] != $_SESSION['admin_id']): ?>
                                             <?php if ($u['user_status'] == 1): ?>
-                                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill cursor-pointer" 
+                                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill" 
+                                                      style="cursor: pointer;"
                                                       onclick="changeStatus(<?= $u['user_id'] ?>, 1)"
                                                       id="status-badge-<?= $u['user_id'] ?>"
                                                       title="คลิกเพื่อเปลี่ยนสถานะ">
                                                     Active <i class="fas fa-pen ms-1" style="font-size: 10px;"></i>
                                                 </span>
                                             <?php else: ?>
-                                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill cursor-pointer" 
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill" 
+                                                      style="cursor: pointer;"
                                                       onclick="changeStatus(<?= $u['user_id'] ?>, 0)"
                                                       id="status-badge-<?= $u['user_id'] ?>"
                                                       title="คลิกเพื่อเปลี่ยนสถานะ">
