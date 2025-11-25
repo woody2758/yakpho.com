@@ -256,24 +256,27 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Function to load users table via AJAX
 function loadUsersTable(params) {
-    Swal.fire({
-        title: 'กำลังโหลด...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        },
-        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
-    });
+    // Add subtle loading indicator to table
+    const tableContainer = document.querySelector('.table-responsive');
+    if (tableContainer) {
+        tableContainer.style.opacity = '0.5';
+        tableContainer.style.pointerEvents = 'none';
+    }
     
     fetch(`${ADMIN_URL}/api/get_users_table.php?${params}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 // Replace table content
-                const tableContainer = document.querySelector('.table-responsive');
                 if (tableContainer) {
                     tableContainer.innerHTML = data.table;
+                    tableContainer.style.opacity = '1';
+                    tableContainer.style.pointerEvents = 'auto';
                 }
                 
                 // Replace pagination
@@ -288,24 +291,33 @@ function loadUsersTable(params) {
                 
                 // Re-initialize Lucide icons
                 lucide.createIcons();
-                
-                Swal.close();
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถโหลดข้อมูลได้',
-                    background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                    color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
-                });
+                throw new Error(data.message || 'Failed to load data');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error loading table:', error);
+            
+            // Restore table opacity
+            if (tableContainer) {
+                tableContainer.style.opacity = '1';
+                tableContainer.style.pointerEvents = 'auto';
+            }
+            
+            // Show error in console for debugging
+            console.error('Full error details:', {
+                url: `${ADMIN_URL}/api/get_users_table.php?${params}`,
+                error: error.message,
+                stack: error.stack
+            });
+            
+            // Optional: Show subtle error message
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+                timer: 2000,
+                showConfirmButton: false,
                 background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
                 color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
             });

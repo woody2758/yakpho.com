@@ -1,18 +1,25 @@
 <?php
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/../includes/auth.php';
-require_once __DIR__ . '/../../includes/functions/user.php';
+// Start output buffering to prevent any output before headers
+ob_start();
 
-header('Content-Type: application/json');
+try {
+    require_once __DIR__ . '/../includes/config.php';
+    require_once __DIR__ . '/../includes/auth.php';
+    require_once __DIR__ . '/../../includes/functions/user.php';
 
-// Get parameters
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$search = trim($_GET['search'] ?? '');
-$role = trim($_GET['role'] ?? '');
-$sort = trim($_GET['sort'] ?? 'desc');
+    // Clear any previous output
+    ob_clean();
+    
+    header('Content-Type: application/json');
 
-$limit = 20;
-$offset = ($page - 1) * $limit;
+    // Get parameters
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $search = trim($_GET['search'] ?? '');
+    $role = trim($_GET['role'] ?? '');
+    $sort = trim($_GET['sort'] ?? 'desc');
+
+    $limit = 20;
+    $offset = ($page - 1) * $limit;
 
 // Fetch data
 $users = get_all_users($limit, $offset, $search, $role, $sort);
@@ -55,12 +62,22 @@ ob_start();
                 $img_path = __DIR__ . "/../../assets/img/profile/{$u['user_id']}/{$u['user_picture']}";
                 $img_url  = ROOT_URL . "/assets/img/profile/{$u['user_id']}/{$u['user_picture']}";
                 
-                $roleBadge = match ($u['role']) {
-                    'owner', 'admin' => 'bg-danger',
-                    'manager' => 'bg-warning text-dark',
-                    'editor', 'staff' => 'bg-info text-dark',
-                    default => 'bg-secondary',
-                };
+                // Determine role badge color
+                switch ($u['role']) {
+                    case 'owner':
+                    case 'admin':
+                        $roleBadge = 'bg-danger';
+                        break;
+                    case 'manager':
+                        $roleBadge = 'bg-warning text-dark';
+                        break;
+                    case 'editor':
+                    case 'staff':
+                        $roleBadge = 'bg-info text-dark';
+                        break;
+                    default:
+                        $roleBadge = 'bg-secondary';
+                }
                 
                 $canChangeRole = in_array($_SESSION['admin_role'], ['admin', 'owner']);
                 $role_hierarchy = ['owner' => 1, 'admin' => 2, 'manager' => 3, 'editor' => 4, 'staff' => 5];
@@ -178,4 +195,18 @@ echo json_encode([
     'currentPage' => $page,
     'totalPages' => $totalPages
 ]);
+
+} catch (Exception $e) {
+    // Log error
+    error_log("get_users_table.php error: " . $e->getMessage());
+    
+    // Return error JSON
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error: ' . $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
+}
 ?>
