@@ -249,7 +249,105 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Initialize Lucide icons
     lucide.createIcons();
+    
+    // Setup AJAX pagination and search
+    setupAjaxTableRefresh();
 });
+
+// Function to load users table via AJAX
+function loadUsersTable(params) {
+    Swal.fire({
+        title: 'กำลังโหลด...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
+        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+    });
+    
+    fetch(`${ADMIN_URL}/api/get_users_table.php?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Replace table content
+                const tableContainer = document.querySelector('.table-responsive');
+                if (tableContainer) {
+                    tableContainer.innerHTML = data.table;
+                }
+                
+                // Replace pagination
+                const paginationContainer = document.querySelector('.card-footer');
+                if (paginationContainer) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+                
+                // Update URL without reload
+                const newUrl = `${window.location.pathname}?${params}`;
+                history.pushState(null, '', newUrl);
+                
+                // Re-initialize Lucide icons
+                lucide.createIcons();
+                
+                Swal.close();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถโหลดข้อมูลได้',
+                    background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
+                    color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
+                color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+            });
+        });
+}
+
+// Setup AJAX table refresh for pagination and search
+function setupAjaxTableRefresh() {
+    // Intercept pagination clicks
+    document.addEventListener('click', function(e) {
+        const pageLink = e.target.closest('.page-link');
+        const sortLink = e.target.closest('.sort-link');
+        
+        if (pageLink && !pageLink.parentElement.classList.contains('disabled')) {
+            e.preventDefault();
+            const url = new URL(pageLink.href);
+            loadUsersTable(url.searchParams.toString());
+        } else if (sortLink) {
+            e.preventDefault();
+            const url = new URL(sortLink.href);
+            loadUsersTable(url.searchParams.toString());
+        }
+    });
+    
+    // Intercept search form submission
+    const searchForm = document.querySelector('form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+            params.set('page', '1'); // Reset to page 1 on new search
+            loadUsersTable(params.toString());
+        });
+    }
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function() {
+        const params = new URLSearchParams(window.location.search);
+        loadUsersTable(params.toString());
+    });
+}
 
 // Change Status Function
 function changeStatus(userId, currentStatus) {
