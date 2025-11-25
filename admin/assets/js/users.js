@@ -146,17 +146,53 @@ function editUser(userId) {
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'บันทึกสำเร็จ',
-                                    text: 'แก้ไขข้อมูลเรียบร้อยแล้ว',
-                                    timer: 1500,
-                                    showConfirmButton: false,
-                                    background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                                    color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
-                                }).then(() => {
-                                    location.reload();
-                                });
+                                // Fetch updated row HTML
+                                fetch(`${ADMIN_URL}/api/get_user_row.php?id=${userId}`)
+                                    .then(response => response.json())
+                                    .then(rowData => {
+                                        if (rowData.success) {
+                                            const oldRow = document.getElementById(`user-row-${userId}`);
+                                            if (oldRow) {
+                                                // Create temporary container
+                                                const temp = document.createElement('tbody');
+                                                temp.innerHTML = rowData.html;
+                                                const newRow = temp.firstElementChild;
+
+                                                // Replace old row with new row
+                                                oldRow.replaceWith(newRow);
+
+                                                // Re-initialize Lucide icons
+                                                lucide.createIcons();
+
+                                                // Add highlight effect
+                                                newRow.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                                                setTimeout(() => {
+                                                    newRow.style.transition = 'background-color 0.5s ease';
+                                                    newRow.style.backgroundColor = '';
+                                                }, 100);
+                                            }
+                                        }
+
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'บันทึกสำเร็จ',
+                                            text: 'แก้ไขข้อมูลเรียบร้อยแล้ว',
+                                            timer: 1500,
+                                            showConfirmButton: false,
+                                            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
+                                            color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                                        });
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching row:', error);
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'บันทึกสำเร็จ',
+                                            text: 'แก้ไขข้อมูลเรียบร้อยแล้ว (กรุณา refresh หน้าเพื่อดูการเปลี่ยนแปลง)',
+                                            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
+                                            color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                                        });
+                                    });
                             } else {
                                 Swal.fire({
                                     icon: 'error',
