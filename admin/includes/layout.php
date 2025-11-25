@@ -141,6 +141,23 @@ if (!isset($content))    { $content = ""; }
                 loader.style.display = 'none';
             }
         });
+        
+        // Show loader only on real page navigation (not AJAX)
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (!link) return;
+            
+            // Exclude AJAX-handled links (pagination, sort)
+            if (link.classList.contains('page-link') || 
+                link.classList.contains('sort-link')) {
+                return; // Don't show loader for AJAX links
+            }
+            
+            // Show loader for real navigation
+            if (link.href && !link.target && !link.download) {
+                loader.style.display = 'flex';
+            }
+        });
 
         // Toggle Sidebar Function (Desktop: save to localStorage, Mobile: just toggle)
         window.toggleSidebar = function() {
