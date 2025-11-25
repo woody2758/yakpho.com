@@ -13,7 +13,9 @@ function get_all_users($limit = 20, $offset = 0, $search = '', $role = '', $sort
     if (!empty($search)) {
         // Strip 'C' or 'c' prefix for user_id search
         $userId = (stripos($search, 'C') === 0) ? substr($search, 1) : $search;
-        $sql .= " AND (user_name LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
+        $sql .= " AND (user_name LIKE ? OR user_lastname LIKE ? OR user_nickname LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
@@ -46,7 +48,9 @@ function count_all_users($search = '', $role = '') {
     if (!empty($search)) {
         // Strip 'C' or 'c' prefix for user_id search
         $userId = (stripos($search, 'C') === 0) ? substr($search, 1) : $search;
-        $sql .= " AND (user_name LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
+        $sql .= " AND (user_name LIKE ? OR user_lastname LIKE ? OR user_nickname LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
         $params[] = "%$search%";
