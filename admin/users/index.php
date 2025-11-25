@@ -256,36 +256,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Function to load users table via AJAX
 function loadUsersTable(params) {
-    // Add loading overlay to table
+    // Add subtle loading indicator (opacity 50%)
     const tableContainer = document.querySelector('.table-responsive');
     if (tableContainer) {
-        // Create loading overlay
-        const loadingOverlay = document.createElement('div');
-        loadingOverlay.id = 'table-loading-overlay';
-        loadingOverlay.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        `;
-        loadingOverlay.innerHTML = `
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        `;
-        
-        // Make table container relative for overlay positioning
-        const cardBody = tableContainer.closest('.card-body');
-        if (cardBody) {
-            cardBody.style.position = 'relative';
-            cardBody.appendChild(loadingOverlay);
-        }
+        tableContainer.style.opacity = '0.5';
+        tableContainer.style.pointerEvents = 'none';
     }
     
     fetch(`${ADMIN_URL}/api/get_users_table.php?${params}`)
@@ -300,6 +275,8 @@ function loadUsersTable(params) {
                 // Replace table content
                 if (tableContainer) {
                     tableContainer.innerHTML = data.table;
+                    tableContainer.style.opacity = '1';
+                    tableContainer.style.pointerEvents = 'auto';
                 }
                 
                 // Replace pagination
@@ -321,6 +298,12 @@ function loadUsersTable(params) {
         .catch(error => {
             console.error('Error loading table:', error);
             
+            // Restore table opacity
+            if (tableContainer) {
+                tableContainer.style.opacity = '1';
+                tableContainer.style.pointerEvents = 'auto';
+            }
+            
             // Show error in console for debugging
             console.error('Full error details:', {
                 url: `${ADMIN_URL}/api/get_users_table.php?${params}`,
@@ -338,13 +321,6 @@ function loadUsersTable(params) {
                 background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
                 color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
             });
-        })
-        .finally(() => {
-            // Remove loading overlay
-            const overlay = document.getElementById('table-loading-overlay');
-            if (overlay) {
-                overlay.remove();
-            }
         });
 }
 
