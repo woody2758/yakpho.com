@@ -206,14 +206,84 @@ function deleteUser(userId) {
         color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
     }).then((result) => {
         if (result.isConfirmed) {
-            // TODO: Implement delete API
+            // Show loading
             Swal.fire({
-                icon: 'info',
-                title: 'Coming Soon',
-                text: 'ฟีเจอร์ลบสมาชิกยังไม่พร้อมใช้งาน',
+                title: 'กำลังลบ...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
                 background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
                 color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
             });
+
+            // Call delete API
+            fetch(`${ADMIN_URL}/api/delete_user.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: userId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const row = document.getElementById(`user-row-${userId}`);
+
+                        if (row) {
+                            // Fade out animation
+                            row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                            row.style.opacity = '0';
+                            row.style.transform = 'translateX(-20px)';
+
+                            setTimeout(() => {
+                                row.remove();
+
+                                // Check if table is empty
+                                const tbody = document.querySelector('tbody');
+                                if (tbody && tbody.children.length === 0) {
+                                    tbody.innerHTML = `
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <i data-lucide="inbox" style="width:48px;height:48px;opacity:0.3;"></i>
+                                            <p class="mt-2 text-muted">ไม่พบข้อมูลผู้ใช้</p>
+                                        </td>
+                                    </tr>
+                                `;
+                                    lucide.createIcons();
+                                }
+                            }, 300);
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ!',
+                            text: 'ลบสมาชิกเรียบร้อยแล้ว',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
+                            color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เกิดข้อผิดพลาด',
+                            text: data.message || 'ไม่สามารถลบสมาชิกได้',
+                            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
+                            color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
+                        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                    });
+                });
         }
     });
 }
