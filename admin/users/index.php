@@ -335,11 +335,27 @@ function setupAjaxTableRefresh() {
     if (searchForm) {
         searchForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const formData = new FormData(this);
-            const params = new URLSearchParams(formData);
-            params.set('page', '1'); // Reset to page 1 on new search
-            loadUsersTable(params.toString());
+            performSearch();
         });
+        
+        // Live search with debounce (triggers after 2+ characters)
+        const searchInput = document.querySelector('input[name="search"]');
+        if (searchInput) {
+            let debounceTimer;
+            searchInput.addEventListener('input', function() {
+                const searchValue = this.value.trim();
+                
+                // Clear previous timer
+                clearTimeout(debounceTimer);
+                
+                // Only search if 2+ characters or empty (to show all)
+                if (searchValue.length >= 2 || searchValue.length === 0) {
+                    debounceTimer = setTimeout(() => {
+                        performSearch();
+                    }, 300); // 300ms debounce
+                }
+            });
+        }
     }
     
     // Handle browser back/forward buttons
@@ -347,6 +363,22 @@ function setupAjaxTableRefresh() {
         const params = new URLSearchParams(window.location.search);
         loadUsersTable(params.toString());
     });
+}
+
+// Helper function to perform search
+function performSearch() {
+    const formData = new FormData(document.querySelector('form'));
+    const params = new URLSearchParams(formData);
+    
+    // Preserve current sort parameter from URL
+    const currentParams = new URLSearchParams(window.location.search);
+    const currentSort = currentParams.get('sort') || 'desc';
+    params.set('sort', currentSort);
+    
+    // Reset to page 1 on new search
+    params.set('page', '1');
+    
+    loadUsersTable(params.toString());
 }
 
 // Change Status Function
