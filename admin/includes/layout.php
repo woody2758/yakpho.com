@@ -147,9 +147,10 @@ if (!isset($content))    { $content = ""; }
             const link = e.target.closest('a');
             if (!link) return;
             
-            // Exclude AJAX-handled links (pagination, sort)
+            // Exclude AJAX-handled links (pagination, sort, no-loader)
             if (link.classList.contains('page-link') || 
-                link.classList.contains('sort-link')) {
+                link.classList.contains('sort-link') ||
+                link.classList.contains('no-loader')) {
                 // Hide loader immediately if it's showing
                 loader.style.display = 'none';
                 return; // Don't show loader for AJAX links
@@ -195,31 +196,7 @@ if (!isset($content))    { $content = ""; }
             });
         }
 
-        // Page loader on link click
-        document.addEventListener('click', function(e) {
-            // Find closest anchor tag
-            const link = e.target.closest('a');
-            
-            if (link) {
-                const href = link.getAttribute('href');
-                const target = link.getAttribute('target');
-                
-                // Conditions to SHOW loader:
-                // 1. Has href
-                // 2. Not empty or #
-                // 3. Not javascript:
-                // 4. Not opening in new tab
-                // 5. Not holding modifier keys (Ctrl/Cmd/Shift)
-                if (href && 
-                    href !== '#' && 
-                    !href.startsWith('javascript:') && 
-                    target !== '_blank' &&
-                    !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-                    
-                    loader.style.display = 'flex';
-                }
-            }
-        });
+
     });
     </script>
 </body>

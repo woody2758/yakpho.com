@@ -100,6 +100,16 @@ ob_start();
                     </td>
                     <td style="width:180px;">
                         <div class="fw-bold"><?= htmlspecialchars($u['user_name'] ?? '') ?> <?= htmlspecialchars($u['user_lastname'] ?? '') ?></div>
+                        <?php
+                        require_once __DIR__ . '/../../includes/functions/address.php';
+                        $addr_count = count_user_addresses($u['user_id']);
+                        ?>
+                        <a href="javascript:void(0)" 
+                           onclick="openAddressModal(<?= $u['user_id'] ?>, '<?= htmlspecialchars($u['user_name'] ?? '') ?> <?= htmlspecialchars($u['user_lastname'] ?? '') ?>')" 
+                           class="no-loader text-decoration-none small text-muted">
+                            <i data-lucide="map-pin" style="width:12px;height:12px;"></i> 
+                            ที่อยู่ (<?= $addr_count ?>)
+                        </a>
                     </td>
                     <td>
                         <div><?= htmlspecialchars($u['user_email']) ?></div>

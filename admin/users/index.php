@@ -4,6 +4,7 @@ require_once __DIR__ . "/../includes/config.php";
 require_once __DIR__ . "/../includes/auth.php";
 require_once __DIR__ . "/../../includes/functions/user.php";
 require_once __DIR__ . "/../../includes/functions/pagination.php";
+require_once __DIR__ . "/../../includes/functions/address.php";
 
 // Pagination & Filter
 $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -28,16 +29,22 @@ ob_start();
             <i data-lucide="user-plus" style="width:16px; height:16px; margin-right:6px;"></i> เพิ่มลูกค้าใหม่
         </button>
     </div>
-
     <!-- Filter Card -->
 
 <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <form method="GET" class="row g-3">
-                <div class="col-md-5">
-                    <input type="text" name="search" class="form-control" placeholder="ค้นหาชื่อ, Email, Username" value="<?= htmlspecialchars($search) ?>">
+                <div class="col-md-6">
+                    <div class="position-relative">
+                        <input type="text" name="search" id="searchInput" class="form-control pe-5" placeholder="ค้นหาชื่อ, Email, Username" value="<?= htmlspecialchars($search) ?>">
+                        <?php if (!empty($search)): ?>
+                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" onclick="clearSearch()" style="text-decoration:none; padding:0 10px;">
+                            <i data-lucide="x" style="width:16px; height:16px;"></i>
+                        </button>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <select name="role" id="roleFilter" class="form-select">
                         <option value="">-- ทุกตำแหน่ง --</option>
                         <option value="customer" <?= $role == 'customer' ? 'selected' : '' ?>>Customer</option>
@@ -48,19 +55,6 @@ ob_start();
                         <option value="owner" <?= $role == 'owner' ? 'selected' : '' ?>>Owner</option>
                     </select>
                 </div>
-                <div class="col-md-<?= (!empty($search) || !empty($role)) ? '3' : '4' ?>">
-                    <button type="submit" class="btn btn-secondary w-100 d-flex align-items-center justify-content-center">
-                        <i data-lucide="search" style="width:16px; height:16px; margin-right:6px;"></i>
-                        <span>ค้นหา</span>
-                    </button>
-                </div>
-                <?php if (!empty($search) || !empty($role)): ?>
-                <div class="col-md-1">
-                    <a href="./" class="btn btn-sm btn-outline-secondary w-100 d-flex align-items-center justify-content-center" title="ล้างค่า">
-                        <i data-lucide="x" style="width:16px; height:16px;"></i>
-                    </a>
-                </div>
-                <?php endif; ?>
             </form>
         </div>
     </div>
@@ -122,8 +116,16 @@ ob_start();
                                             ?>
                                     </td>
                                     <td style="width:180px;">
-                                            <div class="fw-bold"><?= htmlspecialchars($u['user_name'] ?? '') ?> <?= htmlspecialchars($u['user_lastname'] ?? '') ?></div>
-                                        </div>
+                                        <div class="fw-bold"><?= htmlspecialchars($u['user_name'] ?? '') ?> <?= htmlspecialchars($u['user_lastname'] ?? '') ?></div>
+                                        <?php
+                                        $addr_count = count_user_addresses($u['user_id']);
+                                        ?>
+                                        <a href="javascript:void(0)" 
+                                           onclick="openAddressModal(<?= $u['user_id'] ?>, '<?= htmlspecialchars($u['user_name'] ?? '') ?> <?= htmlspecialchars($u['user_lastname'] ?? '') ?>')" 
+                                           class="no-loader text-decoration-none small text-muted">
+                                            <i data-lucide="map-pin" style="width:12px;height:12px;"></i> 
+                                            ที่อยู่ (<?= $addr_count ?>)
+                                        </a>
                                     </td>
                                     <td>
                                         <div><?= htmlspecialchars($u['user_email']) ?></div>
@@ -375,6 +377,12 @@ function setupAjaxTableRefresh() {
         const params = new URLSearchParams(window.location.search);
         loadUsersTable(params.toString());
     });
+}
+
+// Clear search function
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    performSearch();
 }
 
 // Helper function to perform search
@@ -678,8 +686,110 @@ youremail@gmail.com
     </div>
 </div>
 
+<!-- Address Management Modal -->
+<div class="modal fade" id="addressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i data-lucide="map-pin" style="width:20px;height:20px;"></i>
+                    <span id="addressModalTitle">ที่อยู่ของลูกค้า</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Address Button -->
+                <div class="mb-3">
+                    <button type="button" class="btn btn-success btn-sm" onclick="showAddressForm()">
+                        <i data-lucide="plus" style="width:16px;height:16px;"></i>
+                        เพิ่มที่อยู่ใหม่
+                    </button>
+                </div>
+
+                <!-- Address Form (Hidden by default) -->
+                <div id="addressFormContainer" style="display:none;">
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary bg-opacity-10">
+                            <h6 class="mb-0" id="formTitle">เพิ่มที่อยู่ใหม่</h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="addressForm">
+                                <input type="hidden" id="addr_id" name="addr_id">
+                                <input type="hidden" id="user_id" name="user_id">
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">ชื่อผู้รับ <span class="text-danger">*</span></label>
+                                        <input type="text" id="addr_name" name="addr_name" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+                                        <input type="text" id="addr_mobile" name="addr_mobile" class="form-control" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">ที่อยู่บรรทัด 1 <span class="text-danger">*</span></label>
+                                        <input type="text" id="addr_detail" name="addr_detail" class="form-control" placeholder="เลขที่ หมู่บ้าน/คอนโด ชั้น ห้อง ถนน ซอย" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">ที่อยู่บรรทัด 2</label>
+                                        <input type="text" id="addr_detail2" name="addr_detail2" class="form-control" placeholder="ตำบล/แขวง อำเภอ/เขต">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">จังหวัด <span class="text-danger">*</span></label>
+                                        <select id="provinces_id" name="provinces_id" class="form-select" required>
+                                            <option value="">-- เลือกจังหวัด --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">รหัสไปรษณีย์</label>
+                                        <input type="text" id="addr_postcode" name="addr_postcode" class="form-control" maxlength="5">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">ประเภทที่อยู่ <span class="text-danger">*</span></label>
+                                        <select id="addr_type" name="addr_type" class="form-select" required>
+                                            <option value="1">🏠 ที่บ้าน</option>
+                                            <option value="2">🏢 ที่ทำงาน</option>
+                                            <option value="3">📄 ที่อยู่สำหรับออกบิล/ใบกำกับภาษี</option>
+                                            <option value="4">📦 ใช้เป็นผู้ส่งในนาม</option>
+                                            <option value="5">👤 ผู้รับแทน</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">หมายเหตุ</label>
+                                        <input type="text" id="addr_forword" name="addr_forword" class="form-control">
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3 d-flex gap-2">
+                                    <button type="button" class="btn btn-primary" onclick="saveAddress()">
+                                        <i data-lucide="save" style="width:16px;height:16px;"></i>
+                                        บันทึก
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="cancelAddressForm()">
+                                        ยกเลิก
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address List -->
+                <div id="addressList">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Load external JS file for user management functions -->
 <script src="<?= ADMIN_ASSETS ?>/js/users.js<?= $ver ?>"></script>
+<script src="<?= ADMIN_ASSETS ?>/js/addresses.js<?= $ver ?>"></script>
 
 <?php 
 $content = ob_get_clean();
