@@ -36,11 +36,11 @@ ob_start();
             <form method="GET" class="row g-3">
                 <div class="col-md-6">
                     <div class="position-relative">
-                        <input type="text" name="search" id="searchInput" class="form-control pe-5" placeholder="ค้นหาชื่อ, Email, Username" value="<?= htmlspecialchars($search) ?>">
+                        <input type="text" name="search" id="searchInput" class="form-control" placeholder="ค้นหาชื่อ, Email, Username" value="<?= htmlspecialchars($search) ?>">
                         <?php if (!empty($search)): ?>
-                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" onclick="clearSearch()" style="text-decoration:none; padding:0 10px;">
-                            <i data-lucide="x" style="width:16px; height:16px;"></i>
-                        </button>
+                        <span onclick="clearSearch()" class="position-absolute end-0 top-50 translate-middle-y d-flex align-items-center justify-content-center" style="cursor:pointer; margin-right:8px; width:20px; height:20px; border-radius:50%; background-color:rgba(108, 117, 125, 0.2);" title="ล้างคำค้นหา">
+                            <i data-lucide="x" style="width:12px; height:12px; color:#6c757d;"></i>
+                        </span>
                         <?php endif; ?>
                     </div>
                 </div>

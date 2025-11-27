@@ -3,7 +3,8 @@
 // ============================
 // == includes/config.php ==
 // ============================
-define('URL_PATH', '/yakpho.com');   
+define('URL_PATH', '/yakpho.com');
+define('ADMIN_URL', '/yakpho.com/admin');   
 $dsn = "mysql:host=localhost;dbname=salebnet_thaiherb;charset=utf8mb4";
 $user = "root";
 $pass = "";

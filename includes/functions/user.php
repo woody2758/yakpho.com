@@ -11,15 +11,36 @@ function get_all_users($limit = 20, $offset = 0, $search = '', $role = '', $sort
     $params = [];
     
     if (!empty($search)) {
-        // Strip 'C' or 'c' prefix for user_id search
-        $userId = (stripos($search, 'C') === 0) ? substr($search, 1) : $search;
-        $sql .= " AND (user_name LIKE ? OR user_lastname LIKE ? OR user_nickname LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = $userId;
+        // Clean up search string: trim and normalize whitespace
+        $search = trim(preg_replace('/\s+/', ' ', $search));
+        
+        // Split search into keywords
+        $keywords = explode(' ', $search);
+        
+        // Build search conditions for multiple keywords
+        $searchConditions = [];
+        
+        foreach ($keywords as $keyword) {
+            if (empty($keyword)) continue;
+            
+            // Strip 'C' or 'c' prefix for user_id search
+            $userId = (stripos($keyword, 'C') === 0) ? substr($keyword, 1) : $keyword;
+            
+            // Each keyword searches across all fields
+            $searchConditions[] = "(user_name LIKE ? OR user_lastname LIKE ? OR user_nickname LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
+            
+            $params[] = "%$keyword%";
+            $params[] = "%$keyword%";
+            $params[] = "%$keyword%";
+            $params[] = "%$keyword%";
+            $params[] = "%$keyword%";
+            $params[] = $userId;
+        }
+        
+        // Combine all search conditions with AND (all keywords must match)
+        if (!empty($searchConditions)) {
+            $sql .= " AND (" . implode(" AND ", $searchConditions) . ")";
+        }
     }
     
     if (!empty($role)) {
@@ -46,15 +67,36 @@ function count_all_users($search = '', $role = '') {
     $params = [];
     
     if (!empty($search)) {
-        // Strip 'C' or 'c' prefix for user_id search
-        $userId = (stripos($search, 'C') === 0) ? substr($search, 1) : $search;
-        $sql .= " AND (user_name LIKE ? OR user_lastname LIKE ? OR user_nickname LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = $userId;
+        // Clean up search string: trim and normalize whitespace
+        $search = trim(preg_replace('/\s+/', ' ', $search));
+        
+        // Split search into keywords
+        $keywords = explode(' ', $search);
+        
+        // Build search conditions for multiple keywords
+        $searchConditions = [];
+        
+        foreach ($keywords as $keyword) {
+            if (empty($keyword)) continue;
+            
+            // Strip 'C' or 'c' prefix for user_id search
+            $userId = (stripos($keyword, 'C') === 0) ? substr($keyword, 1) : $keyword;
+            
+            // Each keyword searches across all fields
+            $searchConditions[] = "(user_name LIKE ? OR user_lastname LIKE ? OR user_nickname LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
+            
+            $params[] = "%$keyword%";
+            $params[] = "%$keyword%";
+            $params[] = "%$keyword%";
+            $params[] = "%$keyword%";
+            $params[] = "%$keyword%";
+            $params[] = $userId;
+        }
+        
+        // Combine all search conditions with AND (all keywords must match)
+        if (!empty($searchConditions)) {
+            $sql .= " AND (" . implode(" AND ", $searchConditions) . ")";
+        }
     }
     
     if (!empty($role)) {
