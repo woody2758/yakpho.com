@@ -5,6 +5,7 @@
 
 let productModal;
 let currentProductId = null;
+let cropper = null; // Cropper.js instance
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
@@ -12,6 +13,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalElement = document.getElementById('productModal');
     if (modalElement) {
         productModal = new bootstrap.Modal(modalElement);
+
+        // Initialize Summernote when modal is shown
+        modalElement.addEventListener('shown.bs.modal', function () {
+            initSummernote();
+        });
+
+        // Reset Summernote when modal is hidden (optional, but good for cleanup if needed)
+        // modalElement.addEventListener('hidden.bs.modal', function () { ... });
     }
 
     // Load products table
@@ -22,7 +31,69 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Event listeners
     setupEventListeners();
+
+    // Initialize Summernote on tab change
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        initSummernote();
+    });
+
+    // Image upload event listeners
+    const mainImageInput = document.getElementById('mainImageInput');
+    if (mainImageInput) {
+        mainImageInput.addEventListener('change', handleMainImageSelect);
+    }
+
+    const galleryInput = document.getElementById('galleryImagesInput');
+    if (galleryInput) {
+        galleryInput.addEventListener('change', handleGalleryImagesSelect);
+    }
 });
+
+/**
+ * Initialize Summernote Editors
+ */
+function initSummernote() {
+    const textareas = document.querySelectorAll('.tinymce-editor');
+
+    textareas.forEach((textarea, index) => {
+        // Skip if not visible (in hidden tab)
+        if (!$(textarea).is(':visible')) {
+            return;
+        }
+
+        // Skip if already initialized
+        if ($(textarea).data('summernote-initialized')) {
+            return;
+        }
+
+        try {
+            $(textarea).summernote({
+                height: 200,
+                placeholder: 'กรอกรายละเอียดสินค้า...',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link']],
+                    ['view', ['codeview', 'help']]
+                ],
+                callbacks: {
+                    onChange: function (contents, $editable) {
+                        $(textarea).val(contents);
+                    }
+                }
+            });
+
+            // Mark as initialized
+            $(textarea).data('summernote-initialized', true);
+
+        } catch (error) {
+            console.error('Error initializing Summernote:', error);
+        }
+    });
+}
 
 /**
  * Setup event listeners
@@ -54,11 +125,21 @@ async function loadProductsTable(page = 1) {
     const search = new URLSearchParams(window.location.search).get('search') || '';
     const category = new URLSearchParams(window.location.search).get('category') || 0;
 
+    const container = document.getElementById('productsTableContainer');
+
+    // Show loading state with opacity
+    container.style.opacity = '0.5';
+    container.style.pointerEvents = 'none';
+
     try {
         const response = await fetch(`../api/get_products_table.php?page=${page}&search=${encodeURIComponent(search)}&category=${category}`);
         const html = await response.text();
 
-        document.getElementById('productsTableContainer').innerHTML = html;
+        container.innerHTML = html;
+
+        // Restore opacity
+        container.style.opacity = '1';
+        container.style.pointerEvents = 'auto';
 
         // Reinitialize icons
         if (window.lucide) {
@@ -66,8 +147,10 @@ async function loadProductsTable(page = 1) {
         }
     } catch (error) {
         console.error('Error loading products:', error);
-        document.getElementById('productsTableContainer').innerHTML =
+        container.innerHTML =
             '<div class="alert alert-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+        container.style.opacity = '1';
+        container.style.pointerEvents = 'auto';
     }
 }
 
@@ -116,6 +199,27 @@ function addProduct() {
     document.getElementById('productId').value = '';
     document.getElementById('modalTitleText').textContent = 'เพิ่มสินค้า';
 
+    // Reset Summernote editors
+    $('.tinymce-editor').each(function () {
+        if ($(this).data('summernote-initialized')) {
+            $(this).summernote('code', '');
+        } else {
+            $(this).val('');
+        }
+    });
+
+    // Reset image previews
+    document.getElementById('productImageBase64').value = '';
+    document.getElementById('oldProductPicture').value = '';
+    document.getElementById('croppedPreview').style.display = 'none';
+    document.getElementById('imageCropperContainer').style.display = 'none';
+    document.getElementById('galleryPreview').innerHTML = '';
+    document.getElementById('mainImageInput').value = '';
+    document.getElementById('galleryImagesInput').value = '';
+
+    // Generate product code (YP + next ID)
+    generateProductCode();
+
     // Show modal
     productModal.show();
 
@@ -151,7 +255,16 @@ async function editProduct(productId) {
 
             // Fill form
             document.getElementById('productId').value = product.product_id;
-            document.getElementById('productCode').value = product.product_code || '';
+
+            // Handle product code - convert TH to YP if needed
+            let productCode = product.product_code || '';
+            if (productCode.startsWith('TH')) {
+                productCode = 'YP' + product.product_id;
+            } else if (!productCode || productCode === '') {
+                productCode = 'YP' + product.product_id;
+            }
+            document.getElementById('productCode').value = productCode;
+
             document.getElementById('productSlug').value = product.product_slug || '';
             document.getElementById('productCategory').value = product.productcat_id || '';
             document.getElementById('productStatus').checked = product.product_status == 1;
@@ -180,7 +293,16 @@ async function editProduct(productId) {
 
                     if (nameField) nameField.value = trans.product_name || '';
                     if (excerptField) excerptField.value = trans.product_excerpt || '';
-                    if (detailField) detailField.value = trans.product_detail || '';
+
+                    // Handle Summernote for detail field
+                    if (detailField) {
+                        if ($(detailField).data('summernote-initialized')) {
+                            $(detailField).summernote('code', trans.product_detail || '');
+                        } else {
+                            detailField.value = trans.product_detail || '';
+                        }
+                    }
+
                     if (unitField) unitField.value = trans.product_unit || '';
                     if (tagField) tagField.value = trans.product_tag || '';
                 });
@@ -192,6 +314,22 @@ async function editProduct(productId) {
                     const checkbox = document.getElementById(`group_${set.group_id}`);
                     if (checkbox) checkbox.checked = true;
                 });
+            }
+
+            // Display existing main image
+            if (product.product_picture) {
+                const croppedImage = document.getElementById('croppedImage');
+                const croppedPreview = document.getElementById('croppedPreview');
+                const oldProductPicture = document.getElementById('oldProductPicture');
+
+                croppedImage.src = `../../uploads/products/small-${product.product_picture}`;
+                croppedPreview.style.display = 'block';
+                oldProductPicture.value = product.product_picture;
+            }
+
+            // Display existing gallery images
+            if (data.gallery_images && data.gallery_images.length > 0) {
+                displayGalleryImages(data.gallery_images);
             }
 
             // Update modal title
@@ -229,18 +367,88 @@ async function editProduct(productId) {
 async function saveProduct() {
     const form = document.getElementById('productForm');
 
-    // Validate
+    // Enhanced validation with specific messages
     if (!form.checkValidity()) {
-        form.reportValidity();
+        // Find first invalid field
+        const invalidField = form.querySelector(':invalid');
+
+        if (invalidField) {
+            let fieldName = 'ฟิลด์นี้';
+            const label = form.querySelector(`label[for="${invalidField.id}"]`);
+
+            if (label) {
+                fieldName = label.textContent.replace('*', '').trim();
+            } else if (invalidField.name) {
+                fieldName = invalidField.name;
+            }
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                text: `${fieldName} จำเป็นต้องกรอก`,
+                confirmButtonText: 'ตกลง'
+            });
+
+            // Focus on invalid field
+            invalidField.focus();
+            invalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            form.reportValidity();
+        }
         return;
     }
 
-    // Show loading
+    // Show progress bar with smooth multi-phase animation
+    let timerInterval;
+    let progress = 0;
+
     Swal.fire({
-        title: 'กำลังบันทึก...',
+        title: 'กำลังบันทึกข้อมูล...',
+        html: `
+            <div class="mb-3" id="progressStatus" style="font-weight: 500; color: #666;">กำลังเตรียมข้อมูล...</div>
+            <div class="progress" style="height: 30px; border-radius: 15px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
+                <div id="saveProgressBar" 
+                     class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" 
+                     style="width: 0%; background: linear-gradient(45deg, #28a745 25%, #20c997 25%, #20c997 50%, #28a745 50%, #28a745 75%, #20c997 75%, #20c997); background-size: 40px 40px; transition: width 0.3s ease;">
+                    <span style="font-weight: bold; font-size: 14px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">0%</span>
+                </div>
+            </div>
+        `,
         allowOutsideClick: false,
+        showConfirmButton: false,
         didOpen: () => {
-            Swal.showLoading();
+            const progressBar = document.getElementById('saveProgressBar');
+            const statusText = document.getElementById('progressStatus');
+
+            timerInterval = setInterval(() => {
+                // Phase 1: Quick to 30% (preparing)
+                if (progress < 30) {
+                    progress += 3;
+                    statusText.textContent = 'กำลังเตรียมข้อมูล...';
+                }
+                // Phase 2: Medium to 60% (uploading)
+                else if (progress < 60) {
+                    progress += 2;
+                    statusText.textContent = 'กำลังอัพโหลดข้อมูล...';
+                }
+                // Phase 3: Slower to 85% (processing images)
+                else if (progress < 85) {
+                    progress += 1;
+                    statusText.textContent = 'กำลังประมวลผลรูปภาพ...';
+                }
+                // Phase 4: Very slow to 95% (saving)
+                else if (progress < 95) {
+                    progress += 0.5;
+                    statusText.textContent = 'กำลังบันทึกลงฐานข้อมูล...';
+                }
+
+                progressBar.style.width = Math.floor(progress) + '%';
+                progressBar.querySelector('span').textContent = Math.floor(progress) + '%';
+            }, 150);
+        },
+        willClose: () => {
+            clearInterval(timerInterval);
         }
     });
 
@@ -253,6 +461,30 @@ async function saveProduct() {
         });
 
         const data = await response.json();
+
+        // Complete progress bar smoothly
+        clearInterval(timerInterval);
+        const progressBar = document.getElementById('saveProgressBar');
+        const statusText = document.getElementById('progressStatus');
+
+        if (progressBar && statusText) {
+            statusText.textContent = 'เสร็จสิ้น! ✓';
+            statusText.style.color = '#28a745';
+
+            // Smooth animation to 100%
+            const completeInterval = setInterval(() => {
+                progress += 3;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(completeInterval);
+                }
+                progressBar.style.width = progress + '%';
+                progressBar.querySelector('span').textContent = progress + '%';
+            }, 30);
+
+            // Wait to show 100%
+            await new Promise(resolve => setTimeout(resolve, 600));
+        }
 
         Swal.close();
 
@@ -285,10 +517,11 @@ async function saveProduct() {
         Swal.fire({
             icon: 'error',
             title: 'เกิดข้อผิดพลาด',
-            text: 'ไม่สามารถบันทึกข้อมูลได้'
+            text: 'ไม่สามารถบันทึกข้อมูลได้: ' + error.message
         });
     }
 }
+
 
 /**
  * Delete product

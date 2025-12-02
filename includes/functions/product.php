@@ -193,19 +193,28 @@ function update_product($productId, $data) {
     try {
         $db->beginTransaction();
         
-        $sql = "UPDATE product SET 
-                product_code = ?, productcat_id = ?, product_slug = ?, product_picture = ?,
-                product_price = ?, product_nprice = ?, product_cprice = ?, product_weight = ?,
-                price_tier_id = ?, product_stock = ?, stock_alert_enabled = ?, stock_alert_level = ?,
-                product_status = ?, product_update = NOW(), update_id = ?
-                WHERE product_id = ?";
+        // Build SQL dynamically - only update product_picture if explicitly provided
+        $fields = [
+            'product_code = ?',
+            'productcat_id = ?',
+            'product_slug = ?',
+            'product_price = ?',
+            'product_nprice = ?',
+            'product_cprice = ?',
+            'product_weight = ?',
+            'price_tier_id = ?',
+            'product_stock = ?',
+            'stock_alert_enabled = ?',
+            'stock_alert_level = ?',
+            'product_status = ?',
+            'product_update = NOW()',
+            'update_id = ?'
+        ];
         
-        $stmt = $db->prepare($sql);
-        $stmt->execute([
+        $params = [
             $data['product_code'],
             $data['productcat_id'] ?? null,
             $data['product_slug'] ?? null,
-            $data['product_picture'] ?? null,
             $data['product_price'] ?? 0,
             $data['product_nprice'] ?? 0,
             $data['product_cprice'] ?? 0,
@@ -215,9 +224,21 @@ function update_product($productId, $data) {
             $data['stock_alert_enabled'] ?? 0,
             $data['stock_alert_level'] ?? 10,
             $data['product_status'] ?? 1,
-            $data['update_id'] ?? 0,
-            $productId
-        ]);
+            $data['update_id'] ?? 0
+        ];
+        
+        // Only update product_picture if explicitly provided (not null or empty)
+        if (isset($data['product_picture'])) {
+            array_unshift($fields, 'product_picture = ?');
+            array_unshift($params, $data['product_picture']);
+        }
+        
+        $params[] = $productId; // WHERE product_id = ?
+        
+        $sql = "UPDATE product SET " . implode(', ', $fields) . " WHERE product_id = ?";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
         
         $db->commit();
         return true;

@@ -30,9 +30,12 @@ if (!isset($content))    { $content = ""; }
         <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/dashboard.css?v=<?= $ver ?>">
     <?php endif; ?>
 
+    <!-- jQuery (Required for Summernote) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <!-- Icon Library -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
+    
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -44,6 +47,12 @@ if (!isset($content))    { $content = ""; }
     <!-- Tom Select (Custom Dropdown) -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    
+    <!-- Summernote WYSIWYG Editor (Lite version works best with BS5) -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    
+    <!-- Cropper.js for Image Cropping -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
 </head>
 
 <body class="admin-layout">
@@ -65,9 +74,21 @@ if (!isset($content))    { $content = ""; }
 
     <!-- Bootstrap Bundle JS (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Summernote JS -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+    <!-- Language Tabs Manager (with LocalStorage) -->
+    <script src="<?= ADMIN_ASSETS ?>/js/language-tabs.js?v=<?= $ver ?>"></script>
 
     <!-- Theme Toggle JS -->
     <script src="<?= ADMIN_ASSETS ?>/js/theme.js?v=<?= $ver ?>"></script>
+
+    <!-- Page Specific Scripts -->
+    <?php if (!empty($extra_scripts)) echo $extra_scripts; ?>
 
     <!-- Global Page Loader -->
     <div id="page-loader">

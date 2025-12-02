@@ -25,12 +25,11 @@ ob_start();
     <!-- Filter Card -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
-            <form method="GET" class="row g-3">
+            <div class="row g-3">
                 <div class="col-md-4">
                     <div class="position-relative">
                         <input type="text" 
                                class="form-control" 
-                               name="search" 
                                id="searchInput"
                                placeholder="ค้นหาสินค้า (ชื่อ, รหัส, ID)" 
                                value="<?= htmlspecialchars($search) ?>">
@@ -45,7 +44,7 @@ ob_start();
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <select name="category" class="form-select" id="categoryFilter">
+                    <select id="categoryFilter" class="form-select">
                         <option value="0">ทุกหมวดหมู่</option>
                         <?php
                         $stmt = $db->query("SELECT pc.productcat_id, pct.productcat_name 
@@ -61,12 +60,7 @@ ob_start();
                         ?>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-secondary w-100">
-                        <i data-lucide="search"></i> ค้นหา
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -112,7 +106,8 @@ ob_start();
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label">รหัสสินค้า <span class="text-danger">*</span></label>
-                                            <input type="text" id="productCode" name="product_code" class="form-control" required>
+                                            <input type="text" id="productCode" name="product_code" class="form-control" readonly required>
+                                            <small class="text-muted">รหัสจะถูกสร้างอัตโนมัติ (YP + ID)</small>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Slug (URL)</label>
@@ -159,7 +154,7 @@ ob_start();
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">รายละเอียด</label>
-                                                <textarea name="product_detail_th" class="form-control" rows="4"></textarea>
+                                                <textarea name="product_detail_th" class="form-control tinymce-editor" rows="4"></textarea>
                                             </div>
                                             <div class="row g-3">
                                                 <div class="col-md-6">
@@ -185,7 +180,7 @@ ob_start();
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Details</label>
-                                                <textarea name="product_detail_en" class="form-control" rows="4"></textarea>
+                                                <textarea name="product_detail_en" class="form-control tinymce-editor" rows="4"></textarea>
                                             </div>
                                             <div class="row g-3">
                                                 <div class="col-md-6">
@@ -211,7 +206,7 @@ ob_start();
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Details</label>
-                                                <textarea name="product_detail_de" class="form-control" rows="4"></textarea>
+                                                <textarea name="product_detail_de" class="form-control tinymce-editor" rows="4"></textarea>
                                             </div>
                                             <div class="row g-3">
                                                 <div class="col-md-6">
@@ -278,6 +273,61 @@ ob_start();
                                         <input class="form-check-input" type="checkbox" id="productStatus" name="product_status" checked>
                                         <label class="form-check-label" for="productStatus">เปิดใช้งาน</label>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Product Images -->
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i data-lucide="image"></i> รูปภาพสินค้า</h6>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Main Product Image -->
+                                    <div class="mb-3">
+                                        <label class="form-label">รูปหลัก (จะถูก Crop เป็นสี่เหลี่ยมจัตุรัส)</label>
+                                        <input type="file" id="mainImageInput" class="form-control" accept="image/*">
+                                        <input type="hidden" id="productImageBase64" name="product_image_base64">
+                                        <input type="hidden" id="oldProductPicture" name="old_product_picture">
+                                        <small class="text-muted">รองรับ: JPG, PNG, GIF (จะแปลงเป็น WebP อัตโนมัติ)</small>
+                                    </div>
+                                    
+                                    <!-- Image Preview & Cropper -->
+                                    <div id="imageCropperContainer" style="display: none;">
+                                        <div class="mb-2">
+                                            <img id="imageToCrop" style="max-width: 100%; display: block;">
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-sm btn-success" onclick="cropAndSave()">
+                                                <i data-lucide="check"></i> ยืนยันการ Crop
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="cancelCrop()">
+                                                <i data-lucide="x"></i> ยกเลิก
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cropped Preview -->
+                                    <div id="croppedPreview" style="display: none;">
+                                        <label class="form-label">ตัวอย่างรูปที่ Crop แล้ว:</label>
+                                        <div class="position-relative" style="max-width: 200px;">
+                                            <img id="croppedImage" class="img-thumbnail" style="width: 100%;">
+                                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="removeCroppedImage()">
+                                                <i data-lucide="trash-2"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr class="my-3">
+                                    
+                                    <!-- Gallery Images -->
+                                    <div class="mb-3">
+                                        <label class="form-label">รูป Gallery (หลายรูป)</label>
+                                        <input type="file" id="galleryImagesInput" name="gallery_images[]" class="form-control" accept="image/*" multiple>
+                                        <small class="text-muted">เลือกได้หลายรูปพร้อมกัน (จะแปลงเป็น WebP อัตโนมัติ)</small>
+                                    </div>
+                                    
+                                    <!-- Gallery Preview -->
+                                    <div id="galleryPreview" class="row g-2"></div>
                                 </div>
                             </div>
 
@@ -357,16 +407,68 @@ ob_start();
 </div>
 
 <script>
+// Clear search
 function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    document.querySelector('form').submit();
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+}
+
+// Search input - trigger on Enter or after typing stops
+let searchTimeout;
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        applyFilters();
+    }, 300); // Reduced from 500ms to 300ms for faster response
+});
+
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        clearTimeout(searchTimeout);
+        applyFilters();
+    }
+});
+
+// Category filter - trigger immediately
+document.getElementById('categoryFilter').addEventListener('change', function() {
+    applyFilters();
+});
+
+// Apply filters function
+function applyFilters() {
+    const search = document.getElementById('searchInput').value;
+    const category = document.getElementById('categoryFilter').value;
+    
+    const url = new URL(window.location);
+    if (search) {
+        url.searchParams.set('search', search);
+    } else {
+        url.searchParams.delete('search');
+    }
+    
+    if (category && category !== '0') {
+        url.searchParams.set('category', category);
+    } else {
+        url.searchParams.delete('category');
+    }
+    
+    url.searchParams.delete('page'); // Reset to page 1
+    window.history.pushState({}, '', url);
+    loadProductsTable(1);
 }
 </script>
 
-<!-- Load Products JS -->
-<script src="<?= ADMIN_ASSETS ?>/js/products.js<?= $ver ?>"></script>
+<script>
+// ... existing script content ...
+</script>
 
 <?php 
+$extra_scripts = '<script src="' . ADMIN_ASSETS . '/js/products.js' . $ver . '"></script>';
+$extra_scripts .= '<script src="' . ADMIN_ASSETS . '/js/image-functions.js' . $ver . '"></script>';
+$extra_scripts .= '<script src="' . ADMIN_ASSETS . '/js/product-code-generator.js' . $ver . '"></script>';
 $content = ob_get_clean();
 require_once __DIR__ . "/../includes/layout.php"; 
 ?>
