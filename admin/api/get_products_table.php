@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../includes/functions/pagination.php';
 $page = $_GET['page'] ?? 1;
 $search = $_GET['search'] ?? '';
 $category = $_GET['category'] ?? 0;
-$limit = 20;
+$limit = 15;
 
 // Get products with gallery count
 $limit = (int)$limit;
@@ -37,7 +37,7 @@ if ($category > 0) {
     $params[] = $category;
 }
 
-$sql .= " GROUP BY p.product_id ORDER BY p.product_id DESC LIMIT $limit OFFSET $offset";
+$sql .= " GROUP BY p.product_id ORDER BY p.productcat_id ASC, p.product_index ASC, p.product_id ASC LIMIT $limit OFFSET $offset";
 
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
@@ -56,7 +56,10 @@ if (empty($products)) {
     <table class="table table-hover align-middle">
         <thead class="table-light">
             <tr>
-                <th style="width: 80px;">ID</th>
+                <th style="width: 50px;" class="text-center">
+                    <i data-lucide="grip-vertical" style="width:16px;height:16px;color:#6c757d;"></i>
+                </th>
+                <th style="width: 70px;">ID</th>
                 <th style="width: 100px;">รูป</th>
                 <th>ชื่อสินค้า</th>
                 <th style="width: 120px;">ราคา</th>
@@ -67,7 +70,10 @@ if (empty($products)) {
         </thead>
         <tbody>
             <?php foreach ($products as $product): ?>
-            <tr>
+            <tr data-id="<?= $product['product_id'] ?>" class="sortable-row" data-category="<?= $product['productcat_id'] ?? 0 ?>">
+                <td class="drag-handle text-center" style="cursor: grab;">
+                    <i data-lucide="grip-vertical" style="width:16px;height:16px;color:#6c757d;"></i>
+                </td>
                 <td><code><?= $product['product_id'] ?></code></td>
                 <td>
                     <?php if (!empty($product['product_picture'])): ?>

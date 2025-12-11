@@ -29,6 +29,12 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- jQuery (Required for Summernote) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- Summernote CSS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.css" rel="stylesheet">
 </head>
 <body>
 <?php

@@ -1,0 +1,42 @@
+/* Sortable Drag & Drop Styles */
+.sortable-ghost {
+    opacity: 0.4;
+    background: #f8f9fa !important;
+}
+
+.sortable-drag {
+    opacity: 1;
+    background: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.drag-handle {
+    cursor: grab;
+    transition: color 0.2s;
+}
+
+.drag-handle:hover {
+    color: #0d6efd !important;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.sortable-row {
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.sortable-row:hover .drag-handle i {
+    color: #0d6efd !important;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .sortable-ghost {
+    background: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .sortable-drag {
+    background: #1a1d20;
+    box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+}

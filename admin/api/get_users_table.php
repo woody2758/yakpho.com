@@ -19,7 +19,7 @@ try {
     $role = trim($_GET['role'] ?? '');
     $sort = trim($_GET['sort'] ?? 'desc');
 
-    $limit = 20;
+    $limit = 15;
     $offset = ($page - 1) * $limit;
 
 // Fetch data

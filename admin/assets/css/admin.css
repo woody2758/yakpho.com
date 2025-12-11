@@ -151,171 +151,16 @@ a:hover {
     opacity: .9;
 }
 
-/* ===========================================================
-   Inputs
-=========================================================== */
-.input {
-    background: var(--bg-alt);
-    border-radius: var(--radius);
-    border: 1px solid var(--border-soft);
-    padding: 10px 14px;
-    width: 100%;
-    color: var(--fg);
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
 }
 
-/* ===========================================================
-   Scrollbar
-/* ===========================================================
-   YakPho Aroma Admin – Theme Core System
-   File: admin.css
-   =========================================================== */
-
-/* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Cormorant+Garamond:wght@500;600&display=swap');
-
-/* Reset */
-*,
-*::before,
-*::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html,
-body {
-    min-height: 100%;
-    overflow-x: hidden;
-}
-
-/* Base */
-body {
-    font-family: 'Noto Sans Thai', 'Roboto', sans-serif;
-    background: var(--bg);
-    color: var(--fg);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-}
-
-/* ===========================================================
-   LIGHT MODE VARIABLES
-=========================================================== */
-:root {
-    --bg: linear-gradient(135deg, #EAD7A6 0%, #B8D0B0 50%, #A6D3E0 100%);
-    --bg-alt: rgba(255, 255, 255, 0.65);
-    --card-bg: rgba(255, 255, 255, 0.55);
-
-    --fg: #22252A;
-    --fg-soft: #4c4c4c;
-
-    --border-soft: rgba(0, 0, 0, 0.1);
-
-    --btn-bg: #ffffff;
-    --btn-fg: #0B3B35;
-    --btn-border: rgba(0, 0, 0, 0.15);
-
-    --sidebar-bg: #ffffff;
-    --sidebar-border: rgba(0, 0, 0, 0.08);
-    --sidebar-fg: #0B3B35;
-    --sidebar-hover: rgba(0, 0, 0, 0.05);
-
-    --topbar-bg: rgba(255, 255, 255, 0.85);
-
-    --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.18);
-
-    --radius: 12px;
-    --radius-lg: 18px;
-    --radius-xl: 24px;
-
-    --yak-emerald: #0B3B35;
-    --yak-emerald-dark: #021714;
-    --yak-gold: #D1A55A;
-    --yak-cream: #F5F1E8;
-    --yak-slate: #22252A;
-    --yak-moss: #9BB59B;
-    --yak-forest: #052320;
-}
-
-/* ===========================================================
-   DARK MODE VARIABLES
-=========================================================== */
-[data-theme="dark"] {
-    --bg: linear-gradient(145deg, var(--yak-emerald) 0%, var(--yak-emerald-dark) 55%, #000807 100%);
-    --bg-alt: rgba(0, 0, 0, 0.35);
-    --card-bg: rgba(4, 23, 20, 0.75);
-
-    --fg: #f5f5f4;
-    --fg-soft: #d9d9d7;
-
-    --border-soft: rgba(255, 255, 255, 0.12);
-
-    --btn-bg: rgba(255, 255, 255, 0.05);
-    --btn-fg: #fff;
-    --btn-border: rgba(255, 255, 255, 0.2);
-
-    --sidebar-bg: #021714;
-    --sidebar-border: rgba(209, 165, 90, 0.25);
-    --sidebar-fg: #D1A55A;
-    --sidebar-hover: rgba(255, 255, 255, 0.08);
-
-    --topbar-bg: rgba(0, 0, 0, 0.45);
-
-    --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.55);
-}
-
-/* ===========================================================
-   Typography
-=========================================================== */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-family: 'Noto Sans Thai', 'Roboto', sans-serif;
-    font-weight: 700;
-    color: var(--fg);
-    margin-bottom: .5rem;
-}
-
-a {
-    color: var(--yak-gold);
-    text-decoration: none;
-}
-
-a:hover {
-    opacity: .85;
-}
-
-/* ===========================================================
-   Card
-=========================================================== */
-.card {
-    background: var(--card-bg);
-    border-radius: var(--radius-xl);
-    padding: 22px 26px;
-    backdrop-filter: blur(14px);
-    border: 1px solid var(--border-soft);
-    box-shadow: var(--shadow-soft);
-    margin-bottom: 22px;
-}
-
-/* ===========================================================
-   Buttons
-=========================================================== */
-.btn {
-    background: var(--btn-bg);
-    color: var(--btn-fg);
-    border: 1px solid var(--btn-border);
-    padding: 8px 16px;
-    border-radius: var(--radius);
-    font-weight: 500;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-
-.btn:hover {
-    opacity: .9;
+.btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
 }
 
 /* ===========================================================
@@ -2020,7 +1865,7 @@ a:hover {
     }
 
     .cursor-pointer {
-    cursor: pointer !important;
+        cursor: pointer !important;
     }
 
     /* ===========================================================

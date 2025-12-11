@@ -107,6 +107,74 @@ function cropAndSave() {
 }
 
 /**
+ * Use original image without cropping (auto-resize to 800x800)
+ */
+function useOriginalImage() {
+    if (!cropper) {
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ไม่พบรูปภาพ'
+        });
+        return;
+    }
+
+    // Get the original image from cropper
+    const imageElement = cropper.image;
+
+    // Create canvas for resizing
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas size to 800x800 (square)
+    const targetSize = 800;
+    canvas.width = targetSize;
+    canvas.height = targetSize;
+
+    // Calculate dimensions to maintain aspect ratio (cover mode)
+    const img = new Image();
+    img.onload = function () {
+        const scale = Math.max(targetSize / img.width, targetSize / img.height);
+        const scaledWidth = img.width * scale;
+        const scaledHeight = img.height * scale;
+
+        // Center the image
+        const x = (targetSize - scaledWidth) / 2;
+        const y = (targetSize - scaledHeight) / 2;
+
+        // Draw image on canvas
+        ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+
+        // Convert to Base64
+        const base64Image = canvas.toDataURL('image/png');
+
+        // Store in hidden input
+        document.getElementById('productImageBase64').value = base64Image;
+
+        // Show preview
+        const croppedImage = document.getElementById('croppedImage');
+        const croppedPreview = document.getElementById('croppedPreview');
+        const cropperContainer = document.getElementById('imageCropperContainer');
+
+        croppedImage.src = base64Image;
+        croppedPreview.style.display = 'block';
+        cropperContainer.style.display = 'none';
+
+        // Destroy cropper
+        cropper.destroy();
+        cropper = null;
+
+        // Clear file input
+        document.getElementById('mainImageInput').value = '';
+
+        // Reinitialize icons
+        if (window.lucide) lucide.createIcons();
+    };
+
+    img.src = imageElement.src;
+}
+
+/**
  * Cancel cropping
  */
 function cancelCrop() {

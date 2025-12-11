@@ -68,11 +68,22 @@ try {
     if (!empty($_POST['product_image_base64'])) {
         $uploadDir = __DIR__ . '/../../uploads/products';
         
-        // Get old filename before updating (for deletion later)
-        $oldProductPicture = null;
-        if ($isEdit && !empty($_POST['old_product_picture'])) {
-            $oldProductPicture = $_POST['old_product_picture'];
+        // ✅ CRITICAL: Validate product ID to prevent cross-contamination
+        if (empty($productId) || $productId < 1) {
+            throw new Exception('Invalid product ID for image upload');
         }
+        
+        // ✅ Get current image FROM DATABASE (not from POST)
+        // This prevents wrong product's image from being used
+        $stmt = $db->prepare("SELECT product_picture FROM product WHERE product_id = ? AND product_del = 0");
+        $stmt->execute([$productId]);
+        $currentProduct = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$currentProduct) {
+            throw new Exception("Product ID {$productId} not found or deleted");
+        }
+        
+        $oldProductPicture = $currentProduct['product_picture'];
         
         // Generate new unique filename
         $filename = generate_unique_filename('product_' . $productId);
@@ -81,12 +92,28 @@ try {
         $imagePaths = process_product_image($_POST['product_image_base64'], $filename, $uploadDir, true);
         
         if ($imagePaths) {
-            // Update database with new image filename (just the base name with .webp)
+            // Update database with new image filename
             $newImageFilename = $filename . '.webp';
-            $stmt = $db->prepare("UPDATE product SET product_picture = ? WHERE product_id = ?");
+            
+            // ✅ CRITICAL: Add product_del check to prevent updating deleted products
+            $stmt = $db->prepare("
+                UPDATE product 
+                SET product_picture = ? 
+                WHERE product_id = ? 
+                AND product_del = 0
+            ");
             $stmt->execute([$newImageFilename, $productId]);
             
-            // Now delete old images (after successful update)
+            // ✅ CRITICAL: Verify exactly 1 row was updated
+            if ($stmt->rowCount() !== 1) {
+                // Rollback - remove uploaded files
+                @unlink($uploadDir . '/small-' . $filename . '.webp');
+                @unlink($uploadDir . '/large-' . $filename . '.webp');
+                @unlink($uploadDir . '/original-' . $filename . '.webp');
+                throw new Exception("Failed to update product image - affected rows: " . $stmt->rowCount());
+            }
+            
+            // Now safe to delete old images (after successful verified update)
             if ($oldProductPicture) {
                 $oldFilename = pathinfo($oldProductPicture, PATHINFO_FILENAME);
                 @unlink($uploadDir . '/small-' . $oldFilename . '.webp');

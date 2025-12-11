@@ -1,0 +1,60 @@
+
+/**
+ * Initialize Sortable for drag & drop product ordering
+ */
+function initializeSortable() {
+    const tbody = document.querySelector('#productsTableContainer tbody');
+    if (!tbody) return;
+    
+    // Destroy previous instance if exists
+    if (tbody.sortable) {
+        tbody.sortable.destroy();
+    }
+    
+    tbody.sortable = new Sortable(tbody, {
+        handle: '.drag-handle',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
+        
+        // Only allow sorting within same category
+        onMove: function(evt) {
+            const draggedCategory = evt.dragged.dataset.category;
+            const relatedCategory = evt.related.dataset.category;
+            
+            // Prevent dragging to different category
+            return draggedCategory === relatedCategory;
+        },
+        
+        onEnd: function(evt) {
+            saveProductOrder();
+        }
+    });
+}
+
+/**
+ * Save new product order to database
+ */
+function saveProductOrder() {
+    const rows = document.querySelectorAll('.sortable-row');
+    const order = Array.from(rows).map(row => row.dataset.id);
+    
+    fetch(`${ADMIN_URL}/api/save_product_order.php`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ order: order })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('✓ Product order saved');
+        } else {
+            console.error('Error saving product order:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error saving product order:', error);
+    });
+}

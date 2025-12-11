@@ -78,7 +78,7 @@ $categories = $db->query("SELECT pc.productcat_id, pct.productcat_name
                          FROM productcat pc
                          LEFT JOIN productcat_translations pct ON pc.productcat_id = pct.productcat_id AND pct.lang_code = 'th'
                          WHERE pc.productcat_del = 0
-                         ORDER BY pct.productcat_name")->fetchAll(PDO::FETCH_ASSOC);
+                         ORDER BY pc.productcat_index ASC, pc.productcat_id ASC")->fetchAll(PDO::FETCH_ASSOC);
 $priceTiers = get_all_price_tiers();
 $languages = $db->query("SELECT * FROM languages WHERE lang_status = 1 ORDER BY lang_order")->fetchAll(PDO::FETCH_ASSOC);
 $attributeSets = get_product_attribute_sets($productId, 'th');
@@ -159,8 +159,21 @@ include __DIR__ . '/../includes/header.php';
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label">รหัสสินค้า <span class="text-danger">*</span></label>
+                                                <?php
+                                                // Auto-convert TH prefix to YP prefix
+                                                $productCode = $product['product_code'];
+                                                if (strpos($productCode, 'TH') === 0) {
+                                                    $productCode = 'YP' . substr($productCode, 2);
+                                                }
+                                                ?>
                                                 <input type="text" name="product_code" class="form-control" 
-                                                       value="<?= htmlspecialchars($product['product_code']) ?>" required>
+                                                       value="<?= htmlspecialchars($productCode) ?>" required>
+                                                <?php if ($product['product_code'] !== $productCode): ?>
+                                                <small class="text-success">
+                                                    <i data-lucide="check-circle" style="width: 12px; height: 12px;"></i>
+                                                    แปลงจาก <?= htmlspecialchars($product['product_code']) ?> เป็น <?= htmlspecialchars($productCode) ?>
+                                                </small>
+                                                <?php endif; ?>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Slug (URL)</label>
@@ -215,7 +228,7 @@ include __DIR__ . '/../includes/header.php';
                                                 <div class="mb-3">
                                                     <label class="form-label">รายละเอียด</label>
                                                     <textarea name="product_detail_<?= $lang['lang_code'] ?>" 
-                                                              class="form-control" 
+                                                              class="form-control tinymce-editor" 
                                                               rows="5"><?= htmlspecialchars($trans['product_detail'] ?? '') ?></textarea>
                                                 </div>
 
@@ -469,7 +482,85 @@ include __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
+<!-- Summernote initialization -->
 <script>
+// Global function to initialize Summernote Editors
+window.initSummernote = function(container) {
+    // If container is provided, search within it, otherwise search entire document
+    const searchScope = container || document;
+    const textareas = searchScope.querySelectorAll('.tinymce-editor');
+    
+    console.log('📝 Initializing Summernote - Found textareas:', textareas.length);
+    
+    textareas.forEach((textarea, index) => {
+        // Skip if already initialized
+        if ($(textarea).data('summernote-initialized')) {
+            console.log('⏭️ Textarea', index, 'already initialized, skipping');
+            return;
+        }
+        
+        // Skip if not visible (in hidden tab)
+        if (!$(textarea).is(':visible')) {
+            console.log('👁️ Textarea', index, 'not visible, will initialize when tab is shown');
+            return;
+        }
+        
+        console.log('🚀 Initializing Summernote for textarea', index);
+        
+        try {
+            $(textarea).summernote({
+                height: 200,
+                placeholder: 'กรอกรายละเอียดสินค้า...',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link']],
+                    ['view', ['codeview', 'help']]
+                ]
+            });
+            
+            // Mark as initialized
+            $(textarea).data('summernote-initialized', true);
+            console.log('✅ Summernote initialized successfully for textarea', index);
+            
+        } catch (error) {
+            console.error('❌ Error initializing Summernote:', error);
+        }
+    });
+    
+    console.log('🎉 Summernote initialization complete');
+};
+
+// Initialize Summernote when language tab is shown
+function initSummernoteOnTabShow() {
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const targetId = $(e.target).data('bs-target');
+        console.log('🔄 Tab shown:', targetId);
+        
+        // Initialize Summernote in the newly shown tab
+        const tabPane = document.querySelector(targetId);
+        if (tabPane) {
+            window.initSummernote(tabPane);
+        }
+    });
+}
+
+// Auto-initialize when DOM is ready
+$(document).ready(function() {
+    console.log('📄 DOM ready, initializing Summernote...');
+    
+    // Initialize visible textareas first
+    setTimeout(function() {
+        window.initSummernote();
+        
+        // Setup tab change listener
+        initSummernoteOnTabShow();
+    }, 100);
+});
+
 // Toggle price tier / fixed price
 document.getElementById('price_tier_select').addEventListener('change', function() {
     const fixedPriceSection = document.getElementById('fixed_price_section');

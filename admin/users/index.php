@@ -8,7 +8,7 @@ require_once __DIR__ . "/../../includes/functions/address.php";
 
 // Pagination & Filter
 $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit  = 20;
+$limit  = 15;
 $offset = ($page - 1) * $limit;
 $search = trim($_GET['search'] ?? '');
 $role   = trim($_GET['role'] ?? '');
