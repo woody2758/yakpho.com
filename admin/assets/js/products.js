@@ -70,18 +70,52 @@ function initSummernote() {
             $(textarea).summernote({
                 height: 200,
                 placeholder: 'กรอกรายละเอียดสินค้า...',
+                dialogsInBody: true, // ✅ Prevent dialog issues
+                dialogsFade: false,  // ✅ Disable fade animation
+                disableDragAndDrop: true, // ✅ Prevent drag issues  
                 toolbar: [
-                    ['style', ['style']],
+                    ['style', ['style']], // ✅ คืนมาแล้ว
                     ['font', ['bold', 'italic', 'underline', 'clear']],
                     ['color', ['color']],
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['table', ['table']],
-                    ['insert', ['link']],
+                    ['insert', ['link']], // ✅ คืนมาแล้ว
                     ['view', ['codeview', 'help']]
                 ],
                 callbacks: {
                     onChange: function (contents, $editable) {
                         $(textarea).val(contents);
+                    },
+                    // ✅ Prevent toolbar buttons and dropdown items from submitting form
+                    onInit: function () {
+                        const editor = $(textarea).next('.note-editor');
+
+                        // Set all buttons to type="button"
+                        editor.find('button').each(function () {
+                            if (!$(this).attr('type')) {
+                                $(this).attr('type', 'button');
+                            }
+                        });
+
+                        // ✅ CRITICAL FIX: Prevent ALL link navigation in dropdown menus
+                        // Summernote dropdown items are <a> tags that can cause page reload
+                        editor.find('.dropdown-menu a').each(function () {
+                            $(this).on('click', function (e) {
+                                e.preventDefault();
+                                return false;
+                            });
+                        });
+
+                        // Also handle dynamically added dropdown items
+                        editor.on('click', '.dropdown-menu a', function (e) {
+                            e.preventDefault();
+                            return false;
+                        });
+
+                        // Stop all click events from bubbling
+                        editor.on('click', function (e) {
+                            e.stopPropagation();
+                        });
                     }
                 }
             });
@@ -145,6 +179,9 @@ async function loadProductsTable(page = 1) {
         if (window.lucide) {
             lucide.createIcons();
         }
+
+        // Initialize sortable
+        initializeSortable();
     } catch (error) {
         console.error('Error loading products:', error);
         container.innerHTML =
@@ -234,6 +271,30 @@ function addProduct() {
  */
 async function editProduct(productId) {
     currentProductId = productId;
+
+    // ✅ CRITICAL: Reset form first to clear old data
+    // This prevents translation fields from showing previous product's data
+    document.getElementById('productForm').reset();
+    document.getElementById('productId').value = productId;
+
+    // Reset all Summernote editors to blank
+    $('.tinymce-editor').each(function () {
+        if ($(this).data('summernote-initialized')) {
+            $(this).summernote('code', '');
+        }
+    });
+
+    // Reset image previews
+    document.getElementById('productImageBase64').value = '';
+    document.getElementById('oldProductPicture').value = '';
+    document.getElementById('croppedPreview').style.display = 'none';
+    document.getElementById('imageCropperContainer').style.display = 'none';
+    document.getElementById('galleryPreview').innerHTML = '';
+    document.getElementById('mainImageInput').value = '';
+    document.getElementById('galleryImagesInput').value = '';
+
+    // Reset attribute checkboxes
+    document.querySelectorAll('[name="attribute_groups[]"]').forEach(cb => cb.checked = false);
 
     // Show loading
     Swal.fire({
@@ -366,6 +427,18 @@ async function editProduct(productId) {
  */
 async function saveProduct() {
     const form = document.getElementById('productForm');
+
+    // ✅ CRITICAL: Auto-save image if user uploaded but didn't crop/use
+    // This handles the case where user forgets to click buttons
+    if (cropper && document.getElementById('imageCropperContainer').style.display !== 'none') {
+        // User uploaded image but didn't process it
+        // Auto-use original to prevent data loss
+        console.log('⚠️ Auto-saving uploaded image before form submit');
+        useOriginalImage();
+
+        // Wait a moment for image processing
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
 
     // Enhanced validation with specific messages
     if (!form.checkValidity()) {
@@ -588,3 +661,92 @@ async function deleteProduct(productId, productName) {
         });
     }
 }
+
+/**
+ * Initialize Sortable for drag & drop product ordering
+ */
+function initializeSortable() {
+    const tbody = document.querySelector('#productsTableContainer tbody');
+    if (!tbody) {
+        console.log('⚠️ Sortable: tbody not found');
+        return;
+    }
+
+    // Destroy previous instance if exists
+    if (tbody.sortable) {
+        try {
+            tbody.sortable.destroy();
+            console.log('🔄 Sortable: Destroyed previous instance');
+        } catch (e) {
+            console.warn('⚠️ Sortable destroy error:', e);
+        }
+        tbody.sortable = null;
+    }
+
+    // Use timeout to ensure DOM is ready
+    setTimeout(() => {
+        try {
+            tbody.sortable = new Sortable(tbody, {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+
+                // Only allow sorting within same category
+                onMove: function (evt) {
+                    const draggedCategory = evt.dragged.dataset.category;
+                    const relatedCategory = evt.related.dataset.category;
+
+                    // Prevent dragging to different category
+                    return draggedCategory === relatedCategory;
+                },
+
+                onEnd: function (evt) {
+                    console.log('📦 Drag ended, saving...');
+                    saveProductOrder();
+                }
+            });
+            console.log('✅ Sortable initialized');
+        } catch (e) {
+            console.error('❌ Sortable init failed:', e);
+        }
+    }, 50);
+}
+
+/**
+ * Save new product order to database
+ */
+function saveProductOrder() {
+    const rows = document.querySelectorAll('.sortable-row');
+    const order = Array.from(rows).map(row => row.dataset.id);
+
+    fetch('../api/save_product_order.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ order: order })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('✓ Product order saved');
+
+                // Reinitialize Sortable to keep it working
+                // This ensures drag & drop works after first sort
+                setTimeout(() => {
+                    initializeSortable();
+                }, 100);
+            } else {
+                console.error('Error saving product order:', data.message);
+                // Reinitialize even on error to keep functionality
+                initializeSortable();
+            }
+        })
+        .catch(error => {
+            console.error('Error saving product order:', error);
+            // Reinitialize on error
+            initializeSortable();
+        });
+}
+

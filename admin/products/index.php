@@ -47,15 +47,20 @@ ob_start();
                     <select id="categoryFilter" class="form-select">
                         <option value="0">ทุกหมวดหมู่</option>
                         <?php
-                        $stmt = $db->query("SELECT pc.productcat_id, pct.productcat_name 
-                                           FROM productcat pc
-                                           LEFT JOIN productcat_translations pct ON pc.productcat_id = pct.productcat_id AND pct.lang_code = 'th'
-                                           WHERE pc.productcat_del = 0
-                                           ORDER BY pct.productcat_name");
+                        $stmt = $db->query("
+                            SELECT pc.productcat_id, pct.productcat_name,
+                                   COUNT(p.product_id) as product_count
+                            FROM productcat pc
+                            LEFT JOIN productcat_translations pct ON pc.productcat_id = pct.productcat_id AND pct.lang_code = 'th'
+                            LEFT JOIN product p ON pc.productcat_id = p.productcat_id AND p.product_del = 0
+                            WHERE pc.productcat_del = 0
+                            GROUP BY pc.productcat_id, pct.productcat_name
+                            ORDER BY pc.productcat_index ASC, pc.productcat_id ASC
+                        ");
                         while ($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
                             $selected = ($category == $cat['productcat_id']) ? 'selected' : '';
                             echo '<option value="' . $cat['productcat_id'] . '" ' . $selected . '>' . 
-                                 htmlspecialchars($cat['productcat_name']) . '</option>';
+                                 htmlspecialchars($cat['productcat_name']) . ' (' . $cat['product_count'] . ')</option>';
                         }
                         ?>
                     </select>
@@ -71,6 +76,38 @@ ob_start();
                 <div class="text-center py-5">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Product Summary Statistics -->
+    <div class="card shadow-sm mt-3">
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i data-lucide="package" style="width:20px;height:20px;" class="text-primary me-2"></i>
+                        <div>
+                            <small class="text-muted d-block">สินค้าทั้งหมด</small>
+                            <strong class="fs-5" id="totalProductCount">
+                                <?php
+                                $totalCount = $db->query("SELECT COUNT(*) FROM product WHERE product_del = 0")->fetchColumn();
+                                echo number_format($totalCount);
+                                ?>
+                            </strong> <span class="text-muted">รายการ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" id="filteredProductSection" style="display: none;">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i data-lucide="filter" style="width:20px;height:20px;" class="text-success me-2"></i>
+                        <div>
+                            <small class="text-muted d-block">กรองแสดง</small>
+                            <strong class="fs-5 text-success" id="filteredProductCount">0</strong> <span class="text-muted">รายการ</span>
+                            <small class="text-muted d-block" id="filteredCategoryName"></small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -137,6 +174,21 @@ ob_start();
                                         <li class="nav-item">
                                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-de" type="button">
                                                 🇩🇪 Deutsch
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-fr" type="button">
+                                                🇫🇷 Français
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-zh" type="button">
+                                                🇨🇳 中文
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ko" type="button">
+                                                🇰🇷 한국어
                                             </button>
                                         </li>
                                     </ul>
@@ -219,6 +271,84 @@ ob_start();
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <!-- French -->
+                                        <div class="tab-pane fade" id="lang-fr">
+                                            <div class="mb-3">
+                                                <label class="form-label">Nom du produit</label>
+                                                <input type="text" name="product_name_fr" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Description courte</label>
+                                                <textarea name="product_excerpt_fr" class="form-control" rows="2"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Détails</label>
+                                                <textarea name="product_detail_fr" class="form-control tinymce-editor" rows="4"></textarea>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Unité</label>
+                                                    <input type="text" name="product_unit_fr" class="form-control" placeholder="kg, bouteille, pièce">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Tags</label>
+                                                    <input type="text" name="product_tag_fr" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Chinese -->
+                                        <div class="tab-pane fade" id="lang-zh">
+                                            <div class="mb-3">
+                                                <label class="form-label">产品名称</label>
+                                                <input type="text" name="product_name_zh" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">简短描述</label>
+                                                <textarea name="product_excerpt_zh" class="form-control" rows="2"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">详细信息</label>
+                                                <textarea name="product_detail_zh" class="form-control tinymce-editor" rows="4"></textarea>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">单位</label>
+                                                    <input type="text" name="product_unit_zh" class="form-control" placeholder="公斤, 瓶, 件">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">标签</label>
+                                                    <input type="text" name="product_tag_zh" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Korean -->
+                                        <div class="tab-pane fade" id="lang-ko">
+                                            <div class="mb-3">
+                                                <label class="form-label">제품명</label>
+                                                <input type="text" name="product_name_ko" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">간단한 설명</label>
+                                                <textarea name="product_excerpt_ko" class="form-control" rows="2"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">상세 정보</label>
+                                                <textarea name="product_detail_ko" class="form-control tinymce-editor" rows="4"></textarea>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">단위</label>
+                                                    <input type="text" name="product_unit_ko" class="form-control" placeholder="kg, 병, 개">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">태그</label>
+                                                    <input type="text" name="product_tag_ko" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -261,7 +391,7 @@ ob_start();
                                                                FROM productcat pc
                                                                LEFT JOIN productcat_translations pct ON pc.productcat_id = pct.productcat_id AND pct.lang_code = 'th'
                                                                WHERE pc.productcat_del = 0
-                                                               ORDER BY pct.productcat_name");
+                                                               ORDER BY pc.productcat_index ASC, pc.productcat_id ASC");
                                             while ($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                                 echo '<option value="' . $cat['productcat_id'] . '">' . 
                                                      htmlspecialchars($cat['productcat_name']) . '</option>';
@@ -299,6 +429,9 @@ ob_start();
                                         <div class="d-flex gap-2">
                                             <button type="button" class="btn btn-sm btn-success" onclick="cropAndSave()">
                                                 <i data-lucide="check"></i> ยืนยันการ Crop
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="useOriginalImage()">
+                                                <i data-lucide="image"></i> ใช้รูปนี้เลย
                                             </button>
                                             <button type="button" class="btn btn-sm btn-secondary" onclick="cancelCrop()">
                                                 <i data-lucide="x"></i> ยกเลิก
@@ -407,6 +540,41 @@ ob_start();
 </div>
 
 <script>
+// ✅ CRITICAL: Prevent Summernote links from navigating/reloading page
+document.addEventListener('click', function(e) {
+    // Check if clicked on a link inside Summernote
+    if (e.target.tagName === 'A' && e.target.closest('.note-editor')) {
+        e.preventDefault(); // Stop navigation
+        // Let Summernote handle the rest normally
+    }
+}, true); // Capture phase
+
+// ✅ CRITICAL: Prevent form submit when clicking inside Summernote
+const productForm = document.getElementById('productForm');
+if (productForm) {
+    productForm.addEventListener('submit', function(e) {
+        // Check if submit is allowed
+        if (!window.allowFormSubmit) {
+            console.log('⛔ Blocked form submit - not from save button');
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            return false;
+        }
+        
+        // Reset flag after use
+        window.allowFormSubmit = false;
+    }, true); // Use capture to catch early
+}
+
+// Block any Enter key inside Summernote from submitting form
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.closest('.note-editable')) {
+        // Allow Enter in editable area, but stop propagation to form
+        e.stopPropagation();
+    }
+}, true);
+
 // Clear search
 function clearSearch() {
     const url = new URL(window.location);
@@ -431,6 +599,10 @@ document.getElementById('searchInput').addEventListener('keypress', function(e) 
         applyFilters();
     }
 });
+
+// Initialize summary on page load
+const initialCategory = new URLSearchParams(window.location.search).get('category') || '0';
+updateProductSummary(initialCategory);
 
 // Category filter - trigger immediately
 document.getElementById('categoryFilter').addEventListener('change', function() {
@@ -458,6 +630,35 @@ function applyFilters() {
     url.searchParams.delete('page'); // Reset to page 1
     window.history.pushState({}, '', url);
     loadProductsTable(1);
+    
+    // Update summary stats
+    updateProductSummary(category);
+}
+
+// Update product summary statistics
+function updateProductSummary(categoryId) {
+    const filteredSection = document.getElementById('filteredProductSection');
+    
+    if (!categoryId || categoryId === '0') {
+        // Show all products
+        filteredSection.style.display = 'none';
+    } else {
+        // Show filtered
+        const categorySelect = document.getElementById('categoryFilter');
+        const selectedOption = categorySelect.selectedOptions[0];
+        const categoryText = selectedOption.textContent;
+        
+        // Extract count from option text (format: "Category Name (123)")
+        const countMatch = categoryText.match(/\((\d+)\)/);
+        const count = countMatch ? countMatch[1] : '0';
+        
+        document.getElementById('filteredProductCount').textContent = count;
+        document.getElementById('filteredCategoryName').textContent = categoryText.replace(/\s*\(\d+\)/, '');
+        filteredSection.style.display = 'block';
+        
+        // Reinitialize icons
+        if (window.lucide) lucide.createIcons();
+    }
 }
 </script>
 

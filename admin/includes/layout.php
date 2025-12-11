@@ -24,6 +24,7 @@ if (!isset($content))    { $content = ""; }
     <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/sweetalert.css?v=<?= $ver ?>">
     <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/swal-fix.css?v=<?= $ver ?>">
     <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/mobile-fix.css?v=<?= $ver ?>">
+    <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/sortable.css?v=<?= $ver ?>">
 
     <!-- Dashboard CSS (เฉพาะหน้าที่ต้องใช้) -->
     <?php if (!empty($include_dashboard_css)): ?>
@@ -53,6 +54,9 @@ if (!isset($content))    { $content = ""; }
     
     <!-- Cropper.js for Image Cropping -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    
+    <!-- SortableJS for Drag & Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 
 <body class="admin-layout">
@@ -93,8 +97,56 @@ if (!isset($content))    { $content = ""; }
     <!-- Global Page Loader -->
     <div id="page-loader">
         <div class="loader-spinner"></div>
-        <div class="loader-text">LOADING...</div>
+        <div class="loader-text">
+            LOADING<span class="loading-dots">
+                <span class="dot">.</span>
+                <span class="dot">.</span>
+                <span class="dot">.</span>
+            </span>
+        </div>
     </div>
+    
+    <style>
+    /* Page loader solid background */
+    #page-loader {
+        background-color: #ffffff !important; /* ทึบสีขาว */
+    }
+    
+    [data-theme="dark"] #page-loader {
+        background-color: #1a1d23 !important; /* ทึบสีดำ (dark mode) */
+    }
+    
+    /* Animated loading dots */
+    .loading-dots {
+        display: inline-block;
+    }
+    
+    .loading-dots .dot {
+        animation: dotPulse 1.4s infinite ease-in-out;
+        opacity: 0;
+    }
+    
+    .loading-dots .dot:nth-child(1) {
+        animation-delay: 0s;
+    }
+    
+    .loading-dots .dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .loading-dots .dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes dotPulse {
+        0%, 60%, 100% {
+            opacity: 0;
+        }
+        30% {
+            opacity: 1;
+        }
+    }
+    </style>
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -167,6 +219,12 @@ if (!isset($content))    { $content = ""; }
         document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
             if (!link) return;
+            
+            // ✅ Exclude Summernote editor links
+            if (link.closest('.note-editor')) {
+                loader.style.display = 'none';
+                return;
+            }
             
             // Exclude AJAX-handled links (pagination, sort, no-loader)
             if (link.classList.contains('page-link') || 
