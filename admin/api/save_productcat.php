@@ -55,7 +55,7 @@ try {
     }
     
     // Insert translations for all languages
-    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko'];
+    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
     $stmt = $db->prepare("INSERT INTO productcat_translations (productcat_id, lang_code, productcat_name, productcat_detail) 
                           VALUES (?, ?, ?, ?)");
     

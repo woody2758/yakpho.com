@@ -128,7 +128,7 @@ async function editCategory(categoryId) {
             }
 
             // Fill translations for all languages
-            const languages = ['th', 'en', 'de', 'fr', 'zh', 'ko'];
+            const languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
             languages.forEach(lang => {
                 const translation = data.translations.find(t => t.lang_code === lang);
                 const nameInput = document.querySelector(`[name="productcat_name_${lang}"]`);

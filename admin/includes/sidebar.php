@@ -38,6 +38,31 @@
             <span>ผู้ใช้ระบบ</span>
         </a>
 
+        <a href="<?= ADMIN_URL ?>/aboutus/" class="menu-item">
+            <i data-lucide="file-text"></i>
+            <span>About Us</span>
+        </a>
+
+        <a href="<?= ADMIN_URL ?>/blogcat/" class="menu-item">
+            <i data-lucide="folder-tree"></i>
+            <span>Blog Categories</span>
+        </a>
+
+        <a href="<?= ADMIN_URL ?>/blog/" class="menu-item">
+            <i data-lucide="newspaper"></i>
+            <span>Blog Posts</span>
+        </a>
+
+        <a href="<?= ADMIN_URL ?>/faqscat/" class="menu-item">
+            <i data-lucide="help-circle"></i>
+            <span>FAQs Categories</span>
+        </a>
+
+        <a href="<?= ADMIN_URL ?>/faqs/" class="menu-item">
+            <i data-lucide="message-circle-question"></i>
+            <span>FAQs</span>
+        </a>
+
         <a href="<?= ADMIN_URL ?>/settings/" class="menu-item">
             <i data-lucide="settings"></i>
             <span>ตั้งค่าร้านค้า</span>

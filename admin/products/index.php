@@ -191,6 +191,16 @@ ob_start();
                                                 🇰🇷 한국어
                                             </button>
                                         </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ja" type="button">
+                                                🇯🇵 日本語
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ru" type="button">
+                                                🇷🇺 Русский
+                                            </button>
+                                        </li>
                                     </ul>
 
                                     <div class="tab-content">
@@ -346,6 +356,58 @@ ob_start();
                                                 <div class="col-md-6">
                                                     <label class="form-label">태그</label>
                                                     <input type="text" name="product_tag_ko" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Japanese -->
+                                        <div class="tab-pane fade" id="lang-ja">
+                                            <div class="mb-3">
+                                                <label class="form-label">製品名</label>
+                                                <input type="text" name="product_name_ja" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">簡単な説明</label>
+                                                <textarea name="product_excerpt_ja" class="form-control" rows="2"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">詳細情報</label>
+                                                <textarea name="product_detail_ja" class="form-control tinymce-editor" rows="4"></textarea>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">単位</label>
+                                                    <input type="text" name="product_unit_ja" class="form-control" placeholder="kg, ボトル, 個">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">タグ</label>
+                                                    <input type="text" name="product_tag_ja" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Russian -->
+                                        <div class="tab-pane fade" id="lang-ru">
+                                            <div class="mb-3">
+                                                <label class="form-label">Название продукта</label>
+                                                <input type="text" name="product_name_ru" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Краткое описание</label>
+                                                <textarea name="product_excerpt_ru" class="form-control" rows="2"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Подробная информация</label>
+                                                <textarea name="product_detail_ru" class="form-control tinymce-editor" rows="4"></textarea>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Единица измерения</label>
+                                                    <input type="text" name="product_unit_ru" class="form-control" placeholder="кг, бутылка, штука">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Теги</label>
+                                                    <input type="text" name="product_tag_ru" class="form-control">
                                                 </div>
                                             </div>
                                         </div>

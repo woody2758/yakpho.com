@@ -49,7 +49,7 @@ try {
     }
 
     // Handle Translations
-    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko'];
+    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
     
     // Prepare statements
     $checkStmt = $db->prepare("SELECT translation_id FROM paycat_translations WHERE paycat_id = ? AND lang_code = ?");

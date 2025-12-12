@@ -1,16 +1,16 @@
 <?php
-$page_title = "จัดการหมวดสินค้า";
-require_once __DIR__ . "/../includes/config.php";
-require_once __DIR__ . "/../includes/auth.php";
+$page_title = "จัดการหมวดบล็อก";
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 ob_start();
 ?>
 
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i data-lucide="folder-tree" class="me-2"></i>จัดการหมวดสินค้า</h2>
+        <h2 class="mb-0"><i data-lucide="folder-tree" class="me-2"></i>จัดการหมวดบล็อก</h2>
         <button onclick="addCategory()" class="btn btn-success">
-            <i data-lucide="plus" style="width:16px; height:16px; margin-right:6px;"></i> เพิ่มหมวดสินค้า
+            <i data-lucide="plus" style="width:16px; height:16px; margin-right:6px;"></i> เพิ่มหมวดบล็อก
         </button>
     </div>
 
@@ -20,12 +20,7 @@ ob_start();
             <div class="row g-3">
                 <div class="col-md-12">
                     <div class="position-relative">
-                        <input type="text" id="searchInput" class="form-control" placeholder="ค้นหาชื่อหมวดสินค้า...">
-                        <span id="clearSearch" class="position-absolute end-0 top-50 translate-middle-y d-none align-items-center justify-content-center" 
-                              style="cursor:pointer; margin-right:8px; width:20px; height:20px; border-radius:50%; background-color:rgba(108, 117, 125, 0.2);" 
-                              title="ล้างคำค้นหา" onclick="clearSearch()">
-                            <i data-lucide="x" style="width:12px; height:12px; color:#6c757d;"></i>
-                        </span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="ค้นหาชื่อหมวดบล็อก...">
                     </div>
                 </div>
             </div>
@@ -56,17 +51,17 @@ ob_start();
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">เพิ่มหมวดสินค้า</h5>
+                <h5 class="modal-title" id="modalTitle">เพิ่มหมวดบล็อก</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="categoryForm">
-                    <input type="hidden" id="categoryId" name="productcat_id">
+                    <input type="hidden" id="categoryId" name="blogcat_id">
                     
                     <!-- Status Toggle -->
                     <div class="mb-3">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="categoryStatus" name="productcat_status" checked>
+                            <input class="form-check-input" type="checkbox" id="categoryStatus" name="blogcat_status" checked>
                             <label class="form-check-label" for="categoryStatus">
                                 <span class="badge bg-success" id="statusBadge">เปิดใช้งาน</span>
                             </label>
@@ -121,12 +116,12 @@ ob_start();
                         <!-- Thai -->
                         <div class="tab-pane fade show active" id="lang-th">
                             <div class="mb-3">
-                                <label class="form-label">ชื่อหมวดสินค้า <span class="text-danger">*</span></label>
-                                <input type="text" name="productcat_name_th" class="form-control" required>
+                                <label class="form-label">ชื่อหมวดหมู่ <span class="text-danger">*</span></label>
+                                <input type="text" name="blogcat_name_th" class="form-control" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">รายละเอียด</label>
-                                <textarea name="productcat_detail_th" class="form-control" rows="3"></textarea>
+                                <textarea name="blogcat_detail_th" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -134,11 +129,11 @@ ob_start();
                         <div class="tab-pane fade" id="lang-en">
                             <div class="mb-3">
                                 <label class="form-label">Category Name</label>
-                                <input type="text" name="productcat_name_en" class="form-control">
+                                <input type="text" name="blogcat_name_en" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea name="productcat_detail_en" class="form-control" rows="3"></textarea>
+                                <textarea name="blogcat_detail_en" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -146,11 +141,11 @@ ob_start();
                         <div class="tab-pane fade" id="lang-de">
                             <div class="mb-3">
                                 <label class="form-label">Kategoriename</label>
-                                <input type="text" name="productcat_name_de" class="form-control">
+                                <input type="text" name="blogcat_name_de" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Beschreibung</label>
-                                <textarea name="productcat_detail_de" class="form-control" rows="3"></textarea>
+                                <textarea name="blogcat_detail_de" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -158,11 +153,11 @@ ob_start();
                         <div class="tab-pane fade" id="lang-fr">
                             <div class="mb-3">
                                 <label class="form-label">Nom de catégorie</label>
-                                <input type="text" name="productcat_name_fr" class="form-control">
+                                <input type="text" name="blogcat_name_fr" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea name="productcat_detail_fr" class="form-control" rows="3"></textarea>
+                                <textarea name="blogcat_detail_fr" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -170,11 +165,11 @@ ob_start();
                         <div class="tab-pane fade" id="lang-zh">
                             <div class="mb-3">
                                 <label class="form-label">分类名称</label>
-                                <input type="text" name="productcat_name_zh" class="form-control">
+                                <input type="text" name="blogcat_name_zh" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">描述</label>
-                                <textarea name="productcat_detail_zh" class="form-control" rows="3"></textarea>
+                                <textarea name="blogcat_detail_zh" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -182,11 +177,11 @@ ob_start();
                         <div class="tab-pane fade" id="lang-ko">
                             <div class="mb-3">
                                 <label class="form-label">카테고리 이름</label>
-                                <input type="text" name="productcat_name_ko" class="form-control">
+                                <input type="text" name="blogcat_name_ko" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">설명</label>
-                                <textarea name="productcat_detail_ko" class="form-control" rows="3"></textarea>
+                                <textarea name="blogcat_detail_ko" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -194,11 +189,11 @@ ob_start();
                         <div class="tab-pane fade" id="lang-ja">
                             <div class="mb-3">
                                 <label class="form-label">カテゴリ名</label>
-                                <input type="text" name="productcat_name_ja" class="form-control">
+                                <input type="text" name="blogcat_name_ja" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">説明</label>
-                                <textarea name="productcat_detail_ja" class="form-control" rows="3"></textarea>
+                                <textarea name="blogcat_detail_ja" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -206,11 +201,11 @@ ob_start();
                         <div class="tab-pane fade" id="lang-ru">
                             <div class="mb-3">
                                 <label class="form-label">Название категории</label>
-                                <input type="text" name="productcat_name_ru" class="form-control">
+                                <input type="text" name="blogcat_name_ru" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Описание</label>
-                                <textarea name="productcat_detail_ru" class="form-control" rows="3"></textarea>
+                                <textarea name="blogcat_detail_ru" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
                     </div>
@@ -225,9 +220,6 @@ ob_start();
 </div>
 
 <script>
-// Define global variables
-const ADMIN_URL = '<?= ADMIN_URL ?>';
-
 // Status toggle handler
 document.getElementById('categoryStatus').addEventListener('change', function() {
     const badge = document.getElementById('statusBadge');
@@ -242,46 +234,17 @@ document.getElementById('categoryStatus').addEventListener('change', function() 
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Lucide icons
     lucide.createIcons();
-    
-    // Load initial table
-    loadCategoriesTable(1);
-    
-    // Setup search with debounce
-    let searchTimeout;
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const value = this.value.trim();
-        const clearBtn = document.getElementById('clearSearch');
-        
-        // Show/hide clear button
-        if (value) {
-            clearBtn.classList.remove('d-none');
-            clearBtn.classList.add('d-flex');
-        } else {
-            clearBtn.classList.add('d-none');
-            clearBtn.classList.remove('d-flex');
-        }
-        
-        // Debounce search
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            loadCategoriesTable(1, value);
-        }, 300);
-    });
 });
-
-function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('clearSearch').classList.add('d-none');
-    loadCategoriesTable(1);
-}
 </script>
 
-<!-- Load external JS file -->
-<script src="<?= ADMIN_ASSETS ?>/js/productcat.js<?= $ver ?>"></script>
+<!-- Sortable.js -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+<!-- Blog Category JS -->
+<script src="<?= ADMIN_ASSETS ?>/js/blogcat.js<?= $ver ?>"></script>
 
 <?php 
 $content = ob_get_clean();
-require_once __DIR__ . "/../includes/layout.php"; 
+require_once __DIR__ . '/../includes/layout.php'; 
 ?>

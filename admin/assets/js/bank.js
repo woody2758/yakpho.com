@@ -145,7 +145,7 @@ async function editBank(id) {
             }
 
             // Fill translations for all languages
-            const languages = ['th', 'en', 'de', 'fr', 'zh', 'ko'];
+            const languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
             languages.forEach(lang => {
                 const translation = data.translations.find(t => t.lang_code === lang);
                 if (translation) {
