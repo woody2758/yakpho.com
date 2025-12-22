@@ -99,6 +99,83 @@ body.admin-layout {
     padding-left: 9px;
 }
 
+/* Menu Groups */
+.menu-group {
+    margin: 4px 0;
+}
+
+.menu-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.18s ease;
+    color: var(--sidebar-fg);
+}
+
+.menu-group-header:hover {
+    background: var(--sidebar-hover);
+}
+
+.menu-group-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.menu-group-title i {
+    width: 18px;
+    height: 18px;
+}
+
+.menu-group-arrow {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+    opacity: 0.6;
+}
+
+.menu-group-items {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.menu-group.active .menu-group-header {
+    background: rgba(209, 165, 90, 0.08);
+}
+
+.menu-group.active .menu-group-arrow {
+    transform: rotate(180deg);
+}
+
+/* Sub-items (nested menu items) */
+.menu-item.sub-item {
+    padding-left: 42px;
+    font-size: 13px;
+    margin: 2px 0;
+}
+
+.menu-item.sub-item i {
+    width: 16px;
+    height: 16px;
+}
+
+.menu-item.sub-item:hover {
+    background: var(--sidebar-hover);
+}
+
+.menu-item.sub-item.active {
+    background: linear-gradient(120deg, rgba(209, 165, 90, 0.15), rgba(209, 165, 90, 0.04));
+    border-left: 2px solid var(--yak-gold);
+    padding-left: 40px;
+}
+
+
 /* ============================== */
 /* Main Wrapper                   */
 /* ============================== */

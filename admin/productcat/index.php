@@ -63,6 +63,16 @@ ob_start();
                 <form id="categoryForm">
                     <input type="hidden" id="categoryId" name="productcat_id">
                     
+                    <!-- Main Category Selection -->
+                    <div class="mb-3">
+                        <label class="form-label">หมวดหมู่หลัก <span class="text-danger">*</span></label>
+                        <select name="maincat_id" id="maincat_id" class="form-select" required>
+                            <option value="">เลือกหมวดหมู่หลัก...</option>
+                            <!-- Options will be loaded via JavaScript -->
+                        </select>
+                        <small class="text-muted">หมวดหมู่หลักที่ประเภทนี้อยู่ภายใต้ (เช่น ยักโพธิ์, เอสเธอร์, อื่นๆ)</small>
+                    </div>
+                    
                     <!-- Status Toggle -->
                     <div class="mb-3">
                         <div class="form-check form-switch">

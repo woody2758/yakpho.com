@@ -2,15 +2,20 @@
 // ============================
 // == includes/config.php ==
 // ============================
+
+// Base URL configuration
+define('BASE_URL', '/yakpho.com');
 define('URL_PATH', '/yakpho.com');
-define('ADMIN_URL', '/yakpho.com/admin');   
+define('ADMIN_URL', '/yakpho.com/admin');
+
+// Database connection
 $dsn = "mysql:host=localhost;dbname=salebnet_thaiherb;charset=utf8mb4";
 $user = "root";
 $pass = "";
 try {
-$db = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $db = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 } catch (Exception $e) {
-die('DB Error: '.$e->getMessage());
+    die('DB Error: '.$e->getMessage());
 }
 
 

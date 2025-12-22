@@ -1,0 +1,239 @@
+/* ============================================================
+   Esther Aroma - Homepage Styles
+   Hero, Brand Showcase, Featured Products
+   ============================================================ */
+
+/* ========== Hero Section ========== */
+.hero {
+    position: relative;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #0A2F2A 0%, #0F4842 50%, #1A5550 100%);
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/assets/images/hero-pattern.png') center/cover;
+    opacity: 0.1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    color: var(--esther-cream);
+}
+
+.hero-title {
+    font-size: var(--font-size-6xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--esther-cream);
+    margin-bottom: var(--space-6);
+    line-height: 1.1;
+}
+
+.hero-subtitle {
+    font-size: var(--font-size-xl);
+    color: rgba(245, 241, 232, 0.9);
+    margin-bottom: var(--space-8);
+    line-height: var(--line-height-relaxed);
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--space-4);
+}
+
+/* ========== Section Styles ========== */
+.section {
+    padding: var(--space-20) 0;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: var(--space-12);
+}
+
+.section-title {
+    font-size: var(--font-size-4xl);
+    color: var(--color-text);
+    margin-bottom: var(--space-4);
+}
+
+.section-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* ========== Brand Cards ========== */
+.brands-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
+}
+
+.brand-card {
+    position: relative;
+    padding: var(--space-8);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    text-align: center;
+    overflow: hidden;
+    transition: all var(--transition-base);
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.brand-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(11, 59, 53, 0.05) 0%, rgba(209, 165, 90, 0.05) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.brand-card:hover {
+    transform: translateY(-12px);
+    box-shadow: var(--shadow-2xl);
+    border-color: var(--esther-gold);
+}
+
+.brand-card:hover::before {
+    opacity: 1;
+}
+
+.brand-icon {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-6);
+    background: linear-gradient(135deg, var(--esther-emerald) 0%, var(--esther-moss) 100%);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--esther-gold);
+    font-size: var(--font-size-3xl);
+    transition: transform var(--transition-base);
+}
+
+.brand-card:hover .brand-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.brand-name {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--space-3);
+}
+
+.brand-description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    line-height: var(--line-height-relaxed);
+}
+
+/* ========== Featured Products ========== */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
+}
+
+/* ========== Trust Section ========== */
+.trust-section {
+    background-color: var(--esther-emerald);
+    color: var(--esther-cream);
+    padding: var(--space-16) 0;
+    text-align: center;
+}
+
+.trust-items {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+}
+
+.trust-item {
+    text-align: center;
+}
+
+.trust-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(209, 165, 90, 0.2);
+    border-radius: var(--radius-full);
+    color: var(--esther-gold);
+}
+
+.trust-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--esther-gold);
+    margin-bottom: var(--space-2);
+}
+
+.trust-description {
+    font-size: var(--font-size-sm);
+    color: rgba(245, 241, 232, 0.8);
+}
+
+/* ========== Responsive Design ========== */
+@media (max-width: 768px) {
+    .hero {
+        min-height: 500px;
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: var(--font-size-4xl);
+    }
+
+    .hero-subtitle {
+        font-size: var(--font-size-base);
+    }
+
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .brands-grid,
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .trust-items {
+        grid-template-columns: 1fr;
+        gap: var(--space-6);
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .brands-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

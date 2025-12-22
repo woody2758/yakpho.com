@@ -29,11 +29,13 @@ try {
     if ($isEdit) {
         // Update category
         $stmt = $db->prepare("UPDATE productcat SET 
+                              maincat_id = ?,
                               productcat_status = ?,
                               productcat_update = NOW(),
                               update_id = ?
                               WHERE productcat_id = ?");
         $stmt->execute([
+            $_POST['maincat_id'] ?? null,
             isset($_POST['productcat_status']) ? 1 : 0,
             $_SESSION['admin_id'] ?? 0,
             $categoryId
@@ -45,9 +47,10 @@ try {
         
     } else {
         // Insert new category
-        $stmt = $db->prepare("INSERT INTO productcat (productcat_status, productcat_date, productcat_del, save_id) 
-                              VALUES (?, NOW(), 0, ?)");
+        $stmt = $db->prepare("INSERT INTO productcat (maincat_id, productcat_status, productcat_date, productcat_del, save_id) 
+                              VALUES (?, ?, NOW(), 0, ?)");
         $stmt->execute([
+            $_POST['maincat_id'] ?? null,
             isset($_POST['productcat_status']) ? 1 : 0,
             $_SESSION['admin_id'] ?? 0
         ]);

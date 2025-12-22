@@ -1,263 +1,311 @@
+/**
+ * Esther Aroma - Main App Controller
+ * AJAX Framework + Global Functions
+ */
 
-
-
-// Yakpho Live Search – Safe Optimized
-const searchInput = document.getElementById('pageSearch');
-const nextBtn = document.getElementById('nextResult');
-let matches = [];
-let currentIndex = 0;
-let debounceTimer = null;
-
-function clearHighlights() {
-  document.querySelectorAll('mark.highlight').forEach(el => {
-    const parent = el.parentNode;
-    parent.replaceChild(document.createTextNode(el.textContent), el);
-    parent.normalize();
-  });
-}
-
-function highlightText(keyword) {
-  clearHighlights();
-  if (!keyword) return;
-
-  const regex = new RegExp(`(${keyword})`, 'gi');
-  matches = [];
-
-  const walker = document.createTreeWalker(
-    document.querySelector('main'),
-    NodeFilter.SHOW_TEXT,
-    null
-  );
-
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-
-  nodes.forEach(node => {
-    if (node.parentElement.closest('script,style')) return;
-    if (regex.test(node.textContent)) {
-      const span = document.createElement('span');
-      span.innerHTML = node.textContent.replace(
-        regex,
-        '<mark class="highlight">$1</mark>'
-      );
-      node.parentNode.replaceChild(span, node);
-    }
-  });
-
-  matches = Array.from(document.querySelectorAll('mark.highlight'));
-  if (matches.length > 0) scrollToMatch(0);
-}
-
-function scrollToMatch(i) {
-  matches.forEach((m, idx) => {
-    m.style.background = idx === i ? '#FFD54F' : '#FFFF99';
-  });
-  matches[i]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-searchInput?.addEventListener('input', e => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => highlightText(e.target.value.trim()), 300);
-});
-
-nextBtn?.addEventListener('click', () => {
-  if (matches.length === 0) return;
-  currentIndex = (currentIndex + 1) % matches.length;
-  scrollToMatch(currentIndex);
-});
-
-
-
-// 🧹 Yakpho Hard Reset – กัน overlay ทับหน้า
-window.addEventListener('load', () => {
-  const box = document.getElementById('yakphoLightbox') || document.querySelector('.lightbox');
-  if (box) {
-    box.style.display = 'none';
-    box.classList.remove('active');
-  }
-  document.body.style.overflow = '';
-  console.log('🧹 Yakpho Overlay Reset Done');
-});
-
-window.addEventListener('load', () => {
-  const lb = document.querySelector('.lightbox');
-  if (lb) lb.style.display = 'none';
-  document.body.style.overflow = 'auto';
-});
-
-
-// ===============================
-// Fancybox 5 – Lightbox Pro
-// ===============================
-Fancybox.bind('[data-fancybox="gallery"]', {
-  animated: true,
-  showClass: "fancybox-fadeIn",
-  hideClass: "fancybox-fadeOut",
-  dragToClose: true,
-  Thumbs: { autoStart: false },
-  Toolbar: {
-    display: { left: [], middle: ['zoomIn','zoomOut'], right: ['close'] },
+const App = {
+  /**
+   * Initialize application
+   */
+  init() {
+    this.initializeHeader();
+    this.loadCartCount();
+    this.initializeModals();
+    console.log('🌿 Esther Aroma App Initialized');
   },
-  Image: { zoom: true },
-});
-// ===============================
-// Lazy Load
-// ===============================
 
-document.addEventListener("DOMContentLoaded", () => { const lazyImgs = document.querySelectorAll("img.lazy"); const io = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) { const img = entry.target; const src = img.dataset.src; if (src) { img.src = src; img.onload = () => img.classList.add("loaded"); io.unobserve(img); } } }); }, { threshold: 0.1 }); lazyImgs.forEach(img => io.observe(img)); });
+  /**
+   * Initialize header scroll effects
+   */
+  initializeHeader() {
+    const header = document.getElementById('site-header');
+    let lastScroll = 0;
 
-/* ============================================================
-💎 YakPho Aroma – app.js v1.1
-รวมระบบ: Smooth Scroll + Global Loading + Menu Toggle + Click Sound
-============================================================ */
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
 
-// 🔹 Smooth Scroll (with topbar offset)
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      const topbarHeight = document.querySelector('.topbar')?.offsetHeight || 0;
-      const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - (topbarHeight + 10);
-      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-      history.pushState(null, null, this.getAttribute('href'));
-    }
-  });
-});
-
-
-// ============================================================
-// 🔸 Global Loading Overlay – แสดงตอนเปลี่ยนหน้า
-// ============================================================
-
-const yakphoLoader = document.createElement('div');
-yakphoLoader.id = 'yakpho-loader';
-yakphoLoader.innerHTML = `
-  <div class="loader-backdrop">
-    <div class="loader-spinner"></div>
-    <div class="loader-text">กำลังโหลด...</div>
-  </div>
-`;
-document.body.appendChild(yakphoLoader);
-
-function showYakphoLoader() {
-  yakphoLoader.classList.add('active');
-  document.body.classList.add('blurred');
-}
-function hideYakphoLoader() {
-  yakphoLoader.classList.remove('active');
-  document.body.classList.remove('blurred');
-}
-
-// ตรวจจับลิงก์ / ปุ่ม
-document.addEventListener('click', function(e) {
-  const el = e.target.closest('a, button');
-  if (!el) return;
-   // ✅ ถ้ามี data-no-loader="true" → ไม่ต้องแสดง Loader
-  if (el.dataset.noLoader === "true") return;
-
-  const href = el.getAttribute('href');
-  if (href && href.startsWith('#')) return;
-  if ((href && !href.startsWith('javascript:')) || el.dataset.loading === "true") {
-    showYakphoLoader();
-  }
-});
-window.addEventListener('load', hideYakphoLoader);
-
-
-// ============================================================
-// 🪶 Floating Side Menu + Click Sound
-// ============================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("menuToggle");
-  const menu = document.getElementById("sideMenu");
-  const clickSound = document.getElementById("softClick");
-
-  if (!btn || !menu) return;
-
-  // 🪶 แสดงปุ่มเมนูเมื่อ scroll ลง
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 50) {
-      document.body.classList.add("show-float-menu");
-    } else {
-      document.body.classList.remove("show-float-menu");
-      btn.classList.remove("active");
-      menu.classList.remove("open");
-    }
-  });
-
-  // 🔄 toggle เมนูเปิด/ปิด + เสียงคลิก
-  btn.addEventListener("click", () => {
-    btn.classList.toggle("active");
-    menu.classList.toggle("open");
-    if (clickSound) {
-      clickSound.currentTime = 0;
-      clickSound.volume = 0.25;
-      clickSound.play().catch(()=>{});
-    }
-  });
-
-  // 🚀 smooth scroll + ปิดเมนูเมื่อคลิก
-  menu.querySelectorAll("a[href^='#']").forEach(link => {
-    link.addEventListener("click", e => {
-      e.preventDefault();
-      const target = document.querySelector(link.getAttribute("href"));
-      if (target) {
-        const offset = target.offsetTop - 60;
-        window.scrollTo({ top: offset, behavior: "smooth" });
+      if (currentScroll > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
       }
-      btn.classList.remove("active");
-      menu.classList.remove("open");
+
+      lastScroll = currentScroll;
     });
-  });
 
-  // lucide icon refresh (เผื่อมี dynamic load)
-  if (window.lucide) lucide.createIcons();
-});
+    // Mobile menu toggle
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const nav = document.getElementById('site-nav');
 
-// ===============================
-// YakPho Aroma – GA4 Custom Events
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-
-  // 📦 1. เมื่อกดปุ่มส่งคำสั่งซื้อ
-  const orderBtn = document.getElementById("copyBtn");
-  if (orderBtn) {
-    orderBtn.addEventListener("click", () => {
-      gtag('event', 'click_send_order', {
-        event_category: 'Order',
-        event_label: 'ส่งคำสั่งซื้อ YakPho Aroma'
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        nav.classList.toggle('open');
+        toggle.classList.toggle('active');
       });
+    }
+  },
+
+  /**
+   * Language Switcher
+   */
+  toggleLanguageSwitcher() {
+    const switcher = document.getElementById('lang-switcher');
+    switcher.classList.toggle('open');
+  },
+
+  changeLanguage(langCode) {
+    // Set language in session via AJAX
+    fetch(`${window.location.origin}/api/set_language.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ lang: langCode })
+    })
+      .then(() => {
+        // Reload page with new language
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error changing language:', error);
+      });
+  },
+
+  /**
+   * Load cart count from localStorage or API
+   */
+  loadCartCount() {
+    const cartBadge = document.getElementById('cart-count');
+    if (!cartBadge) return;
+
+    // Get cart from localStorage
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    cartBadge.textContent = totalItems;
+    cartBadge.style.display = totalItems > 0 ? 'flex' : 'none';
+  },
+
+  /**
+   * Update cart count
+   */
+  updateCartCount(count) {
+    const cartBadge = document.getElementById('cart-count');
+    if (cartBadge) {
+      cartBadge.textContent = count;
+      cartBadge.style.display = count > 0 ? 'flex' : 'none';
+    }
+  },
+
+  /**
+   * Show toast notification
+   */
+  showToast(message, type = 'success') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type}`;
+    toast.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease-out;
+        `;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+      toast.style.animation = 'slideOutRight 0.3s ease-out';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  },
+
+  /**
+   * Show loading spinner
+   */
+  showLoading(message = 'กำลังโหลด...') {
+    const backdrop = document.createElement('div');
+    backdrop.id = 'loading-backdrop';
+    backdrop.className = 'modal-backdrop show';
+    backdrop.innerHTML = `
+            <div style="text-align: center; color: white;">
+                <div class="spinner" style="margin: 0 auto 16px;"></div>
+                <p>${message}</p>
+            </div>
+        `;
+    document.body.appendChild(backdrop);
+  },
+
+  /**
+   * Hide loading spinner
+   */
+  hideLoading() {
+    const backdrop = document.getElementById('loading-backdrop');
+    if (backdrop) {
+      backdrop.remove();
+    }
+  },
+
+  /**
+   * Initialize modal functionality
+   */
+  initializeModals() {
+    // Close modal on backdrop click
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-backdrop')) {
+        this.closeModal();
+      }
     });
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeModal();
+      }
+    });
+  },
+
+  /**
+   * Show modal
+   */
+  showModal(modalId) {
+    const backdrop = document.getElementById(modalId);
+    if (backdrop) {
+      backdrop.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  },
+
+  /**
+   * Close modal
+   */
+  closeModal(modalId = null) {
+    if (modalId) {
+      const backdrop = document.getElementById(modalId);
+      if (backdrop) {
+        backdrop.classList.remove('show');
+      }
+    } else {
+      // Close all modals
+      document.querySelectorAll('.modal-backdrop.show').forEach(modal => {
+        modal.classList.remove('show');
+      });
+    }
+    document.body.style.overflow = '';
+  },
+
+  /**
+   * Newsletter subscription
+   */
+  async subscribeNewsletter(event) {
+    event.preventDefault();
+    const form = event.target;
+    const email = form.querySelector('input[name="email"]').value;
+
+    this.showLoading('กำลังสมัคร...');
+
+    try {
+      const response = await fetch('/api/subscribe_newsletter.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+
+      this.hideLoading();
+
+      if (data.success) {
+        this.showToast('สมัครรับข่าวสารสำเร็จ! ขอบคุณครับ', 'success');
+        form.reset();
+      } else {
+        this.showToast(data.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง', 'error');
+      }
+    } catch (error) {
+      this.hideLoading();
+      this.showToast('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง', 'error');
+      console.error('Newsletter error:', error);
+    }
+  },
+
+  /**
+   * Smooth scroll to element
+   */
+  scrollTo(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  },
+
+  /**
+   * Format number as Thai Baht currency
+   */
+  formatCurrency(amount) {
+    return new Intl.NumberFormat('th-TH', {
+      style: 'currency',
+      currency: 'THB',
+      minimumFractionDigits: 0
+    }).format(amount);
+  },
+
+  /**
+   * Debounce function for search
+   */
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
   }
+};
 
-  // 💬 2. ปุ่ม LINE / Messenger / WhatsApp / Email (จาก SweetAlert)
-  document.body.addEventListener("click", (e) => {
-    const btn = e.target.closest('.contact-btn');
-    if (!btn) return;
-    const type = btn.classList.contains('line') ? 'LINE' :
-                 btn.classList.contains('messenger') ? 'Messenger' :
-                 btn.classList.contains('whatsapp') ? 'WhatsApp' :
-                 btn.classList.contains('email') ? 'Email' : 'Other';
-    gtag('event', 'click_contact', {
-      event_category: 'Contact',
-      event_label: type
-    });
-  });
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
 
-  // ➕➖ 3. นับจำนวนคลิก + / −
-  document.body.addEventListener("click", (e) => {
-    const btn = e.target.closest('.btn.plus, .btn.minus');
-    if (!btn) return;
-    const type = btn.classList.contains('plus') ? 'เพิ่มสินค้า' : 'ลดสินค้า';
-    const sku  = btn.closest('.cell')?.dataset.sku || 'unknown';
-    gtag('event', 'click_adjust_qty', {
-      event_category: 'Product Adjust',
-      event_label: `${type} ${sku}`
-    });
-  });
-
+// Initialize app on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  App.init();
 });
 
+// Close language switcher when clicking outside
+document.addEventListener('click', (e) => {
+  const switcher = document.getElementById('lang-switcher');
+  if (switcher && !switcher.contains(e.target)) {
+    switcher.classList.remove('open');
+  }
+});

@@ -9,7 +9,37 @@ let currentPage = 1;
 // Initialize modal on page load
 document.addEventListener('DOMContentLoaded', function () {
     categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+    // Load main categories for dropdown
+    loadMainCategories();
 });
+
+/**
+ * Load main categories for dropdown
+ */
+async function loadMainCategories() {
+    try {
+        const response = await fetch(`${ADMIN_URL}/api/get_maincat.php?all=1`);
+        const data = await response.json();
+
+        if (data.success && data.categories) {
+            const select = document.getElementById('maincat_id');
+            // Clear existing options except first
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            // Add main categories
+            data.categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.maincat_id;
+                option.textContent = cat.name_th + (cat.name_en ? ` (${cat.name_en})` : '');
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading main categories:', error);
+    }
+}
 
 /**
  * Load categories table via AJAX
@@ -72,6 +102,9 @@ function addCategory() {
     document.getElementById('statusBadge').textContent = 'เปิดใช้งาน';
     document.getElementById('statusBadge').className = 'badge bg-success';
 
+    // Reset main category selection
+    document.getElementById('maincat_id').value = '';
+
     // Show first tab
     const firstTab = document.querySelector('[data-bs-target="#lang-th"]');
     if (firstTab) {
@@ -116,6 +149,12 @@ async function editCategory(categoryId) {
             // Fill form
             document.getElementById('categoryId').value = category.productcat_id;
             document.getElementById('categoryStatus').checked = category.productcat_status == 1;
+
+            // Set main category
+            const maincatSelect = document.getElementById('maincat_id');
+            if (maincatSelect && category.maincat_id) {
+                maincatSelect.value = category.maincat_id;
+            }
 
             // Update status badge
             const statusBadge = document.getElementById('statusBadge');
