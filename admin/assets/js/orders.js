@@ -1554,97 +1554,183 @@ async function loadCustomerAddresses(userId) {
 }
 
 /**
- * Add product to new order cart
+ * Open Product Grid Modal
  */
 async function addProductToNewOrder() {
-    // Same as addOrderItem but for new order cart
-    // Load products
-    Swal.fire({
-        title: 'กำลังโหลดสินค้า...',
-        allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
-    });
+    // Show product grid modal
+    const productGridModal = new bootstrap.Modal(document.getElementById('productGridModal'));
+    productGridModal.show();
+
+    // Load product grid
+    loadProductGrid();
+}
+
+/**
+ * Load and render product grid
+ */
+async function loadProductGrid() {
+    const tabsContainer = document.getElementById('categoryTabs');
+    const contentContainer = document.getElementById('productGridContent');
+
+    // Show loading
+    contentContainer.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
 
     try {
-        const productsResponse = await fetch(`${ADMIN_URL}/api/get_products_simple.php`);
-        const productsData = await productsResponse.json();
+        const response = await fetch(`${ADMIN_URL}/api/get_products_grid.php`);
+        const data = await response.json();
 
-        if (!productsData.success) {
-            Swal.fire('ผิดพลาด', 'ไม่สามารถโหลดสินค้าได้', 'error');
+        if (!data.success || !data.categories || data.categories.length === 0) {
+            contentContainer.innerHTML = `
+                <div class="alert alert-warning">
+                    <i data-lucide="package-x"></i> ไม่พบสินค้า
+                </div>
+            `;
             return;
         }
 
-        // Create options
-        const productOptions = productsData.products.map(p =>
-            `<option value="${p.product_id}" data-price="${p.product_price}" data-name="${p.product_name}" data-code="${p.product_code}">
-                ${p.product_name} (${p.product_code}) - ${parseFloat(p.product_price).toLocaleString()} บาท
-            </option>`
-        ).join('');
+        // Render category tabs
+        let tabsHTML = '';
+        let contentHTML = '';
 
-        const { value: formValues } = await Swal.fire({
-            title: 'เพิ่มสินค้า',
-            html: `
-                <div class="text-start">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">เลือกสินค้า</label>
-                        <select id="product_select_new" class="form-select">
-                            <option value="">-- เลือกสินค้า --</option>
-                            ${productOptions}
-                        </select>
+        data.categories.forEach((cat, index) => {
+            const isActive = index === 0 ? 'active' : '';
+            const catId = `cat-${cat.productcat_id}`;
+
+            // Category tab
+            tabsHTML += `
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link ${isActive}" id="${catId}-tab" 
+                            data-bs-toggle="tab" data-bs-target="#${catId}" 
+                            type="button" role="tab">
+                        ${cat.productcat_name} (${cat.products.length})
+                    </button>
+                </li>
+            `;
+
+            // Product grid for this category
+            let productsHTML = '';
+            if (cat.products.length === 0) {
+                productsHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i data-lucide="inbox" style="width:48px;height:48px;opacity:0.3;"></i>
+                        <p class="mt-2">ไม่มีสินค้าในหมวดนี้</p>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">จำนวน</label>
-                        <input type="number" id="qty_input_new" class="form-control" value="1" min="1">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">ราคา/หน่วย</label>
-                        <input type="number" id="price_input_new" class="form-control" step="0.01" min="0">
-                    </div>
-                </div>
-            `,
-            width: '500px',
-            showCancelButton: true,
-            confirmButtonText: 'เพิ่ม',
-            didOpen: () => {
-                document.getElementById('product_select_new').addEventListener('change', (e) => {
-                    const option = e.target.selectedOptions[0];
-                    document.getElementById('price_input_new').value = option.dataset.price || 0;
+                `;
+            } else {
+                productsHTML = '<div class="row g-3">';
+                cat.products.forEach(product => {
+                    productsHTML += `
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="card h-100 product-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                                 onclick="selectProductForCart(${product.product_id}, '${product.product_name.replace(/'/g, "\\'")}', ${product.product_price})"
+                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';"
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+                                <div class="position-relative" style="height: 200px; overflow: hidden; background: #f8f9fa;">
+                                    <img src="${product.product_image_url}" 
+                                         class="card-img-top" 
+                                         style="width: 100%; height: 100%; object-fit: cover;"
+                                         alt="${product.product_name}"
+                                         onerror="this.src='${ROOT_URL}/uploads/products/default.png';">
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="badge bg-success">${parseFloat(product.product_price).toLocaleString()} ฿</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title mb-1" style="min-height: 40px;">${product.product_name}</h6>
+                                    <small class="text-muted">${product.product_code}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 });
-            },
-            preConfirm: () => {
-                const select = document.getElementById('product_select_new');
-                const productId = select.value;
-                const option = select.selectedOptions[0];
-                const qty = parseInt(document.getElementById('qty_input_new').value);
-                const price = parseFloat(document.getElementById('price_input_new').value);
-
-                if (!productId || qty <= 0 || price < 0) {
-                    Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
-                    return false;
-                }
-
-                return {
-                    product_id: productId,
-                    product_name: option.dataset.name,
-                    product_code: option.dataset.code,
-                    qty,
-                    price
-                };
+                productsHTML += '</div>';
             }
+
+            contentHTML += `
+                <div class="tab-pane fade ${isActive ? 'show active' : ''}" 
+                     id="${catId}" role="tabpanel">
+                    ${productsHTML}
+                </div>
+            `;
         });
 
-        if (!formValues) return;
+        tabsContainer.innerHTML = tabsHTML;
+        contentContainer.innerHTML = contentHTML;
 
+        // Reinitialize icons
+        if (window.lucide) lucide.createIcons();
+
+    } catch (error) {
+        console.error('Error loading products:', error);
+        contentContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <i data-lucide="alert-circle"></i> เกิดข้อผิดพลาดในการโหลดสินค้า
+            </div>
+        `;
+    }
+}
+
+/**
+ * Select product and show quantity input
+ */
+async function selectProductForCart(productId, productName, productPrice) {
+    const { value: qty } = await Swal.fire({
+        title: productName,
+        html: `
+            <div class="text-start">
+                <label class="form-label fw-bold">จำนวน</label>
+                <input type="number" id="product_qty" class="form-control form-control-lg text-center" 
+                       value="1" min="1" step="1" style="font-size: 2rem;">
+                <small class="text-muted">ราคา: ${parseFloat(productPrice).toLocaleString()} บาท</small>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'เพิ่มในตะกร้า',
+        cancelButtonText: 'ยกเลิก',
+        preConfirm: () => {
+            const qty = parseInt(document.getElementById('product_qty').value);
+            if (!qty || qty <= 0) {
+                Swal.showValidationMessage('กรุณาระบุจำนวนที่ถูกต้อง');
+                return false;
+            }
+            return qty;
+        }
+    });
+
+    if (qty) {
         // Add to cart
-        newOrderCart.items.push(formValues);
+        newOrderCart.items.push({
+            product_id: productId,
+            product_name: productName,
+            product_code: '', // Not needed for display
+            qty: qty,
+            price: productPrice
+        });
 
-        // Update display
+        // Update cart display
         updateNewOrderCartDisplay();
         updateNewOrderTotal();
 
-    } catch (error) {
-        console.error('Error:', error);
-        Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาด', 'error');
+        // Close product grid modal
+        const productGridModal = bootstrap.Modal.getInstance(document.getElementById('productGridModal'));
+        if (productGridModal) {
+            productGridModal.hide();
+        }
+
+        // Show success notification
+        Swal.fire({
+            icon: 'success',
+            title: 'เพิ่มสินค้าแล้ว',
+            text: `${productName} x ${qty}`,
+            timer: 1500,
+            showConfirmButton: false
+        });
     }
 }
 

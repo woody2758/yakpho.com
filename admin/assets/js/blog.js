@@ -8,6 +8,7 @@ let currentPage = 1;
 let currentSearch = '';
 let currentCategory = 0;
 let currentBlogId = 0;
+let currentView = 'all'; // 'all' or 'trash'
 
 document.addEventListener('DOMContentLoaded', function () {
     blogModal = new bootstrap.Modal(document.getElementById('blogModal'));
@@ -76,7 +77,7 @@ async function loadBlogTable(page = 1) {
     currentPage = page;
 
     try {
-        const url = `../api/get_blog_table.php?page=${page}&search=${encodeURIComponent(currentSearch)}&category=${currentCategory}`;
+        const url = `../api/get_blog_table.php?page=${page}&search=${encodeURIComponent(currentSearch)}&category=${currentCategory}&view=${currentView}`;
         const response = await fetch(url);
         const result = await response.json();
 
@@ -86,6 +87,12 @@ async function loadBlogTable(page = 1) {
 
         renderTable(result.data);
         renderPagination(result.pagination);
+
+        // Update counts
+        if (result.counts) {
+            document.getElementById('count-all').textContent = result.counts.all;
+            document.getElementById('count-trash').textContent = result.counts.trash;
+        }
 
     } catch (error) {
         console.error('Error loading blogs:', error);
@@ -100,10 +107,14 @@ function renderTable(blogs) {
     const container = document.getElementById('tableContainer');
 
     if (blogs.length === 0) {
+        const emptyMessage = currentView === 'trash'
+            ? 'ถังขยะว่างเปล่า'
+            : 'ไม่พบข้อมูลบล็อก';
+
         container.innerHTML = `
             <div class="text-center py-5">
                 <i data-lucide="inbox" class="text-muted mb-3" style="width:48px;height:48px;"></i>
-                <p class="text-muted">ไม่พบข้อมูลบล็อก</p>
+                <p class="text-muted">${emptyMessage}</p>
             </div>
         `;
         lucide.createIcons();
@@ -115,12 +126,11 @@ function renderTable(blogs) {
             <thead class="bg-light">
                 <tr>
                     <th style="width: 80px">รูป</th>
-                    <th>ชื่อบล็อก (TH)</th>
-                    <th>Title (EN)</th>
+                    <th>ชื่อบล็อก</th>
                     <th style="width: 120px">หมวดหมู่</th>
                     <th style="width: 100px" class="text-center">ยอดเข้าชม</th>
                     <th style="width: 100px" class="text-center">สถานะ</th>
-                    <th style="width: 150px" class="text-center">จัดการ</th>
+                    <th style="width: 210px" class="text-center">จัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -135,22 +145,50 @@ function renderTable(blogs) {
             ? `<img src="${blog.blog_picture}" class="img-thumbnail" style="width:60px;height:60px;object-fit:cover;">`
             : '<div class="bg-light d-flex align-items-center justify-content-center" style="width:60px;height:60px;"><i data-lucide="image" class="text-muted"></i></div>';
 
+        // Combine TH and EN titles in same column
+        const titleHtml = `
+            <div>
+                <div class="fw-medium">${blog.name_th || '-'}</div>
+                <div class="small text-muted">${blog.name_en || '-'}</div>
+                ${blog.gallery_count > 0 ? `<span class="badge bg-info mt-1" style="font-size:10px;"><i data-lucide="images" style="width:12px;height:12px;"></i> ${blog.gallery_count}</span>` : ''}
+            </div>
+        `;
+
+        // Different actions based on view
+        let actionsHtml = '';
+        if (currentView === 'trash') {
+            // Trash view: Restore | Delete Permanently
+            actionsHtml = `
+                <button onclick="restoreBlog(${blog.blog_id})" class="btn btn-sm btn-success me-1" title="Restore">
+                    <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i>
+                </button>
+                <button onclick="deleteBlogPermanently(${blog.blog_id})" class="btn btn-sm btn-danger" title="Delete Forever">
+                    <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                </button>
+            `;
+        } else {
+            // All view: Edit | Gallery | Delete
+            actionsHtml = `
+                <button onclick="editBlog(${blog.blog_id})" class="btn btn-sm btn-primary me-1" title="Edit">
+                    <i data-lucide="edit" style="width:14px;height:14px;"></i>
+                </button>
+                <button onclick="quickEditGallery(${blog.blog_id}, '${(blog.name_th || 'Blog').replace(/'/g, "\\'")}')" class="btn btn-sm btn-info me-1" title="Manage Gallery">
+                    <i data-lucide="images" style="width:14px;height:14px;"></i>
+                </button>
+                <button onclick="deleteBlog(${blog.blog_id})" class="btn btn-sm btn-danger" title="Delete">
+                    <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                </button>
+            `;
+        }
+
         html += `
             <tr>
                 <td>${thumbnail}</td>
-                <td>${blog.name_th || '-'}</td>
-                <td>${blog.name_en || '-'}</td>
+                <td>${titleHtml}</td>
                 <td>${blog.category_name || '-'}</td>
                 <td class="text-center">${blog.blog_view || 0}</td>
                 <td class="text-center">${statusBadge}</td>
-                <td class="text-center">
-                    <button onclick="editBlog(${blog.blog_id})" class="btn btn-sm btn-primary me-1">
-                        <i data-lucide="edit" style="width:14px;height:14px;"></i>
-                    </button>
-                    <button onclick="deleteBlog(${blog.blog_id})" class="btn btn-sm btn-danger">
-                        <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
-                    </button>
-                </td>
+                <td class="text-center">${actionsHtml}</td>
             </tr>
         `;
     });
@@ -213,9 +251,51 @@ function renderPagination(pagination) {
 }
 
 /**
+ * Clear all image states (cropper, previews, base64)
+ */
+function clearImageStates() {
+    // Clear cropper if exists
+    if (typeof blogCropper !== 'undefined' && blogCropper) {
+        blogCropper.destroy();
+        blogCropper = null;
+    }
+
+    // Hide cropper container
+    const cropperContainer = document.getElementById('blogCropperContainer');
+    if (cropperContainer) {
+        cropperContainer.style.display = 'none';
+    }
+
+    // Hide and clear cropped preview
+    const croppedPreview = document.getElementById('blogCroppedPreview');
+    if (croppedPreview) {
+        croppedPreview.style.display = 'none';
+    }
+
+    const croppedImage = document.getElementById('blogCroppedImage');
+    if (croppedImage) {
+        croppedImage.src = '';
+    }
+
+    // Clear base64 data
+    const base64Input = document.getElementById('blogCoverBase64');
+    if (base64Input) {
+        base64Input.value = '';
+    }
+
+    // Clear file input
+    const fileInput = document.getElementById('coverImageInput');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+}
+
+/**
  * Add new blog
  */
 function addBlog() {
+    // Clear all image states first
+    clearImageStates();
     document.getElementById('modalTitle').textContent = 'เพิ่มบล็อก';
     document.getElementById('blogForm').reset();
     document.getElementById('blogId').value = '';
@@ -258,6 +338,9 @@ function addBlog() {
 async function editBlog(id) {
     currentBlogId = id;
 
+    // Clear all image states first
+    clearImageStates();
+
     // Show loading
     Swal.fire({
         title: 'Loading...',
@@ -297,7 +380,21 @@ async function editBlog(id) {
 
         // Show cover image
         if (data.blog_picture) {
-            document.getElementById('coverImage').src = data.blog_picture;
+            let imagePath = data.blog_picture;
+
+            // Add full URL if relative path
+            if (!imagePath.startsWith('http')) {
+                // Remove leading slash if exists
+                imagePath = imagePath.replace(/^\//, '');
+                // Construct full URL (assuming ROOT_URL or current domain)
+                const protocol = window.location.protocol;
+                const host = window.location.host;
+                const pathParts = window.location.pathname.split('/');
+                const basePath = pathParts.slice(0, pathParts.indexOf('admin')).join('/');
+                imagePath = `${protocol}//${host}${basePath}/${imagePath}`;
+            }
+
+            document.getElementById('coverImage').src = imagePath;
             document.getElementById('coverImagePreview').style.display = 'block';
         } else {
             document.getElementById('coverImagePreview').style.display = 'none';
@@ -330,31 +427,61 @@ async function editBlog(id) {
 }
 
 /**
- * Load gallery images
+ * Load gallery images (use new auto-upload system)
  */
 function loadGallery(images) {
-    const container = document.getElementById('galleryPreview');
-    container.innerHTML = '';
+    // Use new auto-upload gallery function
+    if (typeof loadGalleryAuto === 'function') {
+        loadGalleryAuto(images);
+    } else {
+        // Fallback to old method
+        const container = document.getElementById('galleryPreview');
+        container.innerHTML = '';
 
-    images.forEach(img => {
-        const div = document.createElement('div');
-        div.className = 'position-relative';
-        div.innerHTML = `
-            <img src="${img.gallery_image}" class="img-thumbnail" style="width:100px;height:100px;object-fit:cover;">
-            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" 
-                    onclick="deleteGalleryImage(${img.id})" style="padding:2px 6px;">
-                <i data-lucide="x" style="width:14px;height:14px;"></i>
-            </button>
-        `;
-        container.appendChild(div);
-    });
-    lucide.createIcons();
+        images.forEach(img => {
+            const div = document.createElement('div');
+            div.className = 'position-relative';
+            div.innerHTML = `
+                <img src="${img.gallery_image}" class="img-thumbnail" style="width:100px;height:100px;object-fit:cover;">
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" 
+                        onclick="deleteGalleryImage(${img.id})" style="padding:2px 6px;">
+                    <i data-lucide="x" style="width:14px;height:14px;"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        });
+        lucide.createIcons();
+    }
 }
 
 /**
  * Save blog
  */
 async function saveBlog() {
+    // Check if cropper modal is still open - auto-crop if yes
+    const cropperContainer = document.getElementById('blogCropperContainer');
+    if (cropperContainer && cropperContainer.style.display !== 'none') {
+        // User selected image but didn't confirm - auto-crop with current selection
+        console.log('Auto-cropping image before save...');
+
+        try {
+            // Call crop function and wait for upload to complete
+            await cropBlogCover();
+
+            // Brief delay to ensure UI updates
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+            console.error('Auto-crop error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาดในการครอปรูป',
+                text: 'กรุณาครอปรูปภาพอีกครั้ง',
+                confirmButtonText: 'รับทราบ'
+            });
+            return;
+        }
+    }
+
     const blog_id = document.getElementById('blogId').value;
     const blogcat_id = document.getElementById('blogCategory').value;
     const blog_url = document.getElementById('blogUrl').value.trim();
@@ -490,8 +617,19 @@ async function deleteBlog(id) {
 
 /**
  * Upload cover image
+ * Now handles both Base64 (from cropper) and direct file upload
  */
 async function uploadCoverImage() {
+    // Check if we have a cropped image (Base64)
+    const base64Data = document.getElementById('blogCoverBase64').value;
+
+    if (base64Data) {
+        // Upload cropped Base64 image
+        await uploadBase64Cover(base64Data);
+        return;
+    }
+
+    // Fallback: direct file upload (if cropper was bypassed)
     const fileInput = document.getElementById('coverImageInput');
     const file = fileInput.files[0];
 
@@ -534,6 +672,60 @@ async function uploadCoverImage() {
         document.getElementById('blogPicture').value = result.image_url;
         document.getElementById('coverImage').src = result.image_url;
         document.getElementById('coverImagePreview').style.display = 'block';
+
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        Swal.fire('Error', error.message, 'error');
+    }
+}
+
+/**
+ * Upload Base64 cover image (from cropper)
+ */
+async function uploadBase64Cover(base64Data) {
+    Swal.fire({
+        title: 'กำลังอัพโหลด...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    try {
+        const response = await fetch('../api/upload_blog_cover.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                base64_image: base64Data,
+                blog_id: currentBlogId || 0
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'อัพโหลดเรียบร้อย',
+            timer: 1500,
+            showConfirmButton: false
+        });
+
+        // Update the blog picture field with full path
+        document.getElementById('blogPicture').value = result.image_url;
+
+        // Show cropped preview with the uploaded image
+        document.getElementById('blogCroppedImage').src = result.full_path || result.image_url;
+        document.getElementById('blogCroppedPreview').style.display = 'block';
+
+        // Hide cover image preview (for edit mode)
+        document.getElementById('coverImagePreview').style.display = 'none';
+
+        // DO NOT clear Base64 - keep it for form submission
+        // document.getElementById('blogCoverBase64').value = '';
 
     } catch (error) {
         console.error('Error uploading image:', error);

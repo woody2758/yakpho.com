@@ -15,63 +15,70 @@ ob_start();
     <form id="shopSettingsForm" enctype="multipart/form-data">
         <input type="hidden" name="shop_id" value="1">
         
-        <div class="row">
+        <div class="row g-4">
             <!-- Left Column: General Settings -->
-            <div class="col-md-4">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fw-bold">ข้อมูลทั่วไป</h5>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-gradient text-white py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <h5 class="mb-0 fw-bold"><i data-lucide="info" class="me-2" style="width:18px;"></i>ข้อมูลทั่วไป</h5>
                     </div>
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <label class="form-label d-block fw-bold">โลโก้ร้านค้า</label>
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <label class="form-label d-block fw-bold mb-3">โลโก้ร้านค้า</label>
                             <div class="position-relative d-inline-block">
                                 <img id="logoPreview" src="<?= ADMIN_ASSETS ?>/images/placeholder.png" 
-                                     class="rounded border shadow-sm mb-2" 
-                                     style="width: 150px; height: 150px; object-fit: contain; background: #f8f9fa;">
-                                <div class="position-absolute bottom-0 end-0">
-                                    <label for="shop_logo" class="btn btn-sm btn-primary rounded-circle" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                                        <i data-lucide="camera" style="width: 16px; height: 16px;"></i>
+                                     class="rounded-3 border shadow-sm mb-2" 
+                                     style="width: 160px; height: 160px; object-fit: contain; background: #f8f9fa;">
+                                <div class="position-absolute bottom-0 end-0 mb-2 me-2">
+                                    <label for="shop_logo" class="btn btn-sm btn-primary rounded-circle shadow" style="width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                        <i data-lucide="camera" style="width: 18px; height: 18px;"></i>
                                     </label>
                                     <input type="file" id="shop_logo" name="shop_logo" class="d-none" accept="image/*" onchange="previewLogo(this)">
                                 </div>
                             </div>
+                            <small class="text-muted d-block">คลิกที่ไอคอนกล้องเพื่ออัปโหลด</small>
                         </div>
 
-                        <div class="text-start">
-                            <div class="mb-3">
-                                <label class="form-label">เบอร์โทรศัพท์</label>
-                                <input type="text" class="form-control" name="shop_phone" id="shop_phone">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">อีเมล</label>
-                                <input type="email" class="form-control" name="shop_email" id="shop_email">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">เลขประจำตัวผู้เสียภาษี</label>
-                                <input type="text" class="form-control" name="shop_tax_id" id="shop_tax_id">
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold"><i data-lucide="phone" class="me-1" style="width:14px;"></i>เบอร์โทรศัพท์</label>
+                            <input type="text" class="form-control form-control-lg" name="shop_phone" id="shop_phone" placeholder="0xx-xxx-xxxx">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold"><i data-lucide="mail" class="me-1" style="width:14px;"></i>อีเมล</label>
+                            <input type="email" class="form-control form-control-lg" name="shop_email" id="shop_email" placeholder="email@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold"><i data-lucide="hash" class="me-1" style="width:14px;"></i>เลขประจำตัวผู้เสียภาษี</label>
+                            <input type="text" class="form-control form-control-lg" name="shop_tax_id" id="shop_tax_id" placeholder="x-xxxx-xxxxx-xx-x">
                         </div>
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow mt-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
                     <i data-lucide="save" class="me-2"></i>บันทึกการตั้งค่า
                 </button>
             </div>
 
             <!-- Right Column: Multi-language Address -->
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold">ที่อยู่ร้านค้า (6 ภาษา)</h5>
-                        <!-- Language Tabs -->
-                        <ul class="nav nav-pills card-header-pills" id="langTabs" role="tablist">
-                            <!-- Tabs will be generated by JS -->
-                        </ul>
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold"><i data-lucide="globe" class="me-2" style="width:20px;"></i>ที่อยู่ร้านค้าหลายภาษา</h5>
+                            <!-- Language Dropdown -->
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center" type="button" id="languageDropdown" data-bs-toggle="dropdown">
+                                    <img id="currentFlag" src="https://flagcdn.com/w20/th.png" class="me-2" style="width:20px;">
+                                    <span id="currentLangName">ไทย</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" id="languageMenu" style="max-height: 400px; overflow-y: auto;">
+                                    <!-- Will be populated by JS -->
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="tab-content" id="langTabContent">
+                    <div class="card-body p-4">
+                        <div id="langTabContent">
                             <!-- Tab panes will be generated by JS -->
                         </div>
                     </div>

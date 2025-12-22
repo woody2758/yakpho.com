@@ -46,7 +46,7 @@ try {
     }
     
     // Ensure all 8 languages exist
-    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
+    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru', 'ar', 'he'];
     foreach ($languages as $lang) {
         if (!isset($translationsObj[$lang])) {
             $translationsObj[$lang] = [

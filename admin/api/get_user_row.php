@@ -23,8 +23,8 @@ try {
     }
     
     // Generate row HTML
-    $img_path = __DIR__ . "/../../assets/img/profile/{$u['user_id']}/{$u['user_picture']}";
-    $img_url  = ROOT_URL . "/assets/img/profile/{$u['user_id']}/{$u['user_picture']}";
+    $img_path = __DIR__ . "/../../uploads/profile/{$u['user_id']}/{$u['user_picture']}";
+    $img_url  = ROOT_URL . "/uploads/profile/{$u['user_id']}/{$u['user_picture']}";
     
     $roleBadge = match ($u['role']) {
         'owner', 'admin' => 'bg-danger',
@@ -48,7 +48,7 @@ try {
                     <img src="<?= $img_url ?>?t=<?= time() ?>" alt="User" class="rounded-circle me-2" style="width:40px; height:40px; object-fit:cover;">
                 <?php else: ?>
                     <div class="avatar-circle me-2 bg-light text-secondary d-flex align-items-center justify-content-center" style="width:40px; height:40px; border-radius:50%;">
-                        <img src="<?= ROOT_URL ?>/assets/img/profile/default.png" style="width:40px; height:40px;">
+                        <img src="<?= ROOT_URL ?>/uploads/profile/default.png" style="width:40px; height:40px;">
                     </div>
                 <?php endif; ?>
             </div>

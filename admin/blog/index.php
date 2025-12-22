@@ -32,6 +32,32 @@ ob_start();
         </div>
     </div>
 
+    <!-- View Tabs -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs border-0 mb-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-all" onclick="switchView('all')" type="button">
+                            All Blogs <span class="badge bg-primary ms-1" id="count-all">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-trash" onclick="switchView('trash')" type="button">
+                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                            Trash <span class="badge bg-danger ms-1" id="count-trash">0</span>
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Empty Trash Button (shown only in trash view) -->
+                <button id="emptyTrashBtn" class="btn btn-danger btn-sm" onclick="emptyTrash()" style="display:none;">
+                    <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Empty Trash
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Blog Table -->
     <div class="card shadow-sm">
         <div class="card-body p-0">
@@ -53,7 +79,7 @@ ob_start();
 
 <!-- Add/Edit Blog Modal -->
 <div class="modal fade" id="blogModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalTitle">เพิ่มบล็อก</h5>
@@ -85,18 +111,49 @@ ob_start();
                         </div>
                     </div>
 
-                    <!-- Cover Image -->
+                    <!-- Cover Image with Cropper -->
                     <div class="mb-3">
-                        <label class="form-label">รูปภาพปก</label>
-                        <div class="d-flex gap-2 align-items-start">
-                            <div id="coverImagePreview" class="border rounded p-2" style="width: 200px; height: 150px; display: none;">
-                                <img id="coverImage" src="" class="img-fluid" style="max-height: 130px; object-fit: cover;">
-                            </div>
-                            <div>
-                                <input type="file" id="coverImageInput" class="form-control mb-2" accept="image/*">
-                                <button type="button" onclick="uploadCoverImage()" class="btn btn-sm btn-primary">อัพโหลด</button>
-                                <input type="hidden" id="blogPicture" name="blog_picture">
-                            </div>
+                        <label class="form-label">รูปภาพปก (จะถูก Crop เป็น 16:9)</label>
+                        <input type="file" id="coverImageInput" class="form-control mb-2" accept="image/*">
+                        <input type="hidden" id="blogCoverBase64" name="blog_cover_base64">
+                        <input type="hidden" id="blogPicture" name="blog_picture">
+                        <small class="text-muted">รองรับ: JPG, PNG, GIF (จะแปลงเป็น WebP อัตโนมัติ)</small>
+                    </div>
+                    
+                    <!-- Image Preview & Cropper -->
+                    <div id="blogCropperContainer" style="display: none;" class="mb-3">
+                        <div class="mb-2">
+                            <img id="blogImageToCrop" style="max-width: 100%; display: block;">
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-success" onclick="cropBlogCover()">
+                                <i data-lucide="check"></i> ยืนยันการ Crop
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="useOriginalBlogCover()">
+                                <i data-lucide="image"></i> ใช้รูปนี้เลย
+                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="cancelBlogCrop()">
+                                <i data-lucide="x"></i> ยกเลิก
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Cropped Preview -->
+                    <div id="blogCroppedPreview" style="display: none;" class="mb-3">
+                        <label class="form-label">ตัวอย่างรูปที่ Crop แล้ว:</label>
+                        <div class="position-relative" style="max-width: 400px;">
+                            <img id="blogCroppedImage" class="img-thumbnail" style="width: 100%;">
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="removeBlogCroppedImage()">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Existing Cover Preview (for edit mode) -->
+                    <div id="coverImagePreview" class="mb-3" style="display: none;">
+                        <label class="form-label">รูปปกปัจจุบัน:</label>
+                        <div class="position-relative" style="max-width: 400px;">
+                            <img id="coverImage" class="img-thumbnail" style="width: 100%;">
                         </div>
                     </div>
 
@@ -110,53 +167,10 @@ ob_start();
                         </div>
                     </div>
 
-                    <!-- Language Tabs -->
-                    <ul class="nav nav-tabs mb-3" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#lang-th" type="button">
-                                🇹🇭 ไทย
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-en" type="button">
-                                🇬🇧 English
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-de" type="button">
-                                🇩🇪 Deutsch
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-fr" type="button">
-                                🇫🇷 Français
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-zh" type="button">
-                                🇨🇳 中文
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ko" type="button">
-                                🇰🇷 한국어
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ja" type="button">
-                                🇯🇵 日本語
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ru" type="button">
-                                🇷🇺 Русский
-                            </button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
+                    <div class="language-dropdown-container mb-3" data-content-selector="#blogLangContent"></div>
+                    <div id="blogLangContent">
                         <!-- Thai -->
-                        <div class="tab-pane fade show active" id="lang-th">
+                        <div data-lang="th">
                             <div class="mb-3">
                                 <label class="form-label">ชื่อบล็อก <span class="text-danger">*</span></label>
                                 <input type="text" name="blog_name_th" class="form-control" required>
@@ -178,67 +192,67 @@ ob_start();
                         <!-- English -->
                         <div class="tab-pane fade" id="lang-en">
                             <div class="mb-3">
-                                <label class="form-label">Blog Title</label>
+                                <label class="form-label">Blog Title (English)</label>
                                 <input type="text" name="blog_name_en" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Excerpt</label>
+                                <label class="form-label">Excerpt (English)</label>
                                 <textarea name="blog_excerpt_en" class="form-control" rows="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Content</label>
+                                <label class="form-label">Content (English)</label>
                                 <textarea name="blog_detail_en" class="form-control summernote"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Tags (comma-separated)</label>
+                                <label class="form-label">Tags (English)</label>
                                 <input type="text" name="blog_tag_en" class="form-control" placeholder="tag1, tag2, tag3">
                             </div>
                         </div>
 
                         <!-- German -->
-                        <div class="tab-pane fade" id="lang-de">
+                        <div data-lang="de">
                             <div class="mb-3">
-                                <label class="form-label">Blog-Titel</label>
+                                <label class="form-label">Blog-Titel (German)</label>
                                 <input type="text" name="blog_name_de" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Auszug</label>
+                                <label class="form-label">Auszug (German)</label>
                                 <textarea name="blog_excerpt_de" class="form-control" rows="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Inhalt</label>
+                                <label class="form-label">Inhalt (German)</label>
                                 <textarea name="blog_detail_de" class="form-control summernote"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Stichworte</label>
+                                <label class="form-label">Stichworte (German)</label>
                                 <input type="text" name="blog_tag_de" class="form-control">
                             </div>
                         </div>
 
                         <!-- French -->
-                        <div class="tab-pane fade" id="lang-fr">
+                        <div data-lang="fr">
                             <div class="mb-3">
-                                <label class="form-label">Titre du blog</label>
+                                <label class="form-label">Titre du blog (French)</label>
                                 <input type="text" name="blog_name_fr" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Extrait</label>
+                                <label class="form-label">Extrait (French)</label>
                                 <textarea name="blog_excerpt_fr" class="form-control" rows="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Contenu</label>
+                                <label class="form-label">Contenu (French)</label>
                                 <textarea name="blog_detail_fr" class="form-control summernote"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Mots clés</label>
+                                <label class="form-label">Mots clés (French)</label>
                                 <input type="text" name="blog_tag_fr" class="form-control">
                             </div>
                         </div>
 
                         <!-- Chinese -->
-                        <div class="tab-pane fade" id="lang-zh">
+                        <div data-lang="zh">
                             <div class="mb-3">
-                                <label class="form-label">博客标题</label>
+                                <label class="form-label">博客标题 (Chinese)</label>
                                 <input type="text" name="blog_name_zh" class="form-control">
                             </div>
                             <div class="mb-3">
@@ -246,43 +260,43 @@ ob_start();
                                 <textarea name="blog_excerpt_zh" class="form-control" rows="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">内容</label>
+                                <label class="form-label">内容 (Chinese)</label>
                                 <textarea name="blog_detail_zh" class="form-control summernote"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">标签</label>
+                                <label class="form-label">标签 (Chinese)</label>
                                 <input type="text" name="blog_tag_zh" class="form-control">
                             </div>
                         </div>
 
                         <!-- Korean -->
-                        <div class="tab-pane fade" id="lang-ko">
+                        <div data-lang="ko">
                             <div class="mb-3">
-                                <label class="form-label">블로그 제목</label>
+                                <label class="form-label">블로그 제목 (Korean)</label>
                                 <input type="text" name="blog_name_ko" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">발췌</label>
+                                <label class="form-label">발췌 (Korean)</label>
                                 <textarea name="blog_excerpt_ko" class="form-control" rows="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">내용</label>
+                                <label class="form-label">내용 (Korean)</label>
                                 <textarea name="blog_detail_ko" class="form-control summernote"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">태그</label>
+                                <label class="form-label">태그 (Korean)</label>
                                 <input type="text" name="blog_tag_ko" class="form-control">
                             </div>
                         </div>
 
                         <!-- Japanese -->
-                        <div class="tab-pane fade" id="lang-ja">
+                        <div data-lang="ja">
                             <div class="mb-3">
-                                <label class="form-label">ブログタイトル</label>
+                                <label class="form-label">ブログタイトル (Japanese)</label>
                                 <input type="text" name="blog_name_ja" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">抜粋</label>
+                                <label class="form-label">抜粋 (Japanese)</label>
                                 <textarea name="blog_excerpt_ja" class="form-control" rows="2"></textarea>
                             </div>
                             <div class="mb-3">
@@ -290,13 +304,13 @@ ob_start();
                                 <textarea name="blog_detail_ja" class="form-control summernote"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">タグ</label>
+                                <label class="form-label">タグ (Japanese)</label>
                                 <input type="text" name="blog_tag_ja" class="form-control">
                             </div>
                         </div>
 
                         <!-- Russian -->
-                        <div class="tab-pane fade" id="lang-ru">
+                        <div data-lang="ru">
                             <div class="mb-3">
                                 <label class="form-label">Название блога</label>
                                 <input type="text" name="blog_name_ru" class="form-control">
@@ -306,12 +320,52 @@ ob_start();
                                 <textarea name="blog_excerpt_ru" class="form-control" rows="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Содержание</label>
+                                <label class="form-label">Содержание (Russian)</label>
                                 <textarea name="blog_detail_ru" class="form-control summernote"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Теги</label>
+                                <label class="form-label">Теги (Russian)</label>
                                 <input type="text" name="blog_tag_ru" class="form-control">
+                            </div>
+                        </div>
+
+                        <!-- Arabic -->
+                        <div data-lang="ar">
+                            <div class="mb-3">
+                                <label class="form-label">عنوان المدونة (Blog Title - Arabic)</label>
+                                <input type="text" name="blog_name_ar" class="form-control" dir="rtl">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">مقتطف (Excerpt - Arabic)</label>
+                                <textarea name="blog_excerpt_ar" class="form-control" rows="2" dir="rtl"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">المحتوى (Content - Arabic)</label>
+                                <textarea name="blog_detail_ar" class="form-control summernote" dir="rtl"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">العلامات (Tags - Arabic)</label>
+                                <input type="text" name="blog_tag_ar" class="form-control" dir="rtl">
+                            </div>
+                        </div>
+
+                        <!-- Hebrew -->
+                        <div data-lang="he">
+                            <div class="mb-3">
+                                <label class="form-label">כותרת הבלוג (Blog Title - Hebrew)</label>
+                                <input type="text" name="blog_name_he" class="form-control" dir="rtl">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">תקציר (Excerpt - Hebrew)</label>
+                                <textarea name="blog_excerpt_he" class="form-control" rows="2" dir="rtl"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">תוכן (Content - Hebrew)</label>
+                                <textarea name="blog_detail_he" class="form-control summernote" dir="rtl"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">תגיות (Tags - Hebrew)</label>
+                                <input type="text" name="blog_tag_he" class="form-control" dir="rtl">
                             </div>
                         </div>
                     </div>
@@ -320,8 +374,12 @@ ob_start();
                     <div class="mt-4">
                         <h6>แกลเลอรี่</h6>
                         <div class="mb-3">
+                            <label class="form-label">
+                                <i data-lucide="images"></i> รูปภาพแกลเลอรี่ 
+                                <span class="text-muted">(เลือกหลายรูปได้ อัพโหลดอัตโนมัติ)</span>
+                            </label>
                             <input type="file" id="galleryInput" class="form-control" accept="image/*" multiple>
-                            <button type="button" onclick="uploadGallery()" class="btn btn-sm btn-secondary mt-2">อัพโหลดภาพ</button>
+                            <small class="text-muted">รองรับ: JPG, PNG, GIF - อัพโหลดและสามารถลาก-วางเรียงลำดับได้</small>
                         </div>
                         <div id="galleryPreview" class="d-flex flex-wrap gap-2">
                             <!-- Gallery images will appear here -->
@@ -377,24 +435,26 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         });
     });
-});
-
-// Cover image preview
-document.getElementById('coverImageInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('coverImage').src = e.target.result;
-            document.getElementById('coverImagePreview').style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    }
+    
+    // Cover image handler - trigger cropper (must be after blog-image-functions.js loads)
+    document.getElementById('coverImageInput').addEventListener('change', handleBlogCoverSelect);
 });
 </script>
 
 <!-- Summernote JS -->
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
+<!-- Blog Image Functions -->
+<script src="<?= ADMIN_ASSETS ?>/js/blog-image-functions.js<?= $ver ?>"></script>
+
+<!-- Blog Gallery Auto-Upload -->
+<script src="<?= ADMIN_ASSETS ?>/js/blog-gallery-auto.js<?= $ver ?>"></script>
+
+<!-- Blog Gallery Quick Edit -->
+<script src="<?= ADMIN_ASSETS ?>/js/blog-gallery-quick.js<?= $ver ?>"></script>
+
+<!-- Blog Trash Management -->
+<script src="<?= ADMIN_ASSETS ?>/js/blog-trash.js<?= $ver ?>"></script>
 
 <!-- Blog JS -->
 <script src="<?= ADMIN_ASSETS ?>/js/blog.js<?= $ver ?>"></script>

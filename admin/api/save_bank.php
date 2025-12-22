@@ -90,7 +90,7 @@ try {
     }
 
     // Handle Translations
-    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
+    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru', 'ar', 'he'];
     
     // Prepare statements
     $checkStmt = $db->prepare("SELECT translation_id FROM bank_translations WHERE bank_id = ? AND lang_code = ?");

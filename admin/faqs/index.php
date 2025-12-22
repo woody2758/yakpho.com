@@ -76,21 +76,10 @@ ob_start();
                         </div>
                     </div>
 
-                    <!-- Language Tabs -->
-                    <ul class="nav nav-tabs mb-3">
-                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#lang-th" type="button">🇹🇭 ไทย</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-en" type="button">🇬🇧 English</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-de" type="button">🇩🇪 Deutsch</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-fr" type="button">🇫🇷 Français</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-zh" type="button">🇨🇳 中文</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ko" type="button">🇰🇷 한국어</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ja" type="button">🇯🇵 日本語</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ru" type="button">🇷🇺 Русский</button></li>
-                    </ul>
-
-                    <div class="tab-content">
+                    <div class="language-dropdown-container mb-3" data-content-selector="#faqsLangContent"></div>
+                    <div id="faqsLangContent">
                         <!-- Thai -->
-                        <div class="tab-pane fade show active" id="lang-th">
+                        <div data-lang="th">
                             <div class="mb-3">
                                 <label class="form-label">คำถาม <span class="text-danger">*</span></label>
                                 <input type="text" name="faqs_name_th" class="form-control" required>
@@ -102,86 +91,110 @@ ob_start();
                         </div>
 
                         <!-- English -->
-                        <div class="tab-pane fade" id="lang-en">
+                        <div data-lang="en">
                             <div class="mb-3">
-                                <label class="form-label">Question</label>
+                                <label class="form-label">Question (English)</label>
                                 <input type="text" name="faqs_name_en" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Answer</label>
+                                <label class="form-label">Answer (English)</label>
                                 <textarea name="faqs_detail_en" class="form-control" rows="4"></textarea>
                             </div>
                         </div>
 
                         <!-- German -->
-                        <div class="tab-pane fade" id="lang-de">
+                        <div data-lang="de">
                             <div class="mb-3">
-                                <label class="form-label">Frage</label>
+                                <label class="form-label">Frage (German)</label>
                                 <input type="text" name="faqs_name_de" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Antwort</label>
+                                <label class="form-label">Antwort (German)</label>
                                 <textarea name="faqs_detail_de" class="form-control" rows="4"></textarea>
                             </div>
                         </div>
 
                         <!-- French -->
-                        <div class="tab-pane fade" id="lang-fr">
+                        <div data-lang="fr">
                             <div class="mb-3">
-                                <label class="form-label">Question</label>
+                                <label class="form-label">Question (French)</label>
                                 <input type="text" name="faqs_name_fr" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Réponse</label>
+                                <label class="form-label">Réponse (French)</label>
                                 <textarea name="faqs_detail_fr" class="form-control" rows="4"></textarea>
                             </div>
                         </div>
 
                         <!-- Chinese -->
-                        <div class="tab-pane fade" id="lang-zh">
+                        <div data-lang="zh">
                             <div class="mb-3">
-                                <label class="form-label">问题</label>
+                                <label class="form-label">问题 (Chinese)</label>
                                 <input type="text" name="faqs_name_zh" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">回答</label>
+                                <label class="form-label">回答 (Chinese)</label>
                                 <textarea name="faqs_detail_zh" class="form-control" rows="4"></textarea>
                             </div>
                         </div>
 
                         <!-- Korean -->
-                        <div class="tab-pane fade" id="lang-ko">
+                        <div data-lang="ko">
                             <div class="mb-3">
-                                <label class="form-label">질문</label>
+                                <label class="form-label">질문 (Korean)</label>
                                 <input type="text" name="faqs_name_ko" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">대답</label>
+                                <label class="form-label">대답 (Korean)</label>
                                 <textarea name="faqs_detail_ko" class="form-control" rows="4"></textarea>
                             </div>
                         </div>
 
                         <!-- Japanese -->
-                        <div class="tab-pane fade" id="lang-ja">
+                        <div data-lang="ja">
                             <div class="mb-3">
-                                <label class="form-label">質問</label>
+                                <label class="form-label">質問 (Japanese)</label>
                                 <input type="text" name="faqs_name_ja" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">答え</label>
+                                <label class="form-label">答え (Japanese)</label>
                                 <textarea name="faqs_detail_ja" class="form-control" rows="4"></textarea>
                             </div>
                         </div>
 
                         <!-- Russian -->
-                        <div class="tab-pane fade" id="lang-ru">
+                        <div data-lang="ru">
                             <div class="mb-3">
-                                <label class="form-label">Вопрос</label>
+                                <label class="form-label">Вопрос (Russian)</label>
                                 <input type="text" name="faqs_name_ru" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Ответ</label>
+                                <label class="form-label">Ответ (Russian)</label>
                                 <textarea name="faqs_detail_ru" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Arabic -->
+                        <div data-lang="ar">
+                            <div class="mb-3">
+                                <label class="form-label">سؤال (Question - Arabic)</label>
+                                <input type="text" name="faqs_name_ar" class="form-control" dir="rtl">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">إجابة (Answer - Arabic)</label>
+                                <textarea name="faqs_detail_ar" class="form-control" rows="4" dir="rtl"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Hebrew -->
+                        <div data-lang="he">
+                            <div class="mb-3">
+                                <label class="form-label">שאלה (Question - Hebrew)</label>
+                                <input type="text" name="faqs_name_he" class="form-control" dir="rtl">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">תשובה (Answer - Hebrew)</label>
+                                <textarea name="faqs_detail_he" class="form-control" rows="4" dir="rtl"></textarea>
                             </div>
                         </div>
                     </div>

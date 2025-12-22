@@ -187,64 +187,125 @@ include __DIR__ . '/../includes/header.php';
                                 <!-- Translations -->
                                 <div class="card mb-3">
                                     <div class="card-header">
-                                        <h5 class="mb-0">ข้อมูลหลายภาษา</h5>
+                                        <h5 class="mb-0"><i data-lucide="languages"></i> Content (Multi-Language)</h5>
                                     </div>
                                     <div class="card-body">
+                                        <!-- Language Tabs -->
                                         <ul class="nav nav-tabs mb-3" role="tablist">
-                                            <?php foreach ($languages as $i => $lang): ?>
-                                            <li class="nav-item">
-                                                <button class="nav-link <?= $i === 0 ? 'active' : '' ?>" 
-                                                        data-bs-toggle="tab" 
-                                                        data-bs-target="#lang-<?= $lang['lang_code'] ?>" 
-                                                        type="button">
-                                                    <?= $lang['lang_flag'] ?> <?= $lang['lang_name'] ?>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#lang-th" type="button">
+                                                    🇹🇭 ไทย
                                                 </button>
                                             </li>
-                                            <?php endforeach; ?>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-en" type="button">
+                                                    🇬🇧 English
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-de" type="button">
+                                                    🇩🇪 Deutsch
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-fr" type="button">
+                                                    🇫🇷 Français
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-zh" type="button">
+                                                    🇨🇳 中文
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ko" type="button">
+                                                    🇰🇷 한국어
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ja" type="button">
+                                                    🇯🇵 日本語
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ru" type="button">
+                                                    🇷🇺 Русский
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ar" type="button">
+                                                    🇦🇪 العربية
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-he" type="button">
+                                                    🇮🇱 עברית
+                                                </button>
+                                            </li>
                                         </ul>
 
+                                        <!-- Tab Content -->
                                         <div class="tab-content">
-                                            <?php foreach ($languages as $i => $lang): 
-                                                $trans = $translationsData[$lang['lang_code']] ?? [];
+                                            <?php 
+                                            $languages = [
+                                                'th' => ['name' => 'Thai', 'dir' => 'ltr'],
+                                                'en' => ['name' => 'English', 'dir' => 'ltr'],
+                                                'de' => ['name' => 'German', 'dir' => 'ltr'],
+                                                'fr' => ['name' => 'French', 'dir' => 'ltr'],
+                                                'zh' => ['name' => 'Chinese', 'dir' => 'ltr'],
+                                                'ko' => ['name' => 'Korean', 'dir' => 'ltr'],
+                                                'ja' => ['name' => 'Japanese', 'dir' => 'ltr'],
+                                                'ru' => ['name' => 'Russian', 'dir' => 'ltr'],
+                                                'ar' => ['name' => 'Arabic', 'dir' => 'rtl'],
+                                                'he' => ['name' => 'Hebrew', 'dir' => 'rtl']
+                                            ];
+                                            
+                                            foreach ($languages as $code => $lang):
+                                                $active = $code === 'th' ? 'show active' : '';
+                                                $trans = $translationsData[$code] ?? [];
+                                                $dir = $lang['dir'];
                                             ?>
-                                            <div class="tab-pane fade <?= $i === 0 ? 'show active' : '' ?>" 
-                                                 id="lang-<?= $lang['lang_code'] ?>">
-                                                
+                                            <div class="tab-pane fade <?= $active ?>" id="lang-<?= $code ?>">
                                                 <div class="mb-3">
-                                                    <label class="form-label">ชื่อสินค้า</label>
+                                                    <label class="form-label">Product Name<?= in_array($code, ['ar', 'he']) ? ' (' . $lang['name'] . ')' : '' ?></label>
                                                     <input type="text" 
-                                                           name="product_name_<?= $lang['lang_code'] ?>" 
+                                                           name="product_name_<?= $code ?>" 
                                                            class="form-control"
+                                                           dir="<?= $dir ?>"
                                                            value="<?= htmlspecialchars($trans['product_name'] ?? '') ?>">
                                                 </div>
 
                                                 <div class="mb-3">
-                                                    <label class="form-label">คำอธิบายสั้น</label>
-                                                    <textarea name="product_excerpt_<?= $lang['lang_code'] ?>" 
+                                                    <label class="form-label">Short Description<?= in_array($code, ['ar', 'he']) ? ' (' . $lang['name'] . ')' : '' ?></label>
+                                                    <textarea name="product_excerpt_<?= $code ?>" 
                                                               class="form-control" 
-                                                              rows="2"><?= htmlspecialchars($trans['product_excerpt'] ?? '') ?></textarea>
+                                                              rows="2"
+                                                              dir="<?= $dir ?>"><?= htmlspecialchars($trans['product_excerpt'] ?? '') ?></textarea>
                                                 </div>
 
                                                 <div class="mb-3">
-                                                    <label class="form-label">รายละเอียด</label>
-                                                    <textarea name="product_detail_<?= $lang['lang_code'] ?>" 
+                                                    <label class="form-label">Detail<?= in_array($code, ['ar', 'he']) ? ' (' . $lang['name'] . ')' : '' ?></label>
+                                                    <textarea name="product_detail_<?= $code ?>" 
                                                               class="form-control tinymce-editor" 
-                                                              rows="5"><?= htmlspecialchars($trans['product_detail'] ?? '') ?></textarea>
+                                                              rows="5"
+                                                              dir="<?= $dir ?>"><?= htmlspecialchars($trans['product_detail'] ?? '') ?></textarea>
                                                 </div>
 
                                                 <div class="row g-3">
                                                     <div class="col-md-6">
-                                                        <label class="form-label">หน่วยนับ</label>
+                                                        <label class="form-label">Unit<?= in_array($code, ['ar', 'he']) ? ' (' . $lang['name'] . ')' : '' ?></label>
                                                         <input type="text" 
-                                                               name="product_unit_<?= $lang['lang_code'] ?>" 
+                                                               name="product_unit_<?= $code ?>" 
                                                                class="form-control"
+                                                               dir="<?= $dir ?>"
                                                                value="<?= htmlspecialchars($trans['product_unit'] ?? '') ?>">
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <label class="form-label">Tags</label>
+                                                        <label class="form-label">Tags<?= in_array($code, ['ar', 'he']) ? ' (' . $lang['name'] . ')' : '' ?></label>
                                                         <input type="text" 
-                                                               name="product_tag_<?= $lang['lang_code'] ?>" 
+                                                               name="product_tag_<?= $code ?>" 
                                                                class="form-control"
+                                                               dir="<?= $dir ?>"
                                                                value="<?= htmlspecialchars($trans['product_tag'] ?? '') ?>">
                                                     </div>
                                                 </div>
@@ -253,17 +314,19 @@ include __DIR__ . '/../includes/header.php';
 
                                                 <div class="row g-3">
                                                     <div class="col-md-6">
-                                                        <label class="form-label">SEO Title</label>
+                                                        <label class="form-label">SEO Title<?= in_array($code, ['ar', 'he']) ? ' (' . $lang['name'] . ')' : '' ?></label>
                                                         <input type="text" 
-                                                               name="seo_title_<?= $lang['lang_code'] ?>" 
+                                                               name="seo_title_<?= $code ?>" 
                                                                class="form-control"
+                                                               dir="<?= $dir ?>"
                                                                value="<?= htmlspecialchars($trans['seo_title'] ?? '') ?>">
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <label class="form-label">SEO Description</label>
-                                                        <textarea name="seo_description_<?= $lang['lang_code'] ?>" 
+                                                        <label class="form-label">SEO Description<?= in_array($code, ['ar', 'he']) ? ' (' . $lang['name'] . ')' : '' ?></label>
+                                                        <textarea name="seo_description_<?= $code ?>" 
                                                                   class="form-control" 
-                                                                  rows="2"><?= htmlspecialchars($trans['seo_description'] ?? '') ?></textarea>
+                                                                  rows="2"
+                                                                  dir="<?= $dir ?>"><?= htmlspecialchars($trans['seo_description'] ?? '') ?></textarea>
                                                     </div>
                                                 </div>
                                             </div>

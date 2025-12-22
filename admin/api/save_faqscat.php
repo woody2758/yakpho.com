@@ -44,7 +44,7 @@ try {
     }
     
     // Save translations for all 8 languages
-    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
+    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru', 'ar', 'he'];
     
     foreach ($languages as $lang) {
         $name = $translations[$lang]['faqscat_name'] ?? '';

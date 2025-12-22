@@ -88,52 +88,8 @@ ob_start();
                             <h6 class="mb-0"><i data-lucide="languages"></i> Content (Multi-Language)</h6>
                         </div>
                         <div class="card-body">
-                            <!-- Tabs -->
-                            <ul class="nav nav-tabs mb-3" id="languageTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" data-lang="th" type="button">
-                                        🇹🇭 ไทย
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-lang="en" type="button">
-                                        🇬🇧 English
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-lang="de" type="button">
-                                        🇩🇪 Deutsch
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-lang="fr" type="button">
-                                        🇫🇷 Français
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-lang="zh" type="button">
-                                        🇨🇳 中文
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-lang="ko" type="button">
-                                        🇰🇷 한국어
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-lang="ja" type="button">
-                                        🇯🇵 日本語
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-lang="ru" type="button">
-                                        🇷🇺 Русский
-                                    </button>
-                                </li>
-                            </ul>
-                            
-                            <!-- Tab Content -->
-                            <div class="tab-content">
+                            <div class="language-dropdown-container mb-3" data-content-selector="#aboutusLangContent"></div>
+                            <div id="aboutusLangContent">
                                 <?php
                                 $languages = [
                                     'th' => 'Thai',
@@ -143,26 +99,36 @@ ob_start();
                                     'zh' => 'Chinese',
                                     'ko' => 'Korean',
                                     'ja' => 'Japanese',
-                                    'ru' => 'Russian'
+                                    'ru' => 'Russian',
+                                    'ar' => 'Arabic',
+                                    'he' => 'Hebrew'
                                 ];
                                 
                                 foreach ($languages as $code => $name) {
-                                    $active = $code === 'th' ? 'show active' : '';
+                                    // Determine label suffix
+                                    $labelSuffix = '';
+                                    if (in_array($code, ['ar', 'he'])) {
+                                        $labelSuffix = ' (' . $name . ')';
+                                    }
+                                    
+                                    // RTL support
+                                    $dirAttr = in_array($code, ['ar', 'he']) ? 'dir="rtl"' : '';
+                                    
                                     echo "
-                                    <div class='tab-pane fade $active' id='lang-$code'>
+                                    <div data-lang='$code'>
                                         <div class='mb-3'>
-                                            <label class='form-label'>Title ($name)</label>
-                                            <input type='text' class='form-control' id='title_$code' 
+                                            <label class='form-label'>Title" . ($code === 'ar' || $code === 'he' ? "$labelSuffix" : " ($name)") . "</label>
+                                            <input type='text' class='form-control' id='title_$code' " . (in_array($code, ['ar', 'he']) ? "dir='rtl'" : "") . "
                                                    placeholder='Enter title in $name'>
                                         </div>
                                         <div class='mb-3'>
-                                            <label class='form-label'>Subtitle</label>
-                                            <input type='text' class='form-control' id='subtitle_$code' 
+                                            <label class='form-label'>Subtitle" . ($code === 'ar' || $code === 'he' ? "$labelSuffix" : "") . "</label>
+                                            <input type='text' class='form-control' id='subtitle_$code' " . (in_array($code, ['ar', 'he']) ? "dir='rtl'" : "") . "
                                                    placeholder='Enter subtitle (optional)'>
                                         </div>
                                         <div class='mb-3'>
-                                            <label class='form-label'>Content</label>
-                                            <textarea class='form-control summernote' id='content_$code' 
+                                            <label class='form-label'>Content" . ($code === 'ar' || $code === 'he' ? "$labelSuffix" : "") . "</label>
+                                            <textarea class='form-control summernote' id='content_$code' " . (in_array($code, ['ar', 'he']) ? "dir='rtl'" : "") . "
                                                       rows='10'></textarea>
                                         </div>
                                     </div>

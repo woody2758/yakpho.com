@@ -8,12 +8,12 @@ $ADMIN_ROLE  = $ADMIN_ROLE  ?? ($_SESSION['admin_role']  ?? "");
 $ADMIN_PIC   = $_SESSION['admin_picture'] ?? "default.png";
 
 // สร้าง path รูปโปรไฟล์ (HTTP)
-$profilePath = ROOT_URL . "/assets/img/profile/" . ($ADMIN_ID ?: "default") . "/" . $ADMIN_PIC;
+$profilePath = ROOT_URL . "/uploads/profile/" . ($ADMIN_ID ?: "default") . "/" . $ADMIN_PIC;
 
-// เช็คไฟล์จริงในเครื่อง
-$profileFile = __DIR__ . "/../../assets/img/profile/" . ($ADMIN_ID ?: "default") . "/" . $ADMIN_PIC;
-if (!is_file($profileFile)) {
-    $profilePath = ROOT_URL . "/assets/img/profile/default.png";
+// Check file exists, fallback to default
+$profileFile = __DIR__ . "/../../uploads/profile/" . ($ADMIN_ID ?: "default") . "/" . $ADMIN_PIC;
+if (!file_exists($profileFile) || empty($ADMIN_PIC)) {
+    $profilePath = ROOT_URL . "/uploads/profile/default.png";
 }
 ?>
 <div class="topbar">

@@ -25,6 +25,7 @@ if (!isset($content))    { $content = ""; }
     <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/swal-fix.css?v=<?= $ver ?>">
     <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/mobile-fix.css?v=<?= $ver ?>">
     <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/sortable.css?v=<?= $ver ?>">
+    <link rel="stylesheet" href="<?= ADMIN_ASSETS ?>/css/language-dropdown.css?v=<?= $ver ?>">
 
     <!-- Dashboard CSS (เฉพาะหน้าที่ต้องใช้) -->
     <?php if (!empty($include_dashboard_css)): ?>
@@ -85,8 +86,14 @@ if (!isset($content))    { $content = ""; }
     <!-- Cropper.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
+    <!-- SortableJS for drag-drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.1/Sortable.min.js"></script>
+
     <!-- Language Tabs Manager (with LocalStorage) -->
     <script src="<?= ADMIN_ASSETS ?>/js/language-tabs.js?v=<?= $ver ?>"></script>
+    
+    <!-- Language Dropdown Component -->
+    <script src="<?= ADMIN_ASSETS ?>/js/language-dropdown.js?v=<?= $ver ?>"></script>
 
     <!-- Theme Toggle JS -->
     <script src="<?= ADMIN_ASSETS ?>/js/theme.js?v=<?= $ver ?>"></script>

@@ -201,6 +201,16 @@ ob_start();
                                                 🇷🇺 Русский
                                             </button>
                                         </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ar" type="button">
+                                                🇦🇪 العربية
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-he" type="button">
+                                                🇮🇱 עברית
+                                            </button>
+                                        </li>
                                     </ul>
 
                                     <div class="tab-content">
@@ -233,20 +243,20 @@ ob_start();
                                         <!-- English -->
                                         <div class="tab-pane fade" id="lang-en">
                                             <div class="mb-3">
-                                                <label class="form-label">Product Name</label>
+                                                <label class="form-label">Product Name (English)</label>
                                                 <input type="text" name="product_name_en" class="form-control">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Short Description</label>
+                                                <label class="form-label">Short Description (English)</label>
                                                 <textarea name="product_excerpt_en" class="form-control" rows="2"></textarea>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Details</label>
+                                                <label class="form-label">Details (English)</label>
                                                 <textarea name="product_detail_en" class="form-control tinymce-editor" rows="4"></textarea>
                                             </div>
                                             <div class="row g-3">
                                                 <div class="col-md-6">
-                                                    <label class="form-label">Unit</label>
+                                                    <label class="form-label">Unit (English)</label>
                                                     <input type="text" name="product_unit_en" class="form-control" placeholder="kg, bottle, piece">
                                                 </div>
                                                 <div class="col-md-6">
@@ -259,11 +269,11 @@ ob_start();
                                         <!-- German -->
                                         <div class="tab-pane fade" id="lang-de">
                                             <div class="mb-3">
-                                                <label class="form-label">Produktname</label>
+                                                <label class="form-label">Produktname (German)</label>
                                                 <input type="text" name="product_name_de" class="form-control">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Kurzbeschreibung</label>
+                                                <label class="form-label">Kurzbeschreibung (German)</label>
                                                 <textarea name="product_excerpt_de" class="form-control" rows="2"></textarea>
                                             </div>
                                             <div class="mb-3">
@@ -285,7 +295,7 @@ ob_start();
                                         <!-- French -->
                                         <div class="tab-pane fade" id="lang-fr">
                                             <div class="mb-3">
-                                                <label class="form-label">Nom du produit</label>
+                                                <label class="form-label">Nom du produit (French)</label>
                                                 <input type="text" name="product_name_fr" class="form-control">
                                             </div>
                                             <div class="mb-3">
@@ -311,11 +321,11 @@ ob_start();
                                         <!-- Chinese -->
                                         <div class="tab-pane fade" id="lang-zh">
                                             <div class="mb-3">
-                                                <label class="form-label">产品名称</label>
+                                                <label class="form-label">产品名称 (Chinese)</label>
                                                 <input type="text" name="product_name_zh" class="form-control">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">简短描述</label>
+                                                <label class="form-label">简短描述 (Chinese)</label>
                                                 <textarea name="product_excerpt_zh" class="form-control" rows="2"></textarea>
                                             </div>
                                             <div class="mb-3">
@@ -337,7 +347,7 @@ ob_start();
                                         <!-- Korean -->
                                         <div class="tab-pane fade" id="lang-ko">
                                             <div class="mb-3">
-                                                <label class="form-label">제품명</label>
+                                                <label class="form-label">제품명 (Korean)</label>
                                                 <input type="text" name="product_name_ko" class="form-control">
                                             </div>
                                             <div class="mb-3">
@@ -367,7 +377,7 @@ ob_start();
                                                 <input type="text" name="product_name_ja" class="form-control">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">簡単な説明</label>
+                                                <label class="form-label">簡単な説明 (Japanese)</label>
                                                 <textarea name="product_excerpt_ja" class="form-control" rows="2"></textarea>
                                             </div>
                                             <div class="mb-3">
@@ -389,11 +399,11 @@ ob_start();
                                         <!-- Russian -->
                                         <div class="tab-pane fade" id="lang-ru">
                                             <div class="mb-3">
-                                                <label class="form-label">Название продукта</label>
+                                                <label class="form-label">Название продукта (Russian)</label>
                                                 <input type="text" name="product_name_ru" class="form-control">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Краткое описание</label>
+                                                <label class="form-label">Краткое описание (Russian)</label>
                                                 <textarea name="product_excerpt_ru" class="form-control" rows="2"></textarea>
                                             </div>
                                             <div class="mb-3">
@@ -408,6 +418,58 @@ ob_start();
                                                 <div class="col-md-6">
                                                     <label class="form-label">Теги</label>
                                                     <input type="text" name="product_tag_ru" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Arabic -->
+                                        <div class="tab-pane fade" id="lang-ar">
+                                            <div class="mb-3">
+                                                <label class="form-label">اسم المنتج (Product Name - Arabic)</label>
+                                                <input type="text" name="product_name_ar" class="form-control" dir="rtl">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">وصف قصير (Short Description - Arabic)</label>
+                                                <textarea name="product_excerpt_ar" class="form-control" rows="2" dir="rtl"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">التفاصيل (Details - Arabic)</label>
+                                                <textarea name="product_detail_ar" class="form-control tinymce-editor" rows="4" dir="rtl"></textarea>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">الوحدة (Unit - Arabic)</label>
+                                                    <input type="text" name="product_unit_ar" class="form-control" placeholder="كج، زجاجة، قطعة" dir="rtl">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">العلامات (Tags - Arabic)</label>
+                                                    <input type="text" name="product_tag_ar" class="form-control" dir="rtl">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Hebrew -->
+                                        <div class="tab-pane fade" id="lang-he">
+                                            <div class="mb-3">
+                                                <label class="form-label">שם מוצר (Product Name - Hebrew)</label>
+                                                <input type="text" name="product_name_he" class="form-control" dir="rtl">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">תיאור קצר (Short Description - Hebrew)</label>
+                                                <textarea name="product_excerpt_he" class="form-control" rows="2" dir="rtl"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">פרטים (Details - Hebrew)</label>
+                                                <textarea name="product_detail_he" class="form-control tinymce-editor" rows="4" dir="rtl"></textarea>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">יחידה (Unit - Hebrew)</label>
+                                                    <input type="text" name="product_unit_he" class="form-control" placeholder="קג, בקבוק, יחידה" dir="rtl">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">תגיות (Tags - Hebrew)</label>
+                                                    <input type="text" name="product_tag_he" class="form-control" dir="rtl">
                                                 </div>
                                             </div>
                                         </div>

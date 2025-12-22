@@ -48,7 +48,7 @@ try {
     }
     
     // Ensure all 8 languages exist
-    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
+    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru', 'ar', 'he'];
     foreach ($languages as $lang) {
         if (!isset($translationsObj[$lang])) {
             $translationsObj[$lang] = [
@@ -70,8 +70,26 @@ try {
     $stmt->execute([$id]);
     $gallery = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+    // Add full URL to gallery images
+    foreach ($gallery as &$img) {
+        if (!empty($img['gallery_image'])) {
+            // Add ROOT_URL if not already absolute
+            if (strpos($img['gallery_image'], 'http') !== 0) {
+                $img['gallery_image'] = ROOT_URL . '/' . ltrim($img['gallery_image'], '/');
+            }
+        }
+    }
+    unset($img); // Break reference
+    
     $blog['translations'] = $translationsObj;
     $blog['gallery'] = $gallery;
+    
+    // Add image size variants for display
+    if (!empty($blog['blog_picture'])) {
+        $blog['blog_picture_medium'] = str_replace('original-', 'medium-', $blog['blog_picture']);
+        $blog['blog_picture_small'] = str_replace('original-', 'small-', $blog['blog_picture']);
+        $blog['blog_picture_original'] = $blog['blog_picture']; // Keep original path
+    }
     
     echo json_encode([
         'success' => true,

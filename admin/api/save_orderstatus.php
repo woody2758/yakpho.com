@@ -82,7 +82,7 @@ try {
     }
     
     // Insert translations for all languages
-    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
+    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru', 'ar', 'he'];
     $stmt = $db->prepare("INSERT INTO orsts_translations (orsts_id, lang_code, orsts_name, orsts_msg) 
                           VALUES (?, ?, ?, ?)");
     

@@ -277,7 +277,7 @@ ob_start();
                             <div class="col-md-6">
                                 <label class="form-label">ค่าจัดส่ง (บาท)</label>
                                 <input type="number" id="newOrderShipping" class="form-control" 
-                                       value="0" min="0" step="0.01" 
+                                       value="60" min="0" step="0.01" 
                                        onchange="updateNewOrderTotal()">
                             </div>
                             <div class="col-md-6">
@@ -301,6 +301,34 @@ ob_start();
                 <button onclick="submitNewOrder()" class="btn btn-success" id="submitOrderBtn">
                     <i data-lucide="check" class="me-2"></i>สร้างออเดอร์
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Grid Modal -->
+<div class="modal fade" id="productGridModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title"><i data-lucide="package" class="me-2"></i>เลือกสินค้า</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Category Tabs -->
+                <ul class="nav nav-tabs mb-3" id="categoryTabs" role="tablist">
+                    <!-- Tabs will be loaded here -->
+                </ul>
+                
+                <!-- Product Grid Content -->
+                <div class="tab-content" id="productGridContent">
+                    <!-- Product cards will be loaded here -->
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

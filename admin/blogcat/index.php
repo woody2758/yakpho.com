@@ -68,53 +68,12 @@ ob_start();
                         </div>
                     </div>
 
-                    <!-- Language Tabs -->
-                    <ul class="nav nav-tabs mb-3" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#lang-th" type="button">
-                                🇹🇭 ไทย
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-en" type="button">
-                                🇬🇧 English
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-de" type="button">
-                                🇩🇪 Deutsch
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-fr" type="button">
-                                🇫🇷 Français
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-zh" type="button">
-                                🇨🇳 中文
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ko" type="button">
-                                🇰🇷 한국어
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ja" type="button">
-                                🇯🇵 日本語
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ru" type="button">
-                                🇷🇺 Русский
-                            </button>
-                        </li>
-                    </ul>
+                    <!-- Language Dropdown Component -->
+                    <div class="language-dropdown-container mb-3" data-content-selector="#blogcatLangContent"></div>
 
-                    <div class="tab-content">
+                    <div id="blogcatLangContent">
                         <!-- Thai -->
-                        <div class="tab-pane fade show active" id="lang-th">
+                        <div data-lang="th">
                             <div class="mb-3">
                                 <label class="form-label">ชื่อหมวดหมู่ <span class="text-danger">*</span></label>
                                 <input type="text" name="blogcat_name_th" class="form-control" required>
@@ -126,33 +85,33 @@ ob_start();
                         </div>
 
                         <!-- English -->
-                        <div class="tab-pane fade" id="lang-en">
+                        <div data-lang="en">
                             <div class="mb-3">
-                                <label class="form-label">Category Name</label>
+                                <label class="form-label">Category Name (English)</label>
                                 <input type="text" name="blogcat_name_en" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Description</label>
+                                <label class="form-label">Description (English)</label>
                                 <textarea name="blogcat_detail_en" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
                         <!-- German -->
-                        <div class="tab-pane fade" id="lang-de">
+                        <div data-lang="de">
                             <div class="mb-3">
-                                <label class="form-label">Kategoriename</label>
+                                <label class="form-label">Category Name (German)</label>
                                 <input type="text" name="blogcat_name_de" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Beschreibung</label>
+                                <label class="form-label">Description (German)</label>
                                 <textarea name="blogcat_detail_de" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
                         <!-- French -->
-                        <div class="tab-pane fade" id="lang-fr">
+                        <div data-lang="fr">
                             <div class="mb-3">
-                                <label class="form-label">Nom de catégorie</label>
+                                <label class="form-label">Nom de catégorie (French)</label>
                                 <input type="text" name="blogcat_name_fr" class="form-control">
                             </div>
                             <div class="mb-3">
@@ -162,50 +121,74 @@ ob_start();
                         </div>
 
                         <!-- Chinese -->
-                        <div class="tab-pane fade" id="lang-zh">
+                        <div data-lang="zh">
                             <div class="mb-3">
-                                <label class="form-label">分类名称</label>
+                                <label class="form-label">分类名称 (Chinese)</label>
                                 <input type="text" name="blogcat_name_zh" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">描述</label>
+                                <label class="form-label">描述 (Chinese)</label>
                                 <textarea name="blogcat_detail_zh" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
                         <!-- Korean -->
-                        <div class="tab-pane fade" id="lang-ko">
+                        <div data-lang="ko">
                             <div class="mb-3">
-                                <label class="form-label">카테고리 이름</label>
+                                <label class="form-label">카테고리 이름 (Korean)</label>
                                 <input type="text" name="blogcat_name_ko" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">설명</label>
+                                <label class="form-label">설명 (Korean)</label>
                                 <textarea name="blogcat_detail_ko" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
                         <!-- Japanese -->
-                        <div class="tab-pane fade" id="lang-ja">
+                        <div data-lang="ja">
                             <div class="mb-3">
-                                <label class="form-label">カテゴリ名</label>
+                                <label class="form-label">カテゴリ名 (Japanese)</label>
                                 <input type="text" name="blogcat_name_ja" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">説明</label>
+                                <label class="form-label">説明 (Japanese)</label>
                                 <textarea name="blogcat_detail_ja" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
                         <!-- Russian -->
-                        <div class="tab-pane fade" id="lang-ru">
+                        <div data-lang="ru">
                             <div class="mb-3">
-                                <label class="form-label">Название категории</label>
+                                <label class="form-label">Название категории (Russian)</label>
                                 <input type="text" name="blogcat_name_ru" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Описание</label>
+                                <label class="form-label">Описание (Russian)</label>
                                 <textarea name="blogcat_detail_ru" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Arabic -->
+                        <div data-lang="ar">
+                            <div class="mb-3">
+                                <label class="form-label">اسم الفئة (Category Name - Arabic)</label>
+                                <input type="text" name="blogcat_name_ar" class="form-control" dir="rtl">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">الوصف (Description - Arabic)</label>
+                                <textarea name="blogcat_detail_ar" class="form-control" rows="3" dir="rtl"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Hebrew -->
+                        <div data-lang="he">
+                            <div class="mb-3">
+                                <label class="form-label">שם קטגוריה (Category Name - Hebrew)</label>
+                                <input type="text" name="blogcat_name_he" class="form-control" dir="rtl">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">תיאור (Description - Hebrew)</label>
+                                <textarea name="blogcat_detail_he" class="form-control" rows="3" dir="rtl"></textarea>
                             </div>
                         </div>
                     </div>
