@@ -98,23 +98,41 @@ include __DIR__ . '/../includes/sidebar.php';
                             <!-- Language Tabs -->
                             <ul class="nav nav-tabs mb-3" role="tablist">
                                 <li class="nav-item">
-                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#lang-th">🇹🇭 ไทย</button>
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#lang-th" type="button">🇹🇭 TH</button>
                                 </li>
                                 <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-en">🇬🇧 English</button>
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-en" type="button">🇬🇧 EN</button>
                                 </li>
                                 <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-zh">🇨🇳 中文</button>
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-zh" type="button">🇨🇳 ZH</button>
                                 </li>
                                 <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-others">อื่นๆ...</button>
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-de" type="button">🇩🇪 DE</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-fr" type="button">🇫🇷 FR</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ja" type="button">🇯🇵 JA</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ko" type="button">🇰🇷 KO</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ru" type="button">🇷🇺 RU</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ar" type="button">🇸🇦 AR</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-he" type="button">🇮🇱 HE</button>
                                 </li>
                             </ul>
 
                             <div class="tab-content">
                                 <!-- Thai -->
                                 <div class="tab-pane fade show active" id="lang-th">
-                                    <?php include 'hero_lang_form.php'; ?>
+                                    <?php $lang = 'th'; include 'hero_lang_form.php'; ?>
                                 </div>
                                 <!-- English -->
                                 <div class="tab-pane fade" id="lang-en">
@@ -124,19 +142,33 @@ include __DIR__ . '/../includes/sidebar.php';
                                 <div class="tab-pane fade" id="lang-zh">
                                     <?php $lang = 'zh'; include 'hero_lang_form.php'; ?>
                                 </div>
-                                <!-- Others -->
-                                <div class="tab-pane fade" id="lang-others">
-                                    <div class="row">
-                                        <?php 
-                                        $other_langs = ['de', 'fr', 'ja', 'ko', 'ru', 'ar', 'he'];
-                                        foreach ($other_langs as $lang): 
-                                        ?>
-                                        <div class="col-md-6 mb-3">
-                                            <h6 class="text-muted"><?= strtoupper($lang) ?></h6>
-                                            <?php include 'hero_lang_form.php'; ?>
-                                        </div>
-                                        <?php endforeach; ?>
-                                    </div>
+                                <!-- German -->
+                                <div class="tab-pane fade" id="lang-de">
+                                    <?php $lang = 'de'; include 'hero_lang_form.php'; ?>
+                                </div>
+                                <!-- French -->
+                                <div class="tab-pane fade" id="lang-fr">
+                                    <?php $lang = 'fr'; include 'hero_lang_form.php'; ?>
+                                </div>
+                                <!-- Japanese -->
+                                <div class="tab-pane fade" id="lang-ja">
+                                    <?php $lang = 'ja'; include 'hero_lang_form.php'; ?>
+                                </div>
+                                <!-- Korean -->
+                                <div class="tab-pane fade" id="lang-ko">
+                                    <?php $lang = 'ko'; include 'hero_lang_form.php'; ?>
+                                </div>
+                                <!-- Russian -->
+                                <div class="tab-pane fade" id="lang-ru">
+                                    <?php $lang = 'ru'; include 'hero_lang_form.php'; ?>
+                                </div>
+                                <!-- Arabic -->
+                                <div class="tab-pane fade" id="lang-ar">
+                                    <?php $lang = 'ar'; include 'hero_lang_form.php'; ?>
+                                </div>
+                                <!-- Hebrew -->
+                                <div class="tab-pane fade" id="lang-he">
+                                    <?php $lang = 'he'; include 'hero_lang_form.php'; ?>
                                 </div>
                             </div>
                         </div>
