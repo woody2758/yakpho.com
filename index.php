@@ -14,34 +14,20 @@ require_once __DIR__ . '/includes/config.php';
 $page_title = 'Esther Aroma - Biblical Wellness from Ancient Soil to Modern Healing';
 $page_description = 'Premium aromatherapy and wellness products from biblical herbs. Features Esther, Yak Pho, Boaz & Asher brands. GMP certified, exported to 50+ countries.';
 $page_keywords = 'esther aroma, yak pho, biblical wellness, aromatherapy, natural products, herbal remedies';
-$additional_css = ['homepage'];
-$additional_js = ['homepage'];
+$additional_css = ['homepage', 'hero-slider'];
+$additional_js = ['homepage', 'hero-slider'];
 
 // Include header
 include __DIR__ . '/includes/layout/header.php';
 ?>
 
-<!-- Hero Section -->
+<!-- Hero Section (Dynamic Slider) -->
 <section class="hero">
+    <!-- Hero Slider will be loaded via JavaScript -->
     <div class="container">
         <div class="hero-content">
-            <h1 class="hero-title">
-                Biblical Wellness from Ancient Soil to Modern Healing
-            </h1>
-            <p class="hero-subtitle">
-                ผลิตภัณฑ์สุขภาพและความงามจากสมุนไพรตามคัมภีร์ไบเบิล 
-                ผสมผสานภูมิปัญญาโบราณกับวิทยาศาสตร์สมัยใหม่
-            </p>
-            <div class="hero-actions">
-                <a href="<?= BASE_URL ?>/shop/" class="btn btn-accent btn-lg">
-                    <i data-lucide="shopping-bag" width="20" height="20"></i>
-                    เลือกซื้อผลิตภัณฑ์
-                </a>
-                <a href="<?= BASE_URL ?>/about/" class="btn btn-outline btn-lg">
-                    <i data-lucide="book-open" width="20" height="20"></i>
-                    เรียนรู้เพิ่มเติม
-                </a>
-            </div>
+            <div class="spinner" style="margin: 0 auto;"></div>
+            <p style="text-align: center; color: var(--esther-cream); margin-top: var(--space-4);">Loading...</p>
         </div>
     </div>
 </section>
