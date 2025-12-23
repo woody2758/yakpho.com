@@ -148,7 +148,7 @@ ob_start();
                                 ?>
                                 <div data-lang="<?= $code ?>">
                                     <div class="mb-3">
-                                        <label class="form-label">หัวข้อ<?= $isRTL ? " ($name)" : '' ?></label>
+                                        <label class="form-label">หัวข้อ (<?= $name ?>)</label>
                                         <input type="text" class="form-control" 
                                                name="slide_title_<?= $code ?>" 
                                                id="slide_title_<?= $code ?>" 
@@ -156,7 +156,7 @@ ob_start();
                                                placeholder="Biblical Wellness from Ancient Soil...">
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">คำบรรยาย<?= $isRTL ? " ($name)" : '' ?></label>
+                                        <label class="form-label">คำบรรยาย (<?= $name ?>)</label>
                                         <textarea class="form-control" 
                                                   name="slide_subtitle_<?= $code ?>" 
                                                   id="slide_subtitle_<?= $code ?>" 
@@ -166,7 +166,7 @@ ob_start();
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">ปุ่ม 1 - ข้อความ<?= $isRTL ? " ($name)" : '' ?></label>
+                                            <label class="form-label">ปุ่ม 1 - ข้อความ (<?= $name ?>)</label>
                                             <input type="text" class="form-control" 
                                                    name="button1_text_<?= $code ?>" 
                                                    id="button1_text_<?= $code ?>" 
@@ -177,7 +177,7 @@ ob_start();
                                             <?php endif; ?>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">ปุ่ม 2 - ข้อความ<?= $isRTL ? " ($name)" : '' ?></label>
+                                            <label class="form-label">ปุ่ม 2 - ข้อความ (<?= $name ?>)</label>
                                             <input type="text" class="form-control" 
                                                    name="button2_text_<?= $code ?>" 
                                                    id="button2_text_<?= $code ?>" 
