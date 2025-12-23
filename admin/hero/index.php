@@ -58,23 +58,54 @@ include __DIR__ . '/../includes/sidebar.php';
             <form id="heroForm" enctype="multipart/form-data">
                 <div class="modal-body">
                     <input type="hidden" id="slide_id" name="slide_id">
+                    <input type="hidden" id="heroImageBase64" name="hero_image_base64">
                     
                     <div class="row">
                         <!-- Left Column: Image & Settings -->
                         <div class="col-md-5">
                             <!-- Image Upload -->
                             <div class="mb-4">
-                                <label class="form-label">รูปภาพ Hero (แนะนำ 1920x600px)</label>
-                                <div class="image-upload-area" id="imageUploadArea">
-                                    <img id="imagePreview" src="" alt="Preview" style="display:none; max-width:100%; border-radius:8px;">
-                                    <div id="uploadPlaceholder" class="text-center p-5" style="border: 2px dashed #ddd; border-radius:8px;">
+                                <label class="form-label">รูปภาพ Hero (1920x1080px - 16:9)</label>
+                                <div class="image-upload-area" id="imageUploadArea" style="cursor: pointer; border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center; position: relative;">
+                                    <img id="imagePreview" src="" alt="Preview" style="display:none; max-width:100%; max-height:300px; border-radius:8px;">
+                                    <div id="uploadPlaceholder">
                                         <i data-lucide="upload" width="48" height="48" style="color:#999;"></i>
-                                        <p class="mt-3">คลิกเพื่ออัปโหลดรูปภาพ</p>
-                                        <p class="text-muted small">รองรับ JPG, PNG (สูงสุด 2MB)</p>
+                                        <p class="mt-3 mb-1">คลิกเพื่ออัปโหลดรูปภาพ</p>
+                                        <p class="text-muted small">รองรับ JPG, PNG, WEBP (สูงสุด 5MB)</p>
+                                        <p class="text-muted small"><strong>สัดส่วน: 16:9 (1920x1080px)</strong></p>
                                     </div>
-                                    <input type="file" id="slide_image" name="slide_image" accept="image/*" style="display:none;">
+                                    <input type="file" id="slide_image" name="slide_image" accept="image/*" style="display:none;" onchange="handleHeroImageSelect(event)">
                                 </div>
+                                
+                                <!-- Cropper Container -->
+                                <div id="heroCropperContainer" style="display: none;" class="mt-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <p class="mb-2"><strong>ปรับขนาดรูปภาพ (16:9)</strong></p>
+                                            <div style="max-height: 400px; overflow: hidden;">
+                                                <img id="heroImageToCrop" style="max-width: 100%;">
+                                            </div>
+                                            <div class="mt-3 d-flex gap-2">
+                                                <button type="button" class="btn btn-primary btn-sm" onclick="cropHeroImage()">
+                                                    <i data-lucide="crop" width="16" height="16"></i> ครอปรูป
+                                                </button>
+                                                <button type="button" class="btn btn-secondary btn-sm" onclick="useOriginalHeroImage()">
+                                                    <i data-lucide="maximize" width="16" height="16"></i> ใช้รูปเต็ม
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cancelHeroCrop()">
+                                                    <i data-lucide="x" width="16" height="16"></i> ยกเลิก
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <input type="hidden" id="existing_image" name="existing_image">
+                                
+                                <!-- Remove Button -->
+                                <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="removeHeroCroppedImage()" style="display:none;" id="removeImageBtn">
+                                    <i data-lucide="trash-2" width="14" height="14"></i> ลบรูป
+                                </button>
                             </div>
 
                             <!-- Background Color -->
@@ -181,6 +212,9 @@ include __DIR__ . '/../includes/sidebar.php';
 
 <!-- Language Dropdown Component -->
 <script src="<?= ADMIN_URL ?>/assets/js/language-dropdown.js"></script>
+
+<!-- Hero Image Cropping Functions -->
+<script src="<?= ADMIN_URL ?>/assets/js/hero-image-functions.js"></script>
 
 <script src="<?= ADMIN_URL ?>/assets/js/hero.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>

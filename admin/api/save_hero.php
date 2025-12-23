@@ -27,10 +27,52 @@ try {
         exit;
     }
     
-    // Handle image upload
+    // Handle image upload (both file upload and base64)
     $slide_image = $_POST['existing_image'] ?? '';
     
-    if (isset($_FILES['slide_image']) && $_FILES['slide_image']['error'] === UPLOAD_ERR_OK) {
+    // Check for base64 image first (from cropper)
+    if (!empty($_POST['hero_image_base64'])) {
+        $upload_dir = __DIR__ . '/../../uploads/hero/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+        
+        $base64_image = $_POST['hero_image_base64'];
+        
+        // Remove data:image prefix
+        if (preg_match('/^data:image\/(\w+);base64,/', $base64_image, $type)) {
+            $base64_image = substr($base64_image, strpos($base64_image, ',') + 1);
+            $type = strtolower($type[1]); // jpg, png, gif, etc.
+            
+            if (!in_array($type, ['jpg', 'jpeg', 'png', 'webp'])) {
+                throw new Exception('Invalid image type from base64');
+            }
+        } else {
+            throw new Exception('Invalid base64 image format');
+        }
+        
+        $base64_image = str_replace(' ', '+', $base64_image);
+        $image_data = base64_decode($base64_image);
+        
+        if ($image_data === false) {
+            throw new Exception('Base64 decode failed');
+        }
+        
+        $new_filename = 'hero_' . time() . '_' . uniqid() . '.jpg'; // Always save as JPG
+        $upload_path = $upload_dir . $new_filename;
+        
+        if (file_put_contents($upload_path, $image_data)) {
+            // Delete old image
+            if ($slide_image && file_exists($upload_dir . $slide_image)) {
+                unlink($upload_dir . $slide_image);
+            }
+            $slide_image = $new_filename;
+        } else {
+            throw new Exception('Failed to save base64 image');
+        }
+    }
+    // Handle traditional file upload
+    elseif (isset($_FILES['slide_image']) && $_FILES['slide_image']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = __DIR__ . '/../../uploads/hero/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
@@ -43,8 +85,8 @@ try {
             throw new Exception('Invalid file type. Only JPG, PNG, WEBP allowed.');
         }
         
-        if ($_FILES['slide_image']['size'] > 2 * 1024 * 1024) {
-            throw new Exception('File too large. Maximum 2MB.');
+        if ($_FILES['slide_image']['size'] > 5 * 1024 * 1024) {
+            throw new Exception('File too large. Maximum 5MB.');
         }
         
         $new_filename = 'hero_' . time() . '_' . uniqid() . '.' . $file_ext;
