@@ -58,9 +58,9 @@ function handleHeroImageSelect(e) {
         // Initialize Cropper.js with strict 16:9 aspect ratio lock
         heroCropper = new Cropper(imageToCrop, {
             aspectRatio: 16 / 9, // Strict 16:9 ratio - LOCKED
-            viewMode: 2, // Restrict crop box to not exceed image boundaries
+            viewMode: 1, // Crop box must be within the canvas
             dragMode: 'move', // Allow dragging the image to reposition
-            autoCropArea: 0.95, // Initial crop area covers 95% of image
+            autoCropArea: 0.8, // Initial crop area covers 80% of canvas
             responsive: true,
             restore: false,
             guides: true,
