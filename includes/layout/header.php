@@ -56,8 +56,8 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
                 <a href="<?= BASE_URL ?>/" class="site-logo">
                     <div class="site-logo-image" style="background: radial-gradient(circle at 30% 0%, #fdf4e3 0, #b37c2b 40%, #5e3c10 100%); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35); border-radius: 12px;"></div>
                     <div>
-                        <div class="site-logo-text">YAKPHO</div>
-                        <div class="site-logo-tagline">Aroma Wellness</div>
+                        <div class="site-logo-text">ESTHER AROMA</div>
+                        <div class="site-logo-tagline">Biblical Wellness</div>
                     </div>
                 </a>
                 

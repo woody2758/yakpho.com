@@ -77,6 +77,14 @@
                 <i data-lucide="chevron-down" class="menu-group-arrow"></i>
             </div>
             <div class="menu-group-items">
+                <a href="<?= ADMIN_URL ?>/hero/" class="menu-item sub-item">
+                    <i data-lucide="image"></i>
+                    <span>Hero Slider</span>
+                </a>
+                <a href="<?= ADMIN_URL ?>/menu/" class="menu-item sub-item">
+                    <i data-lucide="menu"></i>
+                    <span>เมนูเว็บไซต์</span>
+                </a>
                 <a href="<?= ADMIN_URL ?>/aboutus/" class="menu-item sub-item">
                     <i data-lucide="info"></i>
                     <span>About Us</span>
