@@ -95,81 +95,73 @@ include __DIR__ . '/../includes/sidebar.php';
 
                         <!-- Right Column: Multi-language Content -->
                         <div class="col-md-7">
-                            <!-- Language Tabs -->
-                            <ul class="nav nav-tabs mb-3" role="tablist">
-                                <li class="nav-item">
-                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#lang-th" type="button">🇹🇭 TH</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-en" type="button">🇬🇧 EN</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-zh" type="button">🇨🇳 ZH</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-de" type="button">🇩🇪 DE</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-fr" type="button">🇫🇷 FR</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ja" type="button">🇯🇵 JA</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ko" type="button">🇰🇷 KO</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ru" type="button">🇷🇺 RU</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-ar" type="button">🇸🇦 AR</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lang-he" type="button">🇮🇱 HE</button>
-                                </li>
-                            </ul>
-
-                            <div class="tab-content">
-                                <!-- Thai -->
-                                <div class="tab-pane fade show active" id="lang-th">
-                                    <?php $lang = 'th'; include 'hero_lang_form.php'; ?>
+                            <!-- Language Dropdown -->
+                            <div class="language-dropdown-container mb-3" data-content-selector="#heroLangContent"></div>
+                            
+                            <!-- Language Content -->
+                            <div id="heroLangContent">
+                                <?php
+                                $languages = [
+                                    'th' => 'Thai',
+                                    'en' => 'English',
+                                    'de' => 'German',
+                                    'fr' => 'French',
+                                    'zh' => 'Chinese',
+                                    'ko' => 'Korean',
+                                    'ja' => 'Japanese',
+                                    'ru' => 'Russian',
+                                    'ar' => 'Arabic',
+                                    'he' => 'Hebrew'
+                                ];
+                                
+                                foreach ($languages as $code => $name):
+                                    $isRTL = in_array($code, ['ar', 'he']);
+                                    $dirAttr = $isRTL ? 'dir="rtl"' : '';
+                                ?>
+                                <div data-lang="<?= $code ?>">
+                                    <div class="mb-3">
+                                        <label class="form-label">หัวข้อ<?= $isRTL ? " ($name)" : '' ?></label>
+                                        <input type="text" class="form-control" 
+                                               name="slide_title_<?= $code ?>" 
+                                               id="slide_title_<?= $code ?>" 
+                                               <?= $dirAttr ?>
+                                               placeholder="Biblical Wellness from Ancient Soil...">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">คำบรรยาย<?= $isRTL ? " ($name)" : '' ?></label>
+                                        <textarea class="form-control" 
+                                                  name="slide_subtitle_<?= $code ?>" 
+                                                  id="slide_subtitle_<?= $code ?>" 
+                                                  <?= $dirAttr ?>
+                                                  rows="3" 
+                                                  placeholder="ผลิตภัณฑ์สุขภาพและความงาม..."></textarea>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">ปุ่ม 1 - ข้อความ<?= $isRTL ? " ($name)" : '' ?></label>
+                                            <input type="text" class="form-control" 
+                                                   name="button1_text_<?= $code ?>" 
+                                                   id="button1_text_<?= $code ?>" 
+                                                   <?= $dirAttr ?>
+                                                   placeholder="เลือกซื้อผลิตภัณฑ์">
+                                            <?php if ($code === 'th'): ?>
+                                            <small class="text-muted">ลิงก์ตั้งค่าที่ด้านซ้าย</small>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">ปุ่ม 2 - ข้อความ<?= $isRTL ? " ($name)" : '' ?></label>
+                                            <input type="text" class="form-control" 
+                                                   name="button2_text_<?= $code ?>" 
+                                                   id="button2_text_<?= $code ?>" 
+                                                   <?= $dirAttr ?>
+                                                   placeholder="เรียนรู้เพิ่มเติม">
+                                            <?php if ($code === 'th'): ?>
+                                            <small class="text-muted">ลิงก์ตั้งค่าที่ด้านซ้าย</small>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </div>
-                                <!-- English -->
-                                <div class="tab-pane fade" id="lang-en">
-                                    <?php $lang = 'en'; include 'hero_lang_form.php'; ?>
-                                </div>
-                                <!-- Chinese -->
-                                <div class="tab-pane fade" id="lang-zh">
-                                    <?php $lang = 'zh'; include 'hero_lang_form.php'; ?>
-                                </div>
-                                <!-- German -->
-                                <div class="tab-pane fade" id="lang-de">
-                                    <?php $lang = 'de'; include 'hero_lang_form.php'; ?>
-                                </div>
-                                <!-- French -->
-                                <div class="tab-pane fade" id="lang-fr">
-                                    <?php $lang = 'fr'; include 'hero_lang_form.php'; ?>
-                                </div>
-                                <!-- Japanese -->
-                                <div class="tab-pane fade" id="lang-ja">
-                                    <?php $lang = 'ja'; include 'hero_lang_form.php'; ?>
-                                </div>
-                                <!-- Korean -->
-                                <div class="tab-pane fade" id="lang-ko">
-                                    <?php $lang = 'ko'; include 'hero_lang_form.php'; ?>
-                                </div>
-                                <!-- Russian -->
-                                <div class="tab-pane fade" id="lang-ru">
-                                    <?php $lang = 'ru'; include 'hero_lang_form.php'; ?>
-                                </div>
-                                <!-- Arabic -->
-                                <div class="tab-pane fade" id="lang-ar">
-                                    <?php $lang = 'ar'; include 'hero_lang_form.php'; ?>
-                                </div>
-                                <!-- Hebrew -->
-                                <div class="tab-pane fade" id="lang-he">
-                                    <?php $lang = 'he'; include 'hero_lang_form.php'; ?>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
@@ -186,6 +178,9 @@ include __DIR__ . '/../includes/sidebar.php';
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
+
+<!-- Language Dropdown Component -->
+<script src="<?= ADMIN_URL ?>/assets/js/language-dropdown.js"></script>
 
 <script src="<?= ADMIN_URL ?>/assets/js/hero.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
