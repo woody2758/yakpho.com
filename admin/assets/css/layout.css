@@ -271,6 +271,32 @@ body.admin-layout {
 /* Content Area                   */
 /* ============================== */
 
+/* Page Header */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.page-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--fg);
+}
+
+.page-header h1 i {
+    width: 28px;
+    height: 28px;
+    color: var(--primary);
+}
+
 .container-admin {
     padding: 15px;
     flex: 1;

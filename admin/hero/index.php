@@ -4,14 +4,8 @@
  * Admin interface for managing homepage hero slides
  */
 
-session_start();
-require_once __DIR__ . '/../../includes/config.php';
-
-// Check admin authentication
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
-    header('Location: ' . ADMIN_URL . '/login.php');
-    exit;
-}
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 $page_title = 'Hero Slider Management';
 include __DIR__ . '/../includes/header.php';
