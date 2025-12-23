@@ -55,20 +55,31 @@ function handleHeroImageSelect(e) {
             heroCropper.destroy();
         }
 
-        // Initialize Cropper.js with 16:9 aspect ratio
+        // Initialize Cropper.js with strict 16:9 aspect ratio lock
         heroCropper = new Cropper(imageToCrop, {
-            aspectRatio: 16 / 9, // Hero slider standard ratio
-            viewMode: 1,
-            autoCropArea: 1,
+            aspectRatio: 16 / 9, // Strict 16:9 ratio - LOCKED
+            viewMode: 2, // Restrict crop box to not exceed image boundaries
+            dragMode: 'move', // Allow dragging the image to reposition
+            autoCropArea: 0.95, // Initial crop area covers 95% of image
             responsive: true,
+            restore: false,
             guides: true,
             center: true,
             highlight: true,
-            cropBoxResizable: true,
-            cropBoxMovable: true,
+            cropBoxResizable: false, // LOCK size - user can only move position
+            cropBoxMovable: true, // Allow moving crop box
             toggleDragModeOnDblclick: false,
+            background: true,
+            modal: true,
+            scalable: true,
+            zoomable: true,
+            zoomOnWheel: true,
+            wheelZoomRatio: 0.1,
             minContainerWidth: 400,
-            minContainerHeight: 225
+            minContainerHeight: 225,
+            ready: function () {
+                console.log('✅ Cropper ready - 16:9 ratio locked');
+            }
         });
     };
 
