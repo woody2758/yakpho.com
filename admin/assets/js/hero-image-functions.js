@@ -55,9 +55,9 @@ function handleHeroImageSelect(e) {
             heroCropper.destroy();
         }
 
-        // Initialize Cropper.js with strict 16:9 aspect ratio lock
+        // Initialize Cropper.js with 16:5 (3.2:1) aspect ratio to match frontend hero display
         heroCropper = new Cropper(imageToCrop, {
-            aspectRatio: 16 / 9, // Strict 16:9 ratio - LOCKED
+            aspectRatio: 16 / 5, // 3.2:1 ratio - matches frontend hero (1920x600px)
             viewMode: 1, // Crop box must be within the canvas
             dragMode: 'move', // Allow dragging the image to reposition
             autoCropArea: 0.8, // Initial crop area covers 80% of canvas
@@ -76,9 +76,9 @@ function handleHeroImageSelect(e) {
             zoomOnWheel: true,
             wheelZoomRatio: 0.1,
             minContainerWidth: 400,
-            minContainerHeight: 225,
+            minContainerHeight: 125,
             ready: function () {
-                console.log('✅ Cropper ready - 16:9 ratio locked');
+                console.log('✅ Cropper ready - 16:5 (3.2:1) ratio locked for hero display');
             }
         });
     };
@@ -108,10 +108,10 @@ function cropHeroImage() {
         }
     });
 
-    // Get cropped canvas with target dimensions
+    // Get cropped canvas with target dimensions (matches frontend hero)
     const canvas = heroCropper.getCroppedCanvas({
         width: 1920,
-        height: 1080, // 16:9 ratio
+        height: 600, // 16:5 ratio (3.2:1) - matches frontend hero section
         imageSmoothingEnabled: true,
         imageSmoothingQuality: 'high'
     });
@@ -174,9 +174,9 @@ function useOriginalHeroImage() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    // Set canvas size to 1920x1080 (16:9)
+    // Set canvas size to 1920x600 (16:5 / 3.2:1) - matches frontend hero
     const targetWidth = 1920;
-    const targetHeight = 1080;
+    const targetHeight = 600;
     canvas.width = targetWidth;
     canvas.height = targetHeight;
 

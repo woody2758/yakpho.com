@@ -62,14 +62,14 @@ ob_start();
                         <div class="col-md-5">
                             <!-- Image Upload -->
                             <div class="mb-4">
-                                <label class="form-label">รูปภาพ Hero (1920x1080px - 16:9)</label>
+                                <label class="form-label">รูปภาพ Hero (1920x600px - 16:5)</label>
                                 <div class="image-upload-area" id="imageUploadArea" style="cursor: pointer; border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center; position: relative;">
                                     <img id="imagePreview" src="" alt="Preview" style="display:none; max-width:100%; max-height:300px; border-radius:8px;">
                                     <div id="uploadPlaceholder">
                                         <i data-lucide="upload" width="48" height="48" style="color:#999;"></i>
                                         <p class="mt-3 mb-1">คลิกเพื่ออัปโหลดรูปภาพ</p>
                                         <p class="text-muted small">รองรับ JPG, PNG, WEBP (สูงสุด 5MB)</p>
-                                        <p class="text-muted small"><strong>สัดส่วน: 16:9 (1920x1080px)</strong></p>
+                                        <p class="text-muted small"><strong>สัดส่วน: 16:5 (1920x600px)</strong></p>
                                     </div>
                                     <input type="file" id="slide_image" name="slide_image" accept="image/*" style="display:none;" onchange="handleHeroImageSelect(event)">
                                 </div>
@@ -78,7 +78,7 @@ ob_start();
                                 <div id="heroCropperContainer" style="display: none;" class="mt-3">
                                     <div class="card">
                                         <div class="card-body">
-                                            <p class="mb-2"><strong>ปรับขนาดรูปภาพ (16:9)</strong></p>
+                                            <p class="mb-2"><strong>ปรับขนาดรูปภาพ (16:5 - 1920x600px)</strong></p>
                                             <div style="max-height: 400px; overflow: hidden;">
                                                 <img id="heroImageToCrop" style="max-width: 100%;">
                                             </div>
