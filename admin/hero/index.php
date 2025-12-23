@@ -4,18 +4,15 @@
  * Admin interface for managing homepage hero slides
  */
 
+$page_title = 'Hero Slider Management';
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
 
-$page_title = 'Hero Slider Management';
-include __DIR__ . '/../includes/header.php';
-include __DIR__ . '/../includes/sidebar.php';
+ob_start();
 ?>
 
-<div class="main-content">
-    <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="page-header">
+<!-- Page Header -->
+<div class="page-header">
             <h1><i data-lucide="image"></i> จัดการ Hero Slider</h1>
             <button class="btn btn-primary" onclick="Hero.openModal()">
                 <i data-lucide="plus"></i> เพิ่ม Slide ใหม่
@@ -202,13 +199,9 @@ include __DIR__ . '/../includes/sidebar.php';
                     <button type="submit" class="btn btn-primary">
                         <i data-lucide="save"></i> บันทึก
                     </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
-
-<?php include __DIR__ . '/../includes/footer.php'; ?>
 
 <!-- Language Dropdown Component -->
 <script src="<?= ADMIN_URL ?>/assets/js/language-dropdown.js"></script>
@@ -227,3 +220,8 @@ include __DIR__ . '/../includes/sidebar.php';
         }
     });
 </script>
+
+<?php 
+$content = ob_get_clean();
+require_once __DIR__ . '/../includes/layout.php'; 
+?>

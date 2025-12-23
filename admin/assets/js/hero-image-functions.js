@@ -244,4 +244,31 @@ function removeHeroCroppedImage() {
     document.getElementById('uploadPlaceholder').style.display = 'block';
     document.getElementById('slide_image').value = '';
     document.getElementById('existing_image').value = '';
+
+    // Show remove button when needed
+    const removeBtn = document.getElementById('removeImageBtn');
+    if (removeBtn) {
+        removeBtn.style.display = 'none';
+    }
 }
+
+/**
+ * Initialize upload area click handler
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    // Make upload area clickable
+    const uploadArea = document.getElementById('imageUploadArea');
+    const fileInput = document.getElementById('slide_image');
+
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', function (e) {
+            // Don't trigger if clicking on cropper or preview
+            if (e.target.closest('#heroCropperContainer') || e.target.closest('#imagePreview')) {
+                return;
+            }
+            fileInput.click();
+        });
+    }
+
+    console.log('🎨 Hero image cropper initialized');
+});
