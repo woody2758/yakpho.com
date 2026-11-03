@@ -20,8 +20,8 @@ $allImages = $STORES_DATA['gallery'] ?? [];
         </h1>
         <p class="content-page-desc">
             <?= $currentLang === 'th' 
-                ? 'ภาพบรรยากาศการเพาะปลูกสมุนไพรในฟาร์มออร์แกนิก กระบวนการผลิตมาตรฐาน GMP และภาพผลิตภัณฑ์ยักษ์โพธิ์ อโรม่า'
-                : 'Botanic herb gardens, international GMP certified manufacturing, and signature Yak Pho Aroma collections.' ?>
+                ? 'ภาพบรรยากาศการเพาะปลูกสมุนไพรในฟาร์มออร์แกนิก กระบวนการปรุงสูตรและเคี่ยวยาหม่องสมุนไพรแท้ และภาพผลิตภัณฑ์ยักษ์โพธิ์ อโรม่า'
+                : 'Botanic herb gardens, authentic Thai herbal brewing processes, and signature Yak Pho Aroma collections.' ?>
         </p>
     </div>
 

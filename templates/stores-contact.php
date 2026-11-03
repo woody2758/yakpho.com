@@ -33,7 +33,7 @@ foreach ($faqs as $faq) {
                 <?= $currentLang === 'th' ? 'คำถามที่พบบ่อย (FAQs)' : 'Frequently Asked Questions' ?>
             </h1>
             <p style="font-size:0.86rem; color:var(--yp-text-secondary); margin:0;">
-                <?= $currentLang === 'th' ? 'รวบรวมข้อสงสัยเกี่ยวกับผลิตภัณฑ์บาล์มสปา การสั่งซื้อราคาส่ง และการจัดส่งจากโรงงาน ยักษ์โพธิ์ อโรม่า' : 'Answers regarding herbal products, B2B wholesale rates, ordering and delivery.' ?>
+                <?= $currentLang === 'th' ? 'รวบรวมข้อสงสัยเกี่ยวกับผลิตภัณฑ์บาล์มสปา การสั่งซื้อราคาส่ง และการจัดส่งสินค้า ยักษ์โพธิ์ อโรม่า' : 'Answers regarding herbal products, B2B wholesale rates, ordering and delivery.' ?>
             </p>
         </div>
 
@@ -105,7 +105,7 @@ foreach ($faqs as $faq) {
 
             <p style="font-size:0.85rem; color:var(--yp-text-secondary); line-height:1.6; margin-bottom:16px;">
                 <strong><?= htmlspecialchars($contactInfo['company_name'] ?? 'บริษัท เอสเธอร์ อโรม่า จำกัด') ?></strong><br>
-                <?= htmlspecialchars($contactInfo['address'] ?? 'ศูนย์กระจายสินค้าบาล์มนวดสมุนไพรและสปาอโรม่ามาตรฐาน GMP') ?>
+                <?= htmlspecialchars($contactInfo['address'] ?? 'ศูนย์กระจายสินค้าบาล์มนวดสมุนไพรและสปาอโรม่า') ?>
             </p>
 
             <div style="display:flex; flex-direction:column; gap:8px; font-size:0.84rem;">

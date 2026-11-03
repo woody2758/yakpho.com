@@ -99,7 +99,7 @@ $pricingFeatures = $HOME_DATA['pricing_features'] ?? [];
                         <strong id="matrixTotalKg">0 kg</strong>
                     </div>
                     <div class="matrix-stat-item">
-                        <span><?= $currentLang === 'th' ? 'เรทราคาส่งโรงงาน' : 'Wholesale Rate' ?></span>
+                        <span><?= $currentLang === 'th' ? 'เรทราคาส่งร้านนวด' : 'Wholesale Rate' ?></span>
                         <strong id="matrixCurrentRate">฿690 / kg</strong>
                     </div>
                     <div class="matrix-stat-item">

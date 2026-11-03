@@ -83,9 +83,9 @@ $brandStory = $HOME_DATA['brand_story'] ?? [];
 
             <div class="about-cat-card">
                 <span class="content-tag-gold">03 • GLOBAL STANDARD (มาตรฐานสากล)</span>
-                <h3 class="article-title">การันตีคุณภาพส่งออก GMP</h3>
+                <h3 class="article-title">พิถีพิถันทุกขั้นตอนการปรุงสูตร</h3>
                 <p class="content-page-desc">
-                    ผลิตจากโรงงานมาตรฐาน GMP สากล มีใบรับจดแจ้ง อย. และเอกสาร COA/MSDS รองรับการใช้งานในร้านสปาและโรงแรมชั้นนำทั่วโลก
+                    ปรุงสูตรด้วยความสะอาด ปลอดภัย คัดสรรสมุนไพรธรรมชาติแท้เกรดพรีเมียม บรรจุถุงซีลสุญญากาศสดใหม่ทุกออเดอร์ เพื่อการใช้งานในร้านนวดและสปาชั้นนำ
                 </p>
             </div>
         </div>

@@ -535,7 +535,7 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
                         </div>
                         <div>
                             <div class="profile-service-title">สมัครเป็น Yak Pho Partner (หมอนวด Affiliate)</div>
-                            <div class="profile-service-desc">รับค่าคอมมิชชัน 10-15% ไม่ต้องสต็อกสินค้า โรงงานส่งให้</div>
+                            <div class="profile-service-desc">รับค่าคอมมิชชัน 10-15% ไม่ต้องสต็อกสินค้า ทางเราจัดส่งให้</div>
                         </div>
                     </div>
                     <button type="button" onclick="applyTherapistPartner(this)" class="profile-btn-action">
@@ -594,7 +594,7 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
                 <a href="<?= URL_PATH ?>/<?= $currentLang ?>/about" class="setting-menu-item">
                     <div class="setting-item-left">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="m9 12 2 2 4-4"></path></svg>
-                        <span>นโยบายความเป็นส่วนตัว (PDPA) &amp; มาตรฐาน GMP</span>
+                        <span>นโยบายความเป็นส่วนตัว (PDPA) &amp; มาตรฐานการบริการ</span>
                     </div>
                     <span class="setting-arrow">›</span>
                 </a>
@@ -607,7 +607,7 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
                 <a href="https://lin.ee/vyUtLZ6" target="_blank" rel="noopener" class="setting-menu-item text-decoration-none">
                     <div class="setting-item-left">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                        <span>ติดต่อแอดมินโรงงาน</span>
+                        <span>ติดต่อทีมงานแอดมิน</span>
                     </div>
                     <span class="setting-arrow">›</span>
                 </a>

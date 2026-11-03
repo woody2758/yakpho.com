@@ -4,12 +4,12 @@ $heroSlides = $HOME_DATA['hero_slides'] ?? [];
 if (empty($heroSlides)) {
     $heroSlides = [
         [
-            'slide_title' => $currentLang === 'th' ? 'โรงงานผลิตบาล์มนวดสมุนไพร & สปาอโรม่า' : 'Thai Herbal Massage Balms & Spa Aromatherapy',
-            'slide_subtitle' => $currentLang === 'th' ? 'มาตรฐานส่งออก GMP สดใหม่ทุกออเดอร์ เรทส่งร้านนวด 6 กก. เพียง ฿590.-/กก.' : 'GMP Certified Factory. Wholesale from 6 kg at ฿590/kg.',
+            'slide_title' => $currentLang === 'th' ? 'ยาหม่องกิโล ยาหม่องถุง บาล์มนวดสปาอโรม่า' : 'Thai Herbal Massage Balms & Spa Aromatherapy',
+            'slide_subtitle' => $currentLang === 'th' ? 'สมุนไพรไทยแท้ ปรุงสดใหม่ทุกออเดอร์ เรทส่งร้านนวด 6 กก. เพียง ฿590.-/กก.' : 'Authentic Thai Herbs. Wholesale from 6 kg at ฿590/kg.',
             'image_url' => URL_PATH . '/catalog/assets/img/brand_story.webp',
             'badge' => 'Factory Direct',
             'link' => URL_PATH . '/' . $currentLang . '/corporate-gifts',
-            'btn_text' => 'สั่งซื้อเรทส่งโรงงาน'
+            'btn_text' => 'สั่งซื้อราคาส่งร้านนวด'
         ],
         [
             'slide_title' => $currentLang === 'th' ? '3 สูตรลับ 12 กลิ่นซิกเนเจอร์ ผสาน Tarragon' : '3 Core Formulas & 12 Signature Scents',
@@ -36,7 +36,7 @@ $pricingTiers = $HOME_DATA['pricing_tiers'] ?? [];
                 <div class="hero-slide-item">
                     <div class="hero-slide-inner yp-container">
                         <div class="hero-slide-content">
-                            <span class="hero-slide-tag"><?= htmlspecialchars($slide['badge'] ?? 'GMP Certified') ?></span>
+                            <span class="hero-slide-tag"><?= htmlspecialchars($slide['badge'] ?? 'Thai Herbal Craft') ?></span>
                             <h1 class="hero-slide-title"><?= htmlspecialchars($slide['slide_title'] ?? $slide['title'] ?? '') ?></h1>
                             <p class="hero-slide-desc"><?= htmlspecialchars($slide['slide_subtitle'] ?? $slide['subtitle'] ?? '') ?></p>
                             <a href="<?= htmlspecialchars($slide['link'] ?? (URL_PATH . '/' . $currentLang . '/products')) ?>" class="hero-slide-btn">

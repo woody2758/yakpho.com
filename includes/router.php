@@ -117,12 +117,12 @@ switch ($template_file) {
         // ตั้งค่า SEO หน้าแรก (Homepage Title, Description, Keywords)
         // ------------------------------------------------------------
         $SEO['title'] = $lang === 'th'
-            ? 'Yak Pho Aroma | ผลิตภัณฑ์สมุนไพรและสปาอโรม่า โดย บริษัท เอสเธอร์ อโรม่า จำกัด'
-            : 'Yak Pho Aroma | Thai Herbal Spa & Wellness by Esther Aroma Co., Ltd.';
+            ? 'ยาหม่องกิโล ยาหม่องถุง ราคาส่งร้านนวด & สปา 1 กก. ฿590.- | Yak Pho Aroma (ยักษ์โพธิ์)'
+            : 'Thai Massage Balm 1kg Refill Pouch | Yak Pho Aroma Wholesale';
         $SEO['description'] = $lang === 'th'
-            ? 'ยักษ์โพธิ์ อโรม่า (Yak Pho Aroma) บาล์มนวดสมุนไพรและน้ำมันนวดสูตรเข้มข้น 3 สูตร 12 กลิ่นซิกเนเจอร์ กลุ่มสุขภาพและเครื่องหอม (From Soil To Soul) โดย บริษัท เอสเธอร์ อโรม่า จำกัด'
-            : 'Yak Pho Aroma: Concentrated Thai herbal massage balms and spa aromatherapy oils (From Soil To Soul) by Esther Aroma Co., Ltd.';
-        $SEO['keywords'] = 'YakPho, Yak Pho Aroma, Esther Aroma, ยักษ์โพธิ์, เอสเธอร์ อโรม่า, บาล์มนวดสมุนไพร, น้ำมันนวดอโรม่า, ร้านนวดไทย, สปา';
+            ? 'ยาหม่องกิโลและยาหม่องถุง 1 กก. สูตรเข้มข้น 3 สูตร 12 กลิ่นซิกเนเจอร์ ผสาน Tarragon Infused Oil ภูมิปัญญาสมุนไพรไทยแท้ ลื่นมือ ซึมไว ไม่คันมือ ไม่แสบร้อนผิวแขก ราคาส่งร้านนวดเริ่มต้น ฿590/กก.'
+            : 'Concentrated Thai herbal massage balms & spa aromatherapy 1kg refill pouches. 3 signature formulas, 12 scents. Crafted for professional Thai massage shops & spas.';
+        $SEO['keywords'] = 'ยาหม่องกิโล, ยาหม่องถุง, ยาหม่องราคาส่ง, ยาหม่องร้านนวด, บาล์มนวด 1 กก, ยาหม่อง 1 กิโล, ยาหม่องสปา, ยักษ์โพธิ์, Yak Pho Aroma';
         break;
 
     case 'about.php':
@@ -142,7 +142,7 @@ switch ($template_file) {
         $STORES_DATA = get_stores_and_faqs_data($db, $lang);
         $SEO['title'] = ($lang === 'th' ? 'ภาพบรรยากาศแกลเลอรี (Gallery) | ' : 'Photo Gallery | ') . 'Yak Pho Aroma';
         $SEO['description'] = ($lang === 'th' ? 'ชมภาพบรรยากาศกรรมวิธีการผลิต วัตถุดิบสมุนไพร และผลิตภัณฑ์สปาอโรม่ายักษ์โพธิ์ มาตรฐานส่งออกสากล' : 'Photo Gallery of Yak Pho Aroma natural herbs, production standards, and spa wellness products.');
-        $SEO['keywords'] = 'ภาพแกลเลอรียักษ์โพธิ์, บาล์มนวดสปา, โรงงานผลิตสมุนไพร, Yak Pho Gallery';
+        $SEO['keywords'] = 'ภาพแกลเลอรียักษ์โพธิ์, บาล์มนวดสปา, แหล่งผลิตสมุนไพรแท้, Yak Pho Gallery';
         break;
 
     case 'faqs.php':

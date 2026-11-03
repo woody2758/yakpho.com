@@ -31,7 +31,7 @@ $formulas = $HOME_DATA['formulas'] ?? [];
         <div class="about-badges-row">
             <span class="about-badge-pill">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                <?= $currentLang === 'th' ? 'มาตรฐานส่งออก GMP' : 'GMP Certified' ?>
+                <?= $currentLang === 'th' ? 'สมุนไพรไทยแท้ 100%' : '100% Natural Herbs' ?>
             </span>
             <span class="about-badge-pill">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path></svg>

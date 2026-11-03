@@ -183,7 +183,7 @@ $affiliateCookie = (string)($CHECKOUT_DATA['affiliate_cookie'] ?? '');
 
                 <?php if (($cart['wholesale_savings'] ?? 0) > 0): ?>
                     <div class="cart-summary-line checkout-wholesale-saving">
-                        <span>ส่วนลดเรทราคาส่งโรงงาน</span>
+                        <span>ส่วนลดเรทราคาส่งร้านนวด</span>
                         <strong>-฿<?= number_format((float)$cart['wholesale_savings'], 0) ?></strong>
                     </div>
                 <?php endif; ?>

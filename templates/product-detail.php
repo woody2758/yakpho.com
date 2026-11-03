@@ -136,7 +136,7 @@ if (typeof gtag === 'function') {
                     </div>
                     <div class="detail-badge-row">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
-                        <span><strong>ตรวจสอบโดย Yak Pho Aroma</strong> • โรงงานมาตรฐาน GMP • สมุนไพรแท้ 100%</span>
+                        <span><strong>ปรุงสูตรโดย Yak Pho Aroma</strong> • คัดสรรสมุนไพรแท้ 100% • ปลอดภัยไม่คันมือ</span>
                     </div>
                 </div>
 
@@ -172,7 +172,7 @@ if (typeof gtag === 'function') {
                     <?php $pIdx = 0; foreach ($contentTabs as $tabTitle => $tabBody): ?>
                         <div class="detail-tab-pane <?= $pIdx === 0 ? 'active' : '' ?>" id="tab_<?= $pIdx ?>">
                             <?php if ($tabBody === 'WHOLESALE_TABLE_MARKER'): ?>
-                                <p style="margin-bottom:10px; font-weight:600; color:var(--yp-text); font-size:0.88rem;">เรทราคาส่งโรงงานสำหรับร้านนวดและสปา (คละสูตรและกลิ่นได้):</p>
+                                <p style="margin-bottom:10px; font-weight:600; color:var(--yp-text); font-size:0.88rem;">เรทราคาส่งยาหม่องกิโลสำหรับร้านนวดและสปา (คละสูตรและกลิ่นได้):</p>
                                 <?php 
                                 $detailTiers = $WHOLESALE_DATA['tiers'] ?? [];
                                 if (!empty($detailTiers)): ?>
@@ -187,7 +187,7 @@ if (typeof gtag === 'function') {
                                                 <tr class="<?= $isBest ? 'highlight-tier' : '' ?>">
                                                     <td><?= htmlspecialchars($currentLang === 'th' ? $dt['label_th'] : $dt['label_en']) ?></td>
                                                     <td><strong>฿<?= (int)$dt['rate'] ?>.-</strong></td>
-                                                    <td><?= $isBest ? 'เรทพิเศษยอดนิยม' : 'เรทส่งโรงงาน' ?></td>
+                                                    <td><?= $isBest ? 'เรทพิเศษยอดนิยม' : 'เรทราคาส่ง' ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>

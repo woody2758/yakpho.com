@@ -31,7 +31,7 @@ function get_member_tier_info(string $tier): array {
             'badge'       => '👑',
             'badge_class' => 'tier-vip-spa',
             'color'       => '#d97706',
-            'desc'        => 'เรทราคาส่งโรงงาน 1 กก. (฿590 / ฿490)',
+            'desc'        => 'เรทราคาส่ง 1 กก. (฿590 / ฿490)',
         ],
         'therapist_partner' => [
             'code'        => 'therapist_partner',
