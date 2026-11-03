@@ -115,13 +115,10 @@ $buildCatalogUrl = function (int $targetPage = 1, ?int $targetCat = null, ?strin
                         <a href="<?= $buildCatalogUrl(1, $catId, $activeSearch) ?>" class="category-drawer-item <?= $isActive ? 'active' : '' ?>">
                             <div class="cat-drawer-item-left">
                                 <span class="cat-drawer-icon">
-                                    <?= match($catId) {
-                                        32 => '🔥', // สูตรร้อน
-                                        38 => '❄️', // สูตรเย็น
-                                        40 => '💆', // สูตรนวดตัว
-                                        36 => '💧', // พิมเสนน้ำ
-                                        default => '🍃',
-                                    } ?>
+                                    <?php
+                                    $catIcons = [32 => '🔥', 38 => '❄️', 40 => '💆', 36 => '💧'];
+                                    echo $catIcons[$catId] ?? '🍃';
+                                    ?>
                                 </span>
                                 <span class="cat-drawer-name"><?= htmlspecialchars($pCat['productcat_name']) ?></span>
                             </div>
