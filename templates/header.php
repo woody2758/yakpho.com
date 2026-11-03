@@ -118,7 +118,7 @@ $savedTheme = $_COOKIE['yakpho_theme'] ?? 'dark';
 
     <!-- Preload Primary LCP Assets (Zero CDN, 100% Localhost / Server) -->
 
-    <link rel="preload" as="image" href="<?= URL_PATH ?>/catalog/assets/img/YakPhoAromaLogo.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="<?= URL_PATH ?>/catalog/assets/img/YakPhoAromaLogo_sm.webp" fetchpriority="high">
 
 
 
@@ -298,7 +298,7 @@ $savedTheme = $_COOKIE['yakpho_theme'] ?? 'dark';
 
                 <a href="<?= URL_PATH ?>/<?= $currentLang ?>/" class="app-brand" aria-label="Yak Pho Aroma Home">
 
-                    <img src="<?= URL_PATH ?>/catalog/assets/img/YakPhoAromaLogo.webp" alt="Yak Pho Logo" class="app-brand-logo" width="38" height="38">
+                    <img src="<?= URL_PATH ?>/catalog/assets/img/YakPhoAromaLogo_sm.webp" alt="Yak Pho Logo" class="app-brand-logo" width="38" height="38">
 
                     <div class="app-brand-text">
 

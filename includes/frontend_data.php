@@ -641,7 +641,7 @@ function get_home_page_data(PDO $db, string $lang = 'th'): array
         $stmt->execute([$lang]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as $i => $r) {
-            $r['image_url'] = resolve_product_image($r['product_picture'], 'large', $i + 1);
+            $r['image_url'] = resolve_product_image($r['product_picture'], 'small', $i + 1);
             $r['price_formatted'] = number_format((float)$r['product_price'], 0);
             $r['nprice_formatted'] = (float)$r['product_nprice'] > (float)$r['product_price']
                 ? number_format((float)$r['product_nprice'], 0)
@@ -881,7 +881,7 @@ function get_catalog_products(PDO $db, array $filters = [], string $lang = 'th')
         $price = (float)$r['product_price'];
         $nprice = (float)$r['product_nprice'];
         $pId = (int)$r['product_id'];
-        $r['image_url'] = resolve_product_image($r['product_picture'], 'large', $i + 1);
+        $r['image_url'] = resolve_product_image($r['product_picture'], 'small', $i + 1);
         $r['price_formatted'] = number_format($price, 0);
         $r['nprice_formatted'] = $nprice > $price ? number_format($nprice, 0) : '';
         $r['is_1kg_wholesale'] = in_array((int)$r['productcat_id'], [32, 38, 40], true);
@@ -983,7 +983,7 @@ function get_single_product_detail(PDO $db, $idOrCode, string $lang = 'th'): ?ar
         ");
         $stmtRel->execute([$lang, $catId, $pid]);
         foreach ($stmtRel->fetchAll(PDO::FETCH_ASSOC) as $i => $r) {
-            $r['image_url'] = resolve_product_image($r['product_picture'], 'large', $i + 1);
+            $r['image_url'] = resolve_product_image($r['product_picture'], 'small', $i + 1);
             $r['price_formatted'] = number_format((float)$r['product_price'], 0);
             $related[] = $r;
             $seenIds[] = (int)$r['product_id'];
@@ -1006,7 +1006,7 @@ function get_single_product_detail(PDO $db, $idOrCode, string $lang = 'th'): ?ar
             ");
             $stmtExtra->execute([$lang]);
             foreach ($stmtExtra->fetchAll(PDO::FETCH_ASSOC) as $i => $r) {
-                $r['image_url'] = resolve_product_image($r['product_picture'], 'large', count($related) + $i + 1);
+                $r['image_url'] = resolve_product_image($r['product_picture'], 'small', count($related) + $i + 1);
                 $r['price_formatted'] = number_format((float)$r['product_price'], 0);
                 $related[] = $r;
             }
