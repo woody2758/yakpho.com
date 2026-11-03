@@ -14221,3 +14221,89 @@ button.member-login-btn-cancel:hover {
     height: 100%;
     object-fit: cover;
 }
+
+
+/* ============================================================
+   DARK MODE POLISH: About Us, Heritage Story, Blog, FAQs, Gallery
+   ============================================================ */
+[data-theme="dark"] .content-page-hero,
+[data-theme="dark"] .about-story-card,
+[data-theme="dark"] .about-cat-card,
+[data-theme="dark"] .article-card,
+[data-theme="dark"] .faq-accordion-item,
+[data-theme="dark"] .gallery-photo-card {
+    background: #0C2823 !important;
+    border: 1px solid rgba(52, 211, 153, 0.18) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .content-page-title,
+[data-theme="dark"] .article-title,
+[data-theme="dark"] .faq-question-btn,
+[data-theme="dark"] .faq-group-header {
+    color: #F9FAFB !important;
+}
+
+[data-theme="dark"] .content-page-desc,
+[data-theme="dark"] .content-page-desc p,
+[data-theme="dark"] .article-excerpt-text,
+[data-theme="dark"] .faq-answer-collapse {
+    color: #D1D5DB !important;
+}
+
+[data-theme="dark"] .content-tag-gold {
+    color: #E2B76D !important;
+}
+
+[data-theme="dark"] .content-breadcrumb,
+[data-theme="dark"] .content-breadcrumb span {
+    color: #8E9C98 !important;
+}
+
+[data-theme="dark"] .content-breadcrumb a {
+    color: #6EE7B7 !important;
+}
+
+[data-theme="dark"] .about-badges-row {
+    gap: 8px !important;
+}
+
+[data-theme="dark"] .about-badge-pill {
+    background: rgba(16, 185, 129, 0.16) !important;
+    color: #6EE7B7 !important;
+    border: 1px solid rgba(52, 211, 153, 0.35) !important;
+    font-weight: 600 !important;
+}
+
+[data-theme="dark"] .about-badge-pill svg {
+    stroke: #6EE7B7 !important;
+    color: #6EE7B7 !important;
+}
+
+[data-theme="dark"] .about-feature-box {
+    background: rgba(0, 0, 0, 0.25) !important;
+    border-color: rgba(52, 211, 153, 0.15) !important;
+}
+
+[data-theme="dark"] .profile-btn-sm-outline {
+    border-color: rgba(209, 165, 90, 0.45) !important;
+    color: #F3F4F6 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .profile-btn-sm-outline:hover {
+    background: rgba(209, 165, 90, 0.18) !important;
+    color: #E2B76D !important;
+    border-color: #E2B76D !important;
+}
+
+[data-theme="dark"] .profile-btn-sm-primary {
+    background: var(--yp-gold-dark, #b5883e) !important;
+    color: #071916 !important;
+    font-weight: 700 !important;
+}
+
+[data-theme="dark"] .profile-btn-sm-primary:hover {
+    background: var(--yp-gold, #D1A55A) !important;
+    color: #071916 !important;
+}
