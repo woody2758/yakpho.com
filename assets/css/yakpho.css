@@ -14307,3 +14307,55 @@ button.member-login-btn-cancel:hover {
     background: var(--yp-gold, #D1A55A) !important;
     color: #071916 !important;
 }
+
+/* ============================================================
+   ERROR 404 PAGE STYLING
+   ============================================================ */
+.error-404-container {
+    min-height: calc(100vh - 280px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+.error-404-card {
+    max-width: 580px;
+    width: 100%;
+    text-align: center;
+    padding: 44px 28px;
+    margin: 0 auto;
+}
+
+.error-404-icon-wrap {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 18px auto;
+    border-radius: 50%;
+    background: rgba(209, 165, 90, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(209, 165, 90, 0.35);
+    color: var(--yp-gold, #D1A55A);
+}
+
+.error-404-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.error-404-btn {
+    padding: 10px 24px;
+    font-size: 0.9rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}

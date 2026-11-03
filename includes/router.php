@@ -113,6 +113,16 @@ switch ($template_file) {
     case 'home.php':
         $HOME_DATA = get_home_page_data($db, $lang);
         $MATRIX_PREVIEW = get_wholesale_matrix_data($db, $lang);
+        // ------------------------------------------------------------
+        // ตั้งค่า SEO หน้าแรก (Homepage Title, Description, Keywords)
+        // ------------------------------------------------------------
+        $SEO['title'] = $lang === 'th'
+            ? 'Yak Pho Aroma | ผลิตภัณฑ์สมุนไพรและสปาอโรม่า โดย บริษัท เอสเธอร์ อโรม่า จำกัด'
+            : 'Yak Pho Aroma | Thai Herbal Spa & Wellness by Esther Aroma Co., Ltd.';
+        $SEO['description'] = $lang === 'th'
+            ? 'ยักษ์โพธิ์ อโรม่า (Yak Pho Aroma) บาล์มนวดสมุนไพรและน้ำมันนวดสูตรเข้มข้น 3 สูตร 12 กลิ่นซิกเนเจอร์ กลุ่มสุขภาพและเครื่องหอม (From Soil To Soul) โดย บริษัท เอสเธอร์ อโรม่า จำกัด'
+            : 'Yak Pho Aroma: Concentrated Thai herbal massage balms and spa aromatherapy oils (From Soil To Soul) by Esther Aroma Co., Ltd.';
+        $SEO['keywords'] = 'YakPho, Yak Pho Aroma, Esther Aroma, ยักษ์โพธิ์, เอสเธอร์ อโรม่า, บาล์มนวดสมุนไพร, น้ำมันนวดอโรม่า, ร้านนวดไทย, สปา';
         break;
 
     case 'about.php':
