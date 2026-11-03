@@ -38,7 +38,7 @@ if ($is_localhost_env) {
     $pass = "";
 } else {
     // Production Server (ใช้ฐานข้อมูลตัวเดียวกับ esther.rest: woodysay_esther)
-    $dsn  = "mysql:host=127.0.0.1;dbname=woodysay_esther;charset=utf8mb4";
+    $dsn  = "mysql:host=localhost;dbname=woodysay_esther;charset=utf8mb4";
     $user = "woodysay_esther";
     $pass = "cYuekzwRgSgNNAMqJhwA";
 }
