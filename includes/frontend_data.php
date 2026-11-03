@@ -140,7 +140,7 @@ function calculate_wholesale_kg_rate(int $totalKg): int
  * > 12000g: 0 THB (Free shipping)
  * Destination 'international': 0 THB (Pending quote based on destination)
  */
-function calculate_shipping_by_weight(float|int $totalGrams, string $destination = 'domestic'): array
+function calculate_shipping_by_weight($totalGrams, string $destination = 'domestic'): array
 {
     if ($destination === 'international') {
         return [
