@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../../includes/functions/pagination.php';
 
 header('Content-Type: application/json');
@@ -54,8 +54,32 @@ try {
     // Generate table HTML
     ob_start();
     ?>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+    <style>
+        /* บังคับให้ Scroll ได้จริงบนมือถือ */
+        .force-responsive {
+            width: 100% !important;
+            overflow-x: auto !important;
+            display: block !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        .maincat-table {
+            min-width: 800px !important;
+        }
+        .maincat-table td, .maincat-table th {
+            display: table-cell !important;
+            white-space: nowrap !important;
+            padding: 12px 8px !important;
+        }
+        @media (max-width: 576px) {
+            .pagination .page-link {
+                padding: 0.25rem 0.4rem !important;
+                font-size: 0.75rem !important;
+            }
+        }
+    </style>
+
+    <div class="force-responsive bg-white shadow-sm rounded">
+        <table class="table table-hover align-middle mb-0 maincat-table">
             <thead class="table-light">
                 <tr>
                     <th style="width: 50px;" class="text-center">

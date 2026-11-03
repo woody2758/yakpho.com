@@ -4,12 +4,21 @@
 /**
  * Get all users with pagination and filtering
  */
-function get_all_users($limit = 20, $offset = 0, $search = '', $role = '', $sort = 'desc') {
+function get_all_users($limit = 20, $offset = 0, $search = '', $role = '', $sort = 'desc', $tag = '', $tier = '') {
     global $db;
     
-    $sql = "SELECT * FROM user WHERE user_del = 0";
+    $sql = "SELECT u.* FROM user u WHERE u.user_del = 0";
     $params = [];
     
+    if (!empty($tag)) {
+        $sql .= " AND EXISTS (
+            SELECT 1 FROM user_tag_mapping utm 
+            JOIN user_tags ut ON utm.tag_id = ut.tag_id 
+            WHERE utm.user_id = u.user_id AND ut.tag_name = ?
+        )";
+        $params[] = $tag;
+    }
+
     if (!empty($search)) {
         // Clean up search string: trim and normalize whitespace
         $search = trim(preg_replace('/\s+/', ' ', $search));
@@ -27,7 +36,7 @@ function get_all_users($limit = 20, $offset = 0, $search = '', $role = '', $sort
             $userId = (stripos($keyword, 'C') === 0) ? substr($keyword, 1) : $keyword;
             
             // Each keyword searches across all fields
-            $searchConditions[] = "(user_name LIKE ? OR user_lastname LIKE ? OR user_nickname LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
+            $searchConditions[] = "(u.user_name LIKE ? OR u.user_lastname LIKE ? OR u.user_nickname LIKE ? OR u.user_email LIKE ? OR u.user_mobile LIKE ? OR u.user_id = ?)";
             
             $params[] = "%$keyword%";
             $params[] = "%$keyword%";
@@ -43,14 +52,19 @@ function get_all_users($limit = 20, $offset = 0, $search = '', $role = '', $sort
         }
     }
     
+    if (!empty($tier)) {
+        $sql .= " AND u.member_tier = ?";
+        $params[] = $tier;
+    }
+
     if (!empty($role)) {
-        $sql .= " AND role = ?";
+        $sql .= " AND u.role = ?";
         $params[] = $role;
     }
     
     // Add sorting
     $orderDirection = ($sort === 'asc') ? 'ASC' : 'DESC';
-    $sql .= " ORDER BY user_id {$orderDirection} LIMIT $limit OFFSET $offset";
+    $sql .= " ORDER BY u.user_id {$orderDirection} LIMIT $limit OFFSET $offset";
     
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
@@ -60,12 +74,21 @@ function get_all_users($limit = 20, $offset = 0, $search = '', $role = '', $sort
 /**
  * Count total users for pagination
  */
-function count_all_users($search = '', $role = '') {
+function count_all_users($search = '', $role = '', $tag = '', $tier = '') {
     global $db;
     
-    $sql = "SELECT COUNT(*) FROM user WHERE user_del = 0";
+    $sql = "SELECT COUNT(*) FROM user u WHERE u.user_del = 0";
     $params = [];
     
+    if (!empty($tag)) {
+        $sql .= " AND EXISTS (
+            SELECT 1 FROM user_tag_mapping utm 
+            JOIN user_tags ut ON utm.tag_id = ut.tag_id 
+            WHERE utm.user_id = u.user_id AND ut.tag_name = ?
+        )";
+        $params[] = $tag;
+    }
+
     if (!empty($search)) {
         // Clean up search string: trim and normalize whitespace
         $search = trim(preg_replace('/\s+/', ' ', $search));
@@ -83,7 +106,7 @@ function count_all_users($search = '', $role = '') {
             $userId = (stripos($keyword, 'C') === 0) ? substr($keyword, 1) : $keyword;
             
             // Each keyword searches across all fields
-            $searchConditions[] = "(user_name LIKE ? OR user_lastname LIKE ? OR user_nickname LIKE ? OR user_email LIKE ? OR user_mobile LIKE ? OR user_id = ?)";
+            $searchConditions[] = "(u.user_name LIKE ? OR u.user_lastname LIKE ? OR u.user_nickname LIKE ? OR u.user_email LIKE ? OR u.user_mobile LIKE ? OR u.user_id = ?)";
             
             $params[] = "%$keyword%";
             $params[] = "%$keyword%";
@@ -99,8 +122,13 @@ function count_all_users($search = '', $role = '') {
         }
     }
     
+    if (!empty($tier)) {
+        $sql .= " AND u.member_tier = ?";
+        $params[] = $tier;
+    }
+
     if (!empty($role)) {
-        $sql .= " AND role = ?";
+        $sql .= " AND u.role = ?";
         $params[] = $role;
     }
     

@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'product_price' => $_POST['product_price'] ?? 0,
             'product_nprice' => $_POST['product_nprice'] ?? 0,
             'product_cprice' => $_POST['product_cprice'] ?? 0,
+            'vat_type' => $_POST['vat_type'] ?? 'included',
             'product_weight' => $_POST['product_weight'] ?? 0,
             'price_tier_id' => $_POST['price_tier_id'] ?? null,
             'product_stock' => $_POST['product_stock'] ?? 0,
@@ -409,6 +410,14 @@ include __DIR__ . '/../includes/header.php';
                                             <label class="form-label">ต้นทุน</label>
                                             <input type="number" name="product_cprice" class="form-control" step="0.01" 
                                                    value="<?= $product['product_cprice'] ?>">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">ประเภทภาษี (VAT)</label>
+                                            <select name="vat_type" class="form-select">
+                                                <option value="included" <?= ($product['vat_type'] ?? 'included') === 'included' ? 'selected' : '' ?>>รวมภาษีแล้ว (VAT Included)</option>
+                                                <option value="excluded" <?= ($product['vat_type'] ?? 'included') === 'excluded' ? 'selected' : '' ?>>ยังไม่รวมภาษี (VAT Excluded)</option>
+                                            </select>
                                         </div>
 
                                         <div class="mb-3">

@@ -1,12 +1,20 @@
 <?php
-session_start();
 require __DIR__ . "/includes/config.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 // รองรับทั้ง email และ identity (กันพลาดจากหน้า form เก่า)
 $email = trim($_POST['email'] ?? '');
 $password = trim($_POST['password'] ?? '');
 
 // เก็บค่าที่กรอกไว้ เพื่อเติมกลับในฟอร์ม
 $_SESSION['old_identity'] = $email;
+
+// ตรวจสอบว่าเป็นการส่งฟอร์มมาหรือไม่
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: " . ADMIN_URL . "/");
+    exit;
+}
 
 // ตรวจ empty
 if ($email === '' || $password === '') {
@@ -25,18 +33,6 @@ if (!$user) {
     header("Location: " . ADMIN_URL . "/");
     exit;
 }
-
-// DEBUG ชั่วคราว — ดูค่าจริง
-// echo "<pre>";
-// echo "Email ที่ส่งมา: "; var_dump($email);
-// echo "Password ที่พิมพ์: "; var_dump($password);
-// echo "Hash จากฐานข้อมูล: "; var_dump($user['user_password']);
-// echo "Result password_verify: ";
-// var_dump(password_verify($password, $user['user_password']));
-// echo "</pre>";
-// exit;
-
-
 
 // ตรวจรหัสผ่าน
 if (!password_verify($password, $user['user_password'])) {
@@ -59,7 +55,36 @@ $_SESSION['admin_id']       = $user['user_id'];
 $_SESSION['admin_username'] = $user['user_username'];
 $_SESSION['admin_role']     = $user['role'];
 $_SESSION['admin_name']     = $user['user_name'];
-$_SESSION['admin_picture'] = $row['user_picture'];   // ⭐ สำคัญ
+$_SESSION['admin_picture']  = $user['user_picture'] ?? 'default.png';
+
+// ----------------------------------------------------------------------
+// REMEMBER ME: สร้าง Token สำหรับล็อกอินค้างไว้ 1 ปี (365 วัน)
+// ----------------------------------------------------------------------
+$remember = !empty($_POST['remember']);
+if ($remember) {
+    $expiry_time = time() + (86400 * 365); // 1 ปี
+    $expiry_datetime = date('Y-m-d H:i:s', $expiry_time);
+    $token = bin2hex(random_bytes(32));
+
+    $stmtToken = $db->prepare("INSERT INTO user_tokens (user_id, token, expires_at) VALUES (?, ?, ?)");
+    $stmtToken->execute([$user['user_id'], $token, $expiry_datetime]);
+
+    setcookie('remember_token', $token, [
+        'expires'  => $expiry_time,
+        'path'     => '/',
+        'secure'   => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+} else {
+    // ถ้าไม่ได้ติ๊ก ให้เคลียร์ cookie เก่าออก
+    if (isset($_COOKIE['remember_token'])) {
+        $stmtDel = $db->prepare("DELETE FROM user_tokens WHERE token = ?");
+        $stmtDel->execute([$_COOKIE['remember_token']]);
+        setcookie('remember_token', '', time() - 3600, '/');
+    }
+}
+// ----------------------------------------------------------------------
 
 // Success Alert
 $_SESSION['alert'] = ['success', 'ยินดีต้อนรับคุณ ' . $user['user_name']];

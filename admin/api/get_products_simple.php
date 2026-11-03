@@ -11,6 +11,7 @@ try {
         product_name, 
         product_code, 
         product_price,
+        vat_type,
         product_stock
         FROM product 
         WHERE product_del = 0 

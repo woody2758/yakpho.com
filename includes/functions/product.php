@@ -128,7 +128,7 @@ function get_product_by_id($productId, $langCode = 'th') {
 function get_product_translations($productId) {
     global $db;
     
-    $sql = "SELECT pt.*, l.lang_name, l.lang_code
+    $sql = "SELECT pt.*, l.lang_name
             FROM product_translations pt
             LEFT JOIN languages l ON pt.lang_code = l.lang_code
             WHERE pt.product_id = ?
@@ -149,15 +149,17 @@ function create_product($data) {
         $db->beginTransaction();
         
         // Insert main product
-        $sql = "INSERT INTO product (product_code, productcat_id, product_slug, product_picture,
+        $sql = "INSERT INTO product (product_code, scent_id, formula_id, productcat_id, product_slug, product_picture,
                                     product_price, product_nprice, product_cprice, product_weight,
                                     price_tier_id, product_stock, stock_alert_enabled, stock_alert_level,
-                                    product_status, product_date, save_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+                                    product_status, vat_type, product_date, save_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
         
         $stmt = $db->prepare($sql);
         $stmt->execute([
             $data['product_code'],
+            $data['scent_id'] ?? null,
+            $data['formula_id'] ?? null,
             $data['productcat_id'] ?? null,
             $data['product_slug'] ?? null,
             $data['product_picture'] ?? null,
@@ -170,6 +172,7 @@ function create_product($data) {
             $data['stock_alert_enabled'] ?? 0,
             $data['stock_alert_level'] ?? 10,
             $data['product_status'] ?? 1,
+            $data['vat_type'] ?? 'included',
             $data['save_id'] ?? 0
         ]);
         
@@ -196,6 +199,8 @@ function update_product($productId, $data) {
         // Build SQL dynamically - only update product_picture if explicitly provided
         $fields = [
             'product_code = ?',
+            'scent_id = ?',
+            'formula_id = ?',
             'productcat_id = ?',
             'product_slug = ?',
             'product_price = ?',
@@ -207,12 +212,15 @@ function update_product($productId, $data) {
             'stock_alert_enabled = ?',
             'stock_alert_level = ?',
             'product_status = ?',
+            'vat_type = ?',
             'product_update = NOW()',
             'update_id = ?'
         ];
         
         $params = [
             $data['product_code'],
+            $data['scent_id'] ?? null,
+            $data['formula_id'] ?? null,
             $data['productcat_id'] ?? null,
             $data['product_slug'] ?? null,
             $data['product_price'] ?? 0,
@@ -224,6 +232,7 @@ function update_product($productId, $data) {
             $data['stock_alert_enabled'] ?? 0,
             $data['stock_alert_level'] ?? 10,
             $data['product_status'] ?? 1,
+            $data['vat_type'] ?? 'included',
             $data['update_id'] ?? 0
         ];
         

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../../includes/functions/pagination.php';
 
 header('Content-Type: application/json');
@@ -24,7 +24,7 @@ try {
     $params = [];
     
     if (!empty($search)) {
-        $sql .= " AND ct.productcat_name LIKE ?";
+        $sql .= " AND ct_th.productcat_name LIKE ?";
         $params[] = "%$search%";
     }
     
@@ -61,6 +61,7 @@ try {
                     </th>
                     <th class="ps-3" style="width: 80px;">ID</th>
                     <th>ชื่อหมวดสินค้า</th>
+                    <th>ข้อมูลการผลิต</th>
                     <th style="width: 120px;">จำนวนสินค้า</th>
                     <th style="width: 100px;">สถานะ</th>
                     <th style="width: 150px;" class="text-end pe-4">จัดการ</th>
@@ -78,6 +79,23 @@ try {
                                 <div class="fw-bold"><?= htmlspecialchars($cat['name_th'] ?? 'ไม่มีชื่อ') ?></div>
                                 <?php if (!empty($cat['name_en'])): ?>
                                     <small class="text-muted d-block" style="font-size: 0.85rem;"><?= htmlspecialchars($cat['name_en']) ?></small>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($cat['is_production'] == 1): ?>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size: 10px;" title="กลุ่มสินค้า">
+                                            <i data-lucide="layers" class="me-1" style="width:10px;height:10px;"></i><?= htmlspecialchars($cat['prod_group_name'] ?: '-') ?>
+                                        </span>
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" style="font-size: 10px;" title="ขนาด">
+                                            <i data-lucide="maximize" class="me-1" style="width:10px;height:10px;"></i><?= htmlspecialchars($cat['prod_size'] ?: '-') ?>
+                                        </span>
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" style="font-size: 10px;" title="สูตร">
+                                            <i data-lucide="flask-conical" class="me-1" style="width:10px;height:10px;"></i><?= htmlspecialchars($cat['prod_formula'] ?: '-') ?>
+                                        </span>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted small">-</span>
                                 <?php endif; ?>
                             </td>
                             <td>

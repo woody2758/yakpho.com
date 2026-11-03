@@ -29,14 +29,14 @@ try {
             UPDATE aboutus SET
                 aboutus_heading = ?,
                 aboutus_status = ?,
-                aboutus_update = NOW()
+                aboutus_update = NOW(),
+                update_id = ?
             WHERE aboutus_id = ? AND aboutus_del = 0
         ");
-        $stmt->execute([$aboutus_heading, $aboutus_status, $aboutus_id]);
+        $stmt->execute([$aboutus_heading, $aboutus_status, $_SESSION['admin_id'] ?? 0, $aboutus_id]);
         
-        if ($stmt->rowCount() === 0) {
-            throw new Exception('About Us not found or no changes made');
-        }
+        // Log Activity
+        logStaffAction($db, 'UPDATE', 'aboutus', $aboutus_id, "Updated About Us: $aboutus_heading");
         
     } else {
         // Create new
@@ -44,11 +44,14 @@ try {
         $nextIndex = $db->query("SELECT LPAD(COALESCE(MAX(CAST(aboutus_index AS UNSIGNED)), 0) + 1, 2, '0') FROM aboutus")->fetchColumn();
         
         $stmt = $db->prepare("
-            INSERT INTO aboutus (aboutus_heading, aboutus_index, aboutus_status, aboutus_date, aboutus_update)
-            VALUES (?, ?, ?, NOW(), NOW())
+            INSERT INTO aboutus (aboutus_heading, aboutus_index, aboutus_status, aboutus_date, aboutus_update, save_id)
+            VALUES (?, ?, ?, NOW(), NOW(), ?)
         ");
-        $stmt->execute([$aboutus_heading, $nextIndex, $aboutus_status]);
+        $stmt->execute([$aboutus_heading, $nextIndex, $aboutus_status, $_SESSION['admin_id'] ?? 0]);
         $aboutus_id = $db->lastInsertId();
+
+        // Log Activity
+        logStaffAction($db, 'CREATE', 'aboutus', $aboutus_id, "Created About Us: $aboutus_heading");
     }
     
     // Save translations
@@ -69,17 +72,18 @@ try {
                 UPDATE aboutus_translation SET
                     title = ?,
                     subtitle = ?,
-                    content = ?
+                    content = ?,
+                    update_id = ?
                 WHERE aboutus_id = ? AND lang_code = ?
             ");
-            $stmt->execute([$title, $subtitle, $content, $aboutus_id, $lang]);
+            $stmt->execute([$title, $subtitle, $content, $_SESSION['admin_id'] ?? 0, $aboutus_id, $lang]);
         } else {
             // Insert
             $stmt = $db->prepare("
-                INSERT INTO aboutus_translation (aboutus_id, lang_code, title, subtitle, content)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO aboutus_translation (aboutus_id, lang_code, title, subtitle, content, save_id)
+                VALUES (?, ?, ?, ?, ?, ?)
             ");
-            $stmt->execute([$aboutus_id, $lang, $title, $subtitle, $content]);
+            $stmt->execute([$aboutus_id, $lang, $title, $subtitle, $content, $_SESSION['admin_id'] ?? 0]);
         }
     }
     

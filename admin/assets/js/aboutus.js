@@ -147,16 +147,18 @@ function addAboutUs() {
 /**
  * Edit about us
  */
+/**
+ * Edit about us
+ */
 async function editAboutUs(id) {
-    // Show loading
-    Swal.fire({
-        title: 'Loading...',
-        html: 'กำลังโหลดข้อมูล',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Show modal instantly!
+    const modalElement = document.getElementById('aboutusModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modal.show();
+
+    // Show inside loader
+    const loader = document.getElementById('aboutusModalLoading');
+    if (loader) loader.classList.add('show');
 
     try {
         const response = await fetch(`../api/get_aboutus.php?id=${id}`);
@@ -167,9 +169,6 @@ async function editAboutUs(id) {
         }
 
         const data = result.data;
-
-        // Close loading
-        Swal.close();
 
         document.getElementById('modalTitle').textContent = 'Edit About Us';
         document.getElementById('aboutusId').value = data.aboutus_id;
@@ -194,11 +193,12 @@ async function editAboutUs(id) {
             }
         });
 
-        aboutusModal.show();
-
     } catch (error) {
         console.error('Error loading about us:', error);
+        modal.hide();
         Swal.fire('Error', error.message, 'error');
+    } finally {
+        if (loader) loader.classList.remove('show');
     }
 }
 
@@ -232,12 +232,14 @@ async function saveAboutUs() {
         };
     });
 
-    // Show loading
-    Swal.fire({
-        title: 'Saving...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-    });
+    // Handle save button loading spinner instead of Swal
+    const saveBtn = document.getElementById('btnSaveAboutUs');
+    let originalBtnHtml = '';
+    if (saveBtn) {
+        originalBtnHtml = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+    }
 
     try {
         const response = await fetch('../api/save_aboutus.php', {
@@ -270,6 +272,12 @@ async function saveAboutUs() {
 
     } catch (error) {
         Swal.fire('Error', error.message, 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnHtml;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
     }
 }
 

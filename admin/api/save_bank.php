@@ -38,12 +38,24 @@ try {
         }
 
         $fileExt = strtolower(pathinfo($_FILES['bank_picture']['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'jfif', 'svg', 'bmp', 'heic', 'heif'];
 
         if (in_array($fileExt, $allowed)) {
-            $fileName = uniqid('bank_') . '.' . $fileExt;
-            if (move_uploaded_file($_FILES['bank_picture']['tmp_name'], $uploadDir . $fileName)) {
-                $bank_picture = $fileName;
+            require_once __DIR__ . '/../../includes/functions/image.php';
+            if ($fileExt === 'svg') {
+                $fileName = uniqid('bank_') . '.svg';
+                if (move_uploaded_file($_FILES['bank_picture']['tmp_name'], $uploadDir . $fileName)) {
+                    $bank_picture = $fileName;
+                }
+            } else {
+                $fileName = uniqid('bank_') . '.webp';
+                $sourceImage = load_image($_FILES['bank_picture']['tmp_name']);
+                if ($sourceImage) {
+                    if (save_as_webp($sourceImage, $uploadDir . $fileName, 85)) {
+                        $bank_picture = $fileName;
+                    }
+                    imagedestroy($sourceImage);
+                }
             }
         }
     }

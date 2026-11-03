@@ -3,7 +3,7 @@
 ob_start();
 
 try {
-    require_once __DIR__ . '/../../includes/config.php';
+    require_once __DIR__ . '/../includes/config.php';
     require_once __DIR__ . '/../../includes/functions/product.php';
     require_once __DIR__ . '/../../includes/functions/attribute.php';
     

@@ -4,3 +4,6 @@ admin/users/index.php.backup
 .DS_Store
 Thumbs.db
 *.zip
+uploads/
+scratch/
+.antigravity

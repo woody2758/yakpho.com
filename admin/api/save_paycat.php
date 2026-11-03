@@ -15,8 +15,11 @@ try {
         $id = (int)$_POST['paycat_id'];
         $status = (int)$_POST['paycat_status'];
 
-        $stmt = $db->prepare("UPDATE paycat SET paycat_status = ?, paycat_update = NOW() WHERE paycat_id = ?");
-        $stmt->execute([$status, $id]);
+        $stmt = $db->prepare("UPDATE paycat SET paycat_status = ?, update_id = ?, paycat_update = NOW() WHERE paycat_id = ?");
+        $stmt->execute([$status, $_SESSION['admin_id'] ?? 0, $id]);
+
+        // Log Activity
+        logStaffAction($db, 'UPDATE', 'paycat', $id, "Quick toggled payment status to: " . ($status ? 'ON' : 'OFF'));
 
         echo json_encode(['success' => true]);
         exit;
@@ -36,16 +39,19 @@ try {
             paycat_nshort = ?, 
             paycat_index = ?, 
             paycat_status = ?, 
+            update_id = ?,
             paycat_update = NOW() 
             WHERE paycat_id = ?");
-        $stmt->execute([$paycat_nshort, $paycat_index, $paycat_status, $paycat_id]);
+        $stmt->execute([$paycat_nshort, $paycat_index, $paycat_status, $_SESSION['admin_id'] ?? 0, $paycat_id]);
+        $isEdit = true;
     } else {
         // Insert
         $stmt = $db->prepare("INSERT INTO paycat (
-            paycat_nshort, paycat_index, paycat_status, paycat_date, paycat_update, paycat_del
-        ) VALUES (?, ?, ?, NOW(), NOW(), 0)");
-        $stmt->execute([$paycat_nshort, $paycat_index, $paycat_status]);
+            paycat_nshort, paycat_index, paycat_status, paycat_date, paycat_update, paycat_del, save_id
+        ) VALUES (?, ?, ?, NOW(), NOW(), 0, ?)");
+        $stmt->execute([$paycat_nshort, $paycat_index, $paycat_status, $_SESSION['admin_id'] ?? 0]);
         $paycat_id = $db->lastInsertId();
+        $isEdit = false;
     }
 
     // Handle Translations
@@ -72,6 +78,10 @@ try {
     }
 
     $db->commit();
+
+    // Log Activity
+    logStaffAction($db, $isEdit ? 'UPDATE' : 'CREATE', 'paycat', $paycat_id, ($isEdit ? "Updated" : "Created") . " payment method: $paycat_nshort");
+
     echo json_encode(['success' => true]);
 
 } catch (PDOException $e) {

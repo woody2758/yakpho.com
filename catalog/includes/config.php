@@ -18,5 +18,9 @@ if (!defined('URL_PATH')) {
 }
 
 // ตัวอย่างการใช้งาน:
-// <link rel="stylesheet" href="<?php echo URL_PATH; ?>
+// <link rel="stylesheet" href="...URL_PATH...">
 
+// API URL for Esther REST (ดึงจาก Server จริงตามที่คุณแจ้งไว้)
+if (!defined('ESTHER_API_URL')) {
+    define('ESTHER_API_URL', 'https://esther.rest/api_external');
+}

@@ -1,0 +1,493 @@
+Array
+(
+    [0] => Array
+        (
+            [Field] => orders_id
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => PRI
+            [Default] => 
+            [Extra] => auto_increment
+        )
+
+    [1] => Array
+        (
+            [Field] => orders_no
+            [Type] => bigint(20)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [2] => Array
+        (
+            [Field] => track_token
+            [Type] => varchar(64)
+            [Null] => YES
+            [Key] => UNI
+            [Default] => 
+            [Extra] => 
+        )
+
+    [3] => Array
+        (
+            [Field] => orders_discount
+            [Type] => decimal(10,0)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [4] => Array
+        (
+            [Field] => orders_delicost
+            [Type] => decimal(10,0)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [5] => Array
+        (
+            [Field] => orders_delicosttrue
+            [Type] => decimal(10,0)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [6] => Array
+        (
+            [Field] => orders_weight
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [7] => Array
+        (
+            [Field] => orders_totalcost
+            [Type] => decimal(10,0)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [8] => Array
+        (
+            [Field] => orders_total
+            [Type] => decimal(10,0)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [9] => Array
+        (
+            [Field] => orders_grandtotal
+            [Type] => decimal(10,0)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [10] => Array
+        (
+            [Field] => orders_cod
+            [Type] => decimal(10,2)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0.00
+            [Extra] => 
+        )
+
+    [11] => Array
+        (
+            [Field] => orders_codcheck
+            [Type] => int(1)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [12] => Array
+        (
+            [Field] => orders_msg
+            [Type] => text
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [13] => Array
+        (
+            [Field] => orders_tracking
+            [Type] => text
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [14] => Array
+        (
+            [Field] => user_id
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [15] => Array
+        (
+            [Field] => addr_id
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [16] => Array
+        (
+            [Field] => addrsender_id
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [17] => Array
+        (
+            [Field] => paycat_id
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [18] => Array
+        (
+            [Field] => transcat_id
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [19] => Array
+        (
+            [Field] => orders_status
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 1
+            [Extra] => 
+        )
+
+    [20] => Array
+        (
+            [Field] => orders_channel
+            [Type] => varchar(50)
+            [Null] => YES
+            [Key] => 
+            [Default] => web
+            [Extra] => 
+        )
+
+    [21] => Array
+        (
+            [Field] => orders_country_id
+            [Type] => int(11)
+            [Null] => YES
+            [Key] => 
+            [Default] => 171
+            [Extra] => 
+        )
+
+    [22] => Array
+        (
+            [Field] => agent_user_id
+            [Type] => int(11)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [23] => Array
+        (
+            [Field] => orders_date
+            [Type] => datetime
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [24] => Array
+        (
+            [Field] => orders_update
+            [Type] => datetime
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [25] => Array
+        (
+            [Field] => orders_del
+            [Type] => int(1)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [26] => Array
+        (
+            [Field] => orders_print
+            [Type] => int(1)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [27] => Array
+        (
+            [Field] => orders_mini
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [28] => Array
+        (
+            [Field] => orders_pack
+            [Type] => int(1)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [29] => Array
+        (
+            [Field] => orders_memo
+            [Type] => varchar(200)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [30] => Array
+        (
+            [Field] => orders_wholesale
+            [Type] => int(1)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [31] => Array
+        (
+            [Field] => orders_bill
+            [Type] => int(2)
+            [Null] => NO
+            [Key] => 
+            [Default] => 1
+            [Extra] => 
+        )
+
+    [32] => Array
+        (
+            [Field] => save_id
+            [Type] => int(11)
+            [Null] => YES
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [33] => Array
+        (
+            [Field] => update_id
+            [Type] => int(11)
+            [Null] => NO
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [34] => Array
+        (
+            [Field] => orders_paid_amount
+            [Type] => decimal(10,2)
+            [Null] => YES
+            [Key] => 
+            [Default] => 0.00
+            [Extra] => 
+        )
+
+    [35] => Array
+        (
+            [Field] => orders_slip
+            [Type] => varchar(255)
+            [Null] => YES
+            [Key] => 
+            [Default] => NULL
+            [Extra] => 
+        )
+
+    [36] => Array
+        (
+            [Field] => order_code
+            [Type] => varchar(50)
+            [Null] => YES
+            [Key] => 
+            [Default] => NULL
+            [Extra] => 
+        )
+
+    [37] => Array
+        (
+            [Field] => affiliate_code
+            [Type] => varchar(20)
+            [Null] => YES
+            [Key] => 
+            [Default] => NULL
+            [Extra] => 
+        )
+
+    [38] => Array
+        (
+            [Field] => orders_is_vat
+            [Type] => tinyint(1)
+            [Null] => YES
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [39] => Array
+        (
+            [Field] => billing_type
+            [Type] => varchar(20)
+            [Null] => YES
+            [Key] => 
+            [Default] => 'none'
+            [Extra] => 
+        )
+
+    [40] => Array
+        (
+            [Field] => tax_id
+            [Type] => varchar(20)
+            [Null] => YES
+            [Key] => 
+            [Default] => NULL
+            [Extra] => 
+        )
+
+    [41] => Array
+        (
+            [Field] => branch_code
+            [Type] => varchar(10)
+            [Null] => YES
+            [Key] => 
+            [Default] => '00000'
+            [Extra] => 
+        )
+
+    [42] => Array
+        (
+            [Field] => peak_status
+            [Type] => tinyint(4)
+            [Null] => YES
+            [Key] => 
+            [Default] => 0
+            [Extra] => 
+        )
+
+    [43] => Array
+        (
+            [Field] => peak_res_id
+            [Type] => varchar(100)
+            [Null] => YES
+            [Key] => 
+            [Default] => NULL
+            [Extra] => 
+        )
+
+    [44] => Array
+        (
+            [Field] => peak_res_code
+            [Type] => varchar(50)
+            [Null] => YES
+            [Key] => 
+            [Default] => NULL
+            [Extra] => 
+        )
+
+    [45] => Array
+        (
+            [Field] => peak_pdf_url
+            [Type] => text
+            [Null] => YES
+            [Key] => 
+            [Default] => 'NULL'
+            [Extra] => 
+        )
+
+    [46] => Array
+        (
+            [Field] => peak_res_msg
+            [Type] => text
+            [Null] => YES
+            [Key] => 
+            [Default] => 'NULL'
+            [Extra] => 
+        )
+
+    [47] => Array
+        (
+            [Field] => billing_addr_id
+            [Type] => int(11)
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+    [48] => Array
+        (
+            [Field] => updated_at
+            [Type] => datetime
+            [Null] => YES
+            [Key] => 
+            [Default] => 
+            [Extra] => 
+        )
+
+)

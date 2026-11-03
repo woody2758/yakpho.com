@@ -408,27 +408,26 @@ main,.section{
 }
 
 .brand {
-  display: inline-block;
-  text-align: center;
-  line-height: 1.05;
-  font-family: "Prompt", sans-serif;
-  color: #111;
+  display: flex;
+  align-items: center;      /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  gap: 5px;                /* ระยะห่างโลโก้กับข้อความ */
+}
+
+.brand-logo {
+  height: 40px;             /* ความสูงโลโก้ */
+  width: auto;              /* รักษาสัดส่วน */
 }
 
 .brand-line1 {
-  font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 1px;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.1;
 }
 
 .brand-line2 {
-  font-weight: 300;
-  font-size: 12px;
-  text-transform: uppercase;
-  /* เดิม calc((26 / 18) * 1px) = 1.44px → เพิ่มอีกนิด */
-  letter-spacing: calc((26 / 18) * 1.15px);
+  font-size: 14px;
+  line-height: 1.1;
 }
-
 
 /* กล่องค้นหา */
 .search-wrap {
@@ -436,34 +435,47 @@ main,.section{
   align-items: center;
   gap: 8px;
   flex: 1;
-  max-width: 300px;           /* ✅ ลดความยาวลงเพื่อให้ brand อยู่บรรทัดเดียว */
+  max-width: 70%;           /* ✅ ลดความยาวลงเพื่อให้ brand อยู่บรรทัดเดียว */
 }
 
 /* ช่องค้นหา */
 .search-input {
   flex: 1;
+  width: 100%;
   min-width: 0;
-  height: 38px;               /* ✅ เท่ากับปุ่ม */
+  height: 38px;               
+  padding-right: 42px; 
   border-radius: 10px;
   font-size: 14px;
 }
 
-/* ปุ่มแว่น */
-.search-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 38px;               /* ✅ เท่าช่อง input */
-  width: 40px;
-  padding: 0;
-  border-radius: 10px;
-  flex-shrink: 0;
+
+/* ครอบ input + icon */
+.search-box{
+  position: relative;
+  flex: 1;
 }
+
+/* icon แว่นในช่อง */
+.search-icon{
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #666;
+  pointer-events: none;     /* คลิกทะลุไป input */
+  opacity: .8;
+}
+
+
+
 
 /* Responsive */
 @media (max-width: 600px) {
   .search-wrap {
-    max-width: 70%;
+    max-width: 60%;
   }
 }
 

@@ -1,4 +1,4 @@
-/* SweetAlert YakPho Theme (ใช้ร่วมกับ customClass ใน header.php) */
+/* SweetAlert YakPho Theme */
 
 .yakpho-swal-popup {
     background: #0c0c10 !important;
@@ -20,7 +20,6 @@
     font-size: 14px !important;
 }
 
-/* ปุ่มหลัก */
 .yakpho-swal-confirm {
     background: linear-gradient(135deg, #d4af37, #f6d878, #b38222) !important;
     color: #111 !important;
@@ -30,11 +29,129 @@
     border: none !important;
 }
 
-/* ปุ่มยกเลิก */
 .yakpho-swal-cancel {
     background: transparent !important;
     border-radius: 999px !important;
     padding: 8px 22px !important;
     border: 1px solid #555 !important;
     color: #ddd !important;
+}
+
+/* Global SweetAlert2 Dark Mode Support */
+[data-theme="dark"] .swal2-popup,
+[data-bs-theme="dark"] .swal2-popup {
+    background: #0C2823 !important;
+    color: #F3F4F6 !important;
+    border: 1px solid rgba(209, 165, 90, 0.3) !important;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75) !important;
+    border-radius: 18px !important;
+}
+
+[data-theme="dark"] .swal2-title,
+[data-bs-theme="dark"] .swal2-title {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+[data-theme="dark"] .swal2-html-container,
+[data-bs-theme="dark"] .swal2-html-container {
+    color: #D1D5DB !important;
+}
+
+[data-theme="dark"] .swal2-icon.swal2-question,
+[data-bs-theme="dark"] .swal2-icon.swal2-question {
+    border-color: #D1A55A !important;
+    color: #D1A55A !important;
+}
+
+[data-theme="dark"] .swal2-icon.swal2-warning,
+[data-bs-theme="dark"] .swal2-icon.swal2-warning {
+    border-color: #F59E0B !important;
+    color: #F59E0B !important;
+}
+
+[data-theme="dark"] .swal2-icon.swal2-success,
+[data-bs-theme="dark"] .swal2-icon.swal2-success {
+    border-color: #10B981 !important;
+    color: #10B981 !important;
+}
+
+[data-theme="dark"] .swal2-icon.swal2-success .swal2-success-ring,
+[data-bs-theme="dark"] .swal2-icon.swal2-success .swal2-success-ring {
+    border: .25em solid rgba(16, 185, 129, 0.3) !important;
+}
+
+[data-theme="dark"] .swal2-icon.swal2-success [class^='swal2-success-line'],
+[data-bs-theme="dark"] .swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: #10B981 !important;
+}
+
+[data-theme="dark"] .swal2-icon.swal2-error,
+[data-bs-theme="dark"] .swal2-icon.swal2-error {
+    border-color: #EF4444 !important;
+    color: #EF4444 !important;
+}
+
+[data-theme="dark"] .swal2-icon.swal2-error [class^='swal2-x-mark-line'],
+[data-bs-theme="dark"] .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+    background-color: #EF4444 !important;
+}
+
+[data-theme="dark"] .swal2-icon.swal2-info,
+[data-bs-theme="dark"] .swal2-icon.swal2-info {
+    border-color: #3B82F6 !important;
+    color: #3B82F6 !important;
+}
+
+[data-theme="dark"] .swal2-input,
+[data-theme="dark"] .swal2-textarea,
+[data-bs-theme="dark"] .swal2-input,
+[data-bs-theme="dark"] .swal2-textarea {
+    background: #061A14 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+    border-radius: 8px !important;
+}
+
+[data-theme="dark"] .swal2-input:focus,
+[data-theme="dark"] .swal2-textarea:focus,
+[data-bs-theme="dark"] .swal2-input:focus,
+[data-bs-theme="dark"] .swal2-textarea:focus {
+    border-color: #D1A55A !important;
+    box-shadow: 0 0 0 2px rgba(209, 165, 90, 0.3) !important;
+}
+
+[data-theme="dark"] .swal2-styled.swal2-cancel,
+[data-bs-theme="dark"] .swal2-styled.swal2-cancel {
+    background-color: #374151 !important;
+    color: #E5E7EB !important;
+    border-radius: 999px !important;
+}
+
+[data-theme="dark"] .swal2-styled.swal2-confirm,
+[data-bs-theme="dark"] .swal2-styled.swal2-confirm {
+    border-radius: 999px !important;
+}
+
+[data-theme="dark"] .swal2-container.swal2-backdrop-show,
+[data-bs-theme="dark"] .swal2-container.swal2-backdrop-show {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(2px) !important;
+}
+
+
+/* Explicitly ensure toasts have completely transparent containers */
+.swal2-container.swal2-top-end,
+.swal2-container.swal2-bottom-end,
+.swal2-container.swal2-top-start,
+.swal2-container.swal2-bottom-start,
+.swal2-container:not(.swal2-backdrop-show),
+body.swal2-toast-shown .swal2-container {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    pointer-events: none !important;
+}
+
+body.swal2-toast-shown .swal2-popup.swal2-toast {
+    pointer-events: auto !important;
 }

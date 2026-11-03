@@ -195,30 +195,31 @@ try {
         }
 
         // Create directory if not exists
-        $upload_dir = __DIR__ . "/../../assets/img/profile/{$user_id}/";
+        $upload_dir = UPLOAD_DIR . "/profile/{$user_id}/";
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }
 
-        // Generate unique filename
-        $extension = pathinfo($uploaded_file['name'], PATHINFO_EXTENSION);
-        $new_filename = uniqid('profile_') . '.jpg'; // Always save as JPG for consistency
+        // Generate unique filename (same pattern as update_user_picture.php)
+        $extension = strtolower(pathinfo($uploaded_file['name'], PATHINFO_EXTENSION));
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+            $extension = 'jpg';
+        }
+        $new_filename = 'user_' . $user_id . '_' . time() . '.' . $extension;
         $upload_path = $upload_dir . $new_filename;
 
         // Resize and crop image to 200x200
         if (resizeAndCropImage($uploaded_file['tmp_name'], $upload_path, 200)) {
             $new_picture = $new_filename;
 
-            // Save to profile_pic history
-            $history_stmt = $db->prepare("INSERT INTO profile_pic (user_id, user_picture) VALUES (:user_id, :picture)");
-            $history_stmt->execute([
-                ':user_id' => $user_id,
-                ':picture' => $new_filename
-            ]);
+            // Log to user_history (same as update_user_picture.php)
+            $history_stmt = $db->prepare("INSERT INTO user_history (user_id, action, details) VALUES (?, 'update_picture', ?)");
+            $history_stmt->execute([$user_id, "Updated profile picture to $new_filename"]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to process image']);
             exit;
         }
+
     }
 
     // Update user information
@@ -230,7 +231,8 @@ try {
             user_email = :email,
             user_mobile = :mobile,
             user_picture = :picture,
-            updated_at = NOW()
+            updated_at = NOW(),
+            update_id = :admin_id
         WHERE user_id = :user_id
     ");
 
@@ -241,8 +243,12 @@ try {
         ':email' => $email,
         ':mobile' => $mobile,
         ':picture' => $new_picture,
+        ':admin_id' => $_SESSION['admin_id'] ?? 0,
         ':user_id' => $user_id
     ]);
+
+    // Log Activity
+    logStaffAction($db, 'UPDATE', 'user', $user_id, "Updated user profile: $first_name $last_name");
 
     echo json_encode([
         'success' => true,

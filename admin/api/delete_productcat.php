@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 
 header('Content-Type: application/json');
 
@@ -32,6 +32,9 @@ try {
     $stmt = $db->prepare("UPDATE productcat SET productcat_del = 1, productcat_update = NOW(), update_id = ? WHERE productcat_id = ?");
     $stmt->execute([$_SESSION['admin_id'] ?? 0, $categoryId]);
     
+    // Log Activity
+    logStaffAction($db, 'DELETE', 'productcat', $categoryId, "Deleted category ID: $categoryId");
+
     echo json_encode([
         'success' => true,
         'message' => 'ลบหมวดสินค้าเรียบร้อยแล้ว'

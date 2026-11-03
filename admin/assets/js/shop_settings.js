@@ -62,7 +62,7 @@ function loadShopInfo() {
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">ชื่อร้าน / ชื่อผู้ส่ง</label>
-                        <input type="text" class="form-control form-control-lg" name="shop_name_${lang.code}" placeholder="ระบุชื่อร้าน (${lang.name})" ${dirAttr}>
+                        <input type="text" class="form-control" name="shop_name_${lang.code}" placeholder="ระบุชื่อร้าน (${lang.name})" ${dirAttr}>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">ที่อยู่</label>
@@ -78,7 +78,7 @@ function loadShopInfo() {
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">ชื่อบริษัท / ชื่อทางการ</label>
-                        <input type="text" class="form-control form-control-lg" name="official_name_${lang.code}" placeholder="ระบุชื่อบริษัท (${lang.name})" ${dirAttr}>
+                        <input type="text" class="form-control" name="official_name_${lang.code}" placeholder="ระบุชื่อบริษัท (${lang.name})" ${dirAttr}>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">ที่อยู่บริษัท</label>

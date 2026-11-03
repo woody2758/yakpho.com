@@ -325,6 +325,14 @@ ob_start();
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">ประเภทภาษี (VAT)</label>
+                            <select name="vat_type" class="form-select">
+                                <option value="included">รวมภาษีแล้ว (VAT Included)</option>
+                                <option value="excluded">ยังไม่รวมภาษี (VAT Excluded)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label">น้ำหนัก (กรัม)</label>
                             <input type="number" name="product_weight" class="form-control" value="0">
                         </div>

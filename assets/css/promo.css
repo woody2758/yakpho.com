@@ -1,0 +1,516 @@
+/* assets/css/promo.css - YakPho Aroma Landing Page */
+
+:root {
+    /* Color Palette - Spa Vibe (Earth Tones, Green, Gold, White) */
+    --color-primary: #2B5A40;     /* Deep nature green */
+    --color-primary-light: #4A8C66;
+    --color-accent: #D4AF37;      /* Premium Gold */
+    --color-accent-light: #F2D06B;
+    --color-bg: #FAFAF7;          /* Soft off-white earth tone */
+    --color-text: #333333;
+    --color-text-light: #666666;
+    --color-white: #FFFFFF;
+    
+    /* Summer accents */
+    --color-summer-blue: #00A3E0;
+    
+    /* Gradients */
+    --grad-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    --grad-gold: linear-gradient(135deg, var(--color-accent), #a3821a);
+    --grad-bg: linear-gradient(to bottom, #FAFAF7, #EAEBE4);
+    
+    /* Shadows */
+    --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+    --shadow-md: 0 10px 15px rgba(0,0,0,0.1);
+    --shadow-lg: 0 20px 25px rgba(0,0,0,0.15);
+    --shadow-gold: 0 10px 20px rgba(212, 175, 55, 0.3);
+    
+    /* Border Radius */
+    --radius-md: 12px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Kanit', sans-serif;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 80px; /* Space for sticky CTA */
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.text-highlight {
+    color: var(--color-accent);
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: var(--grad-gold);
+    border-radius: 2px;
+}
+
+/* Button Styles */
+a {
+    text-decoration: none;
+}
+
+.btn-primary, .btn-outline, .btn-sticky {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Kanit', sans-serif;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--grad-primary);
+    color: var(--color-white);
+    padding: 16px 32px;
+    font-size: 1.25rem;
+    box-shadow: var(--shadow-md);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    padding: 14px 28px;
+    font-size: 1.1rem;
+}
+
+.btn-outline:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.btn-popular {
+    background: var(--grad-gold);
+    color: #fff;
+    box-shadow: var(--shadow-gold);
+    font-size: 1.25rem;
+    padding: 16px 32px;
+}
+
+.btn-popular:hover {
+    background: linear-gradient(135deg, #e3c153, var(--color-accent));
+    transform: scale(1.05);
+}
+
+/* 1. Hero Section */
+.hero-section {
+    position: relative;
+    padding: 100px 20px;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primary);
+    /* Background image will be set inline or here once generated */
+    background-image: linear-gradient(rgba(43, 90, 64, 0.8), rgba(43, 90, 64, 0.9)), url('../images/promo_hero_bg.webp');
+    background-size: cover;
+    background-position: center;
+    color: var(--color-white);
+    text-align: center;
+    overflow: hidden;
+}
+
+.hero-content {
+    max-width: 800px;
+    z-index: 2;
+    animation: fadeIn 1s ease-out;
+}
+
+.hero-badge {
+    display: inline-block;
+    background: var(--color-summer-blue);
+    color: white;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(0, 163, 224, 0.4);
+}
+
+.hero-headline {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.hero-subheadline {
+    font-size: 1.25rem;
+    margin-bottom: 40px;
+    opacity: 0.9;
+    font-weight: 300;
+}
+
+/* 4. Trust Section (Moved up) */
+.trust-section {
+    background: var(--color-white);
+    padding: 40px 0;
+    margin-top: -30px;
+    position: relative;
+    z-index: 10;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
+}
+
+.trust-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    min-width: 250px;
+    padding: 15px;
+}
+
+.trust-icon {
+    font-size: 2.5rem;
+    background: rgba(43, 90, 64, 0.1);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.trust-text {
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--color-primary);
+}
+
+.trust-text span {
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    font-weight: 400;
+}
+
+/* 2. Offers Section */
+.offers-section {
+    padding: 80px 0;
+    background: var(--grad-bg);
+}
+
+.pricing-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .pricing-cards {
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: center;
+    }
+}
+
+.card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: 40px 30px;
+    flex: 1;
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-lg);
+}
+
+.popular-card {
+    border: 2px solid var(--color-accent);
+    transform: scale(1.05);
+    z-index: 2;
+    background: #FFFEFA;
+}
+
+.popular-card:hover {
+    transform: scale(1.05) translateY(-10px);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #FF4B2B, #FF416C);
+    color: white;
+    padding: 8px 20px;
+    border-radius: var(--radius-full);
+    font-weight: bold;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px rgba(255, 65, 108, 0.4);
+    white-space: nowrap;
+}
+
+.card-header {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #eee;
+}
+
+.card-title {
+    font-size: 1.8rem;
+    color: var(--color-primary);
+    margin-bottom: 5px;
+}
+
+.card-subtitle {
+    color: var(--color-text-light);
+    font-size: 1.1rem;
+}
+
+.card-body {
+    flex-grow: 1;
+    margin-bottom: 30px;
+}
+
+.card-detail {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.card-detail strong {
+    font-size: 2rem;
+    color: var(--color-text);
+    display: block;
+    margin-top: 5px;
+}
+
+.card-highlight {
+    background: rgba(212, 175, 55, 0.1);
+    color: #a3821a;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.popular-card .card-highlight {
+    background: rgba(43, 90, 64, 0.1);
+    color: var(--color-primary);
+    font-size: 1.25rem;
+    padding: 15px;
+}
+
+.card-footer {
+    margin-top: auto;
+}
+
+.card-footer a {
+    width: 100%;
+}
+
+/* 3. Product Details Section */
+.products-section {
+    padding: 80px 0;
+    background: var(--color-white);
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+@media (min-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.product-category {
+    background: var(--color-bg);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+.product-category:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-sm);
+}
+
+.cat-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.cat-title {
+    color: var(--color-primary);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.cat-desc {
+    display: block;
+    font-size: 1rem;
+    color: var(--color-text-light);
+    font-weight: 400;
+    margin-top: 5px;
+}
+
+.cat-list {
+    list-style: none;
+    text-align: left;
+    display: inline-block;
+}
+
+.cat-list li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.cat-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+    font-weight: bold;
+}
+
+/* 5. Sticky CTA & Footer */
+.site-footer {
+    background: var(--color-primary);
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 40px 0 100px 0; /* Extra padding for sticky cta */
+}
+
+.sticky-cta-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 15px 20px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    z-index: 1000;
+    text-align: center;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.btn-sticky {
+    background: #06C755; /* LINE Green */
+    color: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 16px;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 15px rgba(6, 199, 85, 0.4);
+    border: none;
+}
+
+.btn-sticky:hover {
+    background: #05a546;
+    transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.highlight-pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .hero-headline {
+        font-size: 2rem;
+    }
+    
+    .trust-item {
+        flex-basis: 100%;
+        justify-content: center;
+    }
+    
+    .popular-card {
+        transform: scale(1);
+        border-width: 2px;
+    }
+    
+    .popular-card:hover {
+        transform: translateY(-5px);
+    }
+}

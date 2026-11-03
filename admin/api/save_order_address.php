@@ -14,12 +14,17 @@ try {
     $addrId = isset($_POST['addr_id']) ? (int)$_POST['addr_id'] : 0;
 
     if (!$orderId) throw new Exception('Order ID is required');
-    if (!in_array($type, ['sender', 'receiver'])) throw new Exception('Invalid address type');
+    if (!in_array($type, ['sender', 'receiver', 'billing'])) throw new Exception('Invalid address type');
 
-    $column = ($type === 'sender') ? 'addrsender_id' : 'addr_id';
+    $column = 'addr_id';
+    if ($type === 'sender') $column = 'addrsender_id';
+    if ($type === 'billing') $column = 'billing_addr_id';
 
-    $stmt = $db->prepare("UPDATE orders SET $column = ? WHERE orders_id = ?");
-    $stmt->execute([$addrId, $orderId]);
+    $stmt = $db->prepare("UPDATE orders SET $column = ?, update_id = ?, orders_update = NOW() WHERE orders_id = ?");
+    $stmt->execute([$addrId ?: null, $_SESSION['admin_id'] ?? 0, $orderId]);
+
+    // Log Activity
+    logStaffAction($db, 'UPDATE', 'orders', $orderId, "Updated order address ($type) to ID: $addrId");
 
     echo json_encode(['success' => true, 'message' => 'บันทึกข้อมูลเรียบร้อยแล้ว']);
 

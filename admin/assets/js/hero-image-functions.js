@@ -272,13 +272,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const fileInput = document.getElementById('slide_image');
 
     if (uploadArea && fileInput) {
-        uploadArea.addEventListener('click', function (e) {
-            // Don't trigger if clicking on cropper or preview
-            if (e.target.closest('#heroCropperContainer') || e.target.closest('#imagePreview')) {
+        // Use a named function to avoid double-binding issues
+        const handleAreaClick = function (e) {
+            // Don't trigger if clicking on cropper buttons, or if the file input was already clicked
+            if (e.target.closest('#heroCropperContainer') ||
+                e.target.id === 'slide_image' ||
+                e.target.closest('button')) {
                 return;
             }
+
             fileInput.click();
-        });
+        };
+
+        // Remove old listener if any and add new one
+        uploadArea.removeEventListener('click', handleAreaClick);
+        uploadArea.addEventListener('click', handleAreaClick);
     }
 
     console.log('🎨 Hero image cropper initialized');

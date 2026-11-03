@@ -1,59 +1,94 @@
 # ============================================================
-# YakPho Aroma v2 – Clean URLs + Multilang + Pretty Routes
+# YakPho.com – Clean URLs + Multilang + Pretty Routes + Subsystem Protection
 # ============================================================
 
-Options +FollowSymLinks
+Options +SymLinksIfOwnerMatch
 RewriteEngine On
 
-# หากเว็บอยู่ภายใต้โฟลเดอร์ เช่น /yakpho.com/
-RewriteBase /yakpho.com/
+# ------------------------------------------------------------
+# ⚡ Browser Caching & Gzip Compression for Ultra-Fast Loading
+# ------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
 
-# 🛡 ห้าม Frontend จับ route ของ /admin/*
-RewriteCond %{REQUEST_URI} ^/yakpho.com/admin/ [NC]
+<IfModule mod_headers.c>
+  <FilesMatch "\.(woff2|woff|ttf|eot)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set Access-Control-Allow-Origin "*"
+  </FilesMatch>
+  <FilesMatch "\.(webp|jpg|jpeg|png|svg|ico)$">
+    Header set Cache-Control "public, max-age=2592000, no-transform"
+  </FilesMatch>
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "public, max-age=2592000, no-transform"
+  </FilesMatch>
+</IfModule>
+
+# ------------------------------------------------------------
+# 🛡️ 1) Bypass Sub-systems & Static Directories:
+# ไม่ให้ Frontend Router ไปกวนการทำงานของ:
+# - /admin/ (ระบบหลังบ้าน E-commerce)
+# - /staff/ (ระบบการตลาด / AI Research ภายใน)
+# - /catalog/ (แคตตาล็อกระบบเดิม)
+# - /l/ (ระบบย่อลิงก์แคมเปญ)
+# - /scratch/ (ไฟล์เทส/สคริปต์สำรอง)
+# - /assets/, /uploads/, /api/, /api_external/
+# ------------------------------------------------------------
+RewriteCond %{REQUEST_URI} ^(/yakpho\.com)?/(admin|staff|catalog|l|scratch|assets|uploads|api|api_external)/ [NC]
 RewriteRule ^ - [L]
 
 # ------------------------------------------------------------
-# 1) Clean URL: rewrite .html → .php (เช่น /order.html → order.php)
+# 2) Admin Scanner PWA
+# ------------------------------------------------------------
+RewriteRule ^admin/scanner/?$ admin/pack_scanner.php [L,QSA]
+
+# ------------------------------------------------------------
+# 3) Track & Receipt Order & Dynamic XML Sitemap
+# ------------------------------------------------------------
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+RewriteRule ^track/([a-zA-Z0-9]+)/?$ track.php?v=$1 [L,QSA]
+RewriteRule ^receipt/([a-zA-Z0-9]+)/?$ receipt.php?v=$1 [L,QSA]
+
+# ------------------------------------------------------------
+# 4) Clean URL: rewrite .html → .php (เช่น /order.html → order.php)
 # ------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^(.+)\.html$ $1.php [L]
 
-# กรณีเรียก /order.html → /order.php โดยตรง
 RewriteRule ^order\.html$ order.php [L]
 
 # ------------------------------------------------------------
-# 2) Clean URL แบบไม่ต้องใส่ .php เช่น /order → order.php
+# 5) Clean URL แบบไม่ต้องใส่ .php เช่น /order → order.php
 # ------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^([^/]+)/?$ $1.php [L]
 
 # ------------------------------------------------------------
-# 3) Multilang Routing เช่น:
-#    /th/products
-#    /en/product/5161
+# 6) Multilang Routing เช่น /th/products, /en/product/123
 # ------------------------------------------------------------
-RewriteRule ^(th|en)/(.*)$ index.php?lang=$1&route=$2 [QSA,L]
+RewriteRule ^(th|en|zh|de|fr|ja|ko|ru|ar|he)/(.*)$ index.php?lang=$1&route=$2 [QSA,L]
+RewriteRule ^(th|en|zh|de|fr|ja|ko|ru|ar|he)$ index.php?lang=$1&route= [QSA,L]
 
 # ------------------------------------------------------------
-# 4) Pretty URL หลัก เช่น:
-#    /products
-#    /product/5161
+# 7) Pretty URL หลัก (ส่งเข้า index.php Frontend ตัวใหม่)
 # ------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]
 
 # ------------------------------------------------------------
-# 5) ป้องกันเข้าถึงไฟล์ระบบ
+# 8) ป้องกันการเข้าถึงไฟล์ระบบที่มีความสำคัญ
 # ------------------------------------------------------------
-
-
-# เปลี่ยน *.html → *.php
-RewriteRule ^(.*)\.html$ $1.php [L]
-
-
-
 <FilesMatch "\.(htaccess|env|log|bak|ini)$">
   Require all denied
 </FilesMatch>

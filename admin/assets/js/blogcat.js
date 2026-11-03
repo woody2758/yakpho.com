@@ -235,17 +235,20 @@ function addCategory() {
  * Edit category
  */
 async function editCategory(id) {
-    // Show loading
-    Swal.fire({
-        title: 'Loading...',
-        html: 'กำลังโหลดข้อมูล',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Show modal instantly!
+    const modalElement = document.getElementById('categoryModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modal.show();
+
+    // Show inside loader
+    const loader = document.getElementById('categoryModalLoading');
+    if (loader) loader.classList.add('show');
 
     try {
+        document.getElementById('modalTitle').textContent = 'แก้ไขหมวดบล็อก';
+        document.getElementById('categoryId').value = '';
+        document.getElementById('categoryForm').reset();
+
         const response = await fetch(`../api/get_blogcat.php?id=${id}`);
         const result = await response.json();
 
@@ -255,12 +258,20 @@ async function editCategory(id) {
 
         const data = result.data;
 
-        // Close loading
-        Swal.close();
-
-        document.getElementById('modalTitle').textContent = 'แก้ไขหมวดบล็อก';
         document.getElementById('categoryId').value = data.blogcat_id;
         document.getElementById('categoryStatus').checked = data.blogcat_status == 1;
+
+        // Trigger status label change
+        const badge = document.getElementById('statusBadge');
+        if (badge) {
+            if (data.blogcat_status == 1) {
+                badge.textContent = 'เปิดใช้งาน';
+                badge.className = 'badge bg-success';
+            } else {
+                badge.textContent = 'ปิดใช้งาน';
+                badge.className = 'badge bg-secondary';
+            }
+        }
 
         // Fill translations
         const languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru'];
@@ -270,11 +281,12 @@ async function editCategory(id) {
             document.querySelector(`[name="blogcat_detail_${lang}"]`).value = trans.blogcat_detail || '';
         });
 
-        categoryModal.show();
-
     } catch (error) {
         console.error('Error loading category:', error);
+        modal.hide();
         Swal.fire('Error', error.message, 'error');
+    } finally {
+        if (loader) loader.classList.remove('show');
     }
 }
 
@@ -302,15 +314,14 @@ async function saveCategory() {
         return;
     }
 
-    // Show loading
-    Swal.fire({
-        title: 'กำลังบันทึก...',
-        html: 'กรุณารอสักครู่',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Handle save button loading spinner instead of Swal
+    const saveBtn = document.getElementById('btnSaveBlogcat');
+    let originalBtnHtml = '';
+    if (saveBtn) {
+        originalBtnHtml = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>กำลังบันทึก...';
+    }
 
     try {
         const response = await fetch('../api/save_blogcat.php', {
@@ -347,6 +358,11 @@ async function saveCategory() {
     } catch (error) {
         console.error('Error saving category:', error);
         Swal.fire('Error', error.message, 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnHtml;
+        }
     }
 }
 

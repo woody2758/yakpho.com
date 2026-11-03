@@ -109,6 +109,9 @@ try {
     
     $db->commit();
     
+    // Log Activity
+    logStaffAction($db, $blog_id > 0 ? 'UPDATE' : 'CREATE', 'blog', $blog_id, ($blog_id > 0 ? "Updated" : "Created") . " blog post: " . ($translations['th']['blog_name'] ?? $blog_id));
+
     echo json_encode([
         'success' => true,
         'message' => 'Blog post saved successfully',

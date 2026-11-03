@@ -63,13 +63,27 @@ function addMainCategory() {
 // Edit Main Category
 // =========================================
 async function editMainCategory(id) {
-    try {
-        showLoading('กำลังโหลดข้อมูล...');
+    // Reset form
+    document.getElementById('maincatForm').reset();
+    document.getElementById('maincatId').value = id;
 
+    // ✅ OPEN MODAL IMMEDIATELY
+    mainCategoryModal.show();
+    
+    // ✅ SHOW INTERNAL LOADING OVERLAY
+    const loadingOverlay = document.getElementById('modalLoadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.setProperty('display', 'flex', 'important');
+    }
+
+    try {
         const response = await fetch(`${ADMIN_URL}/api/get_maincat.php?id=${id}`);
         const data = await response.json();
 
-        hideLoading();
+        // ✅ HIDE INTERNAL LOADING OVERLAY
+        if (loadingOverlay) {
+            loadingOverlay.style.setProperty('display', 'none', 'important');
+        }
 
         if (data.success) {
             const maincat = data.maincat;
@@ -106,7 +120,9 @@ async function editMainCategory(id) {
             showAlert('error', data.message || 'ไม่พบข้อมูล');
         }
     } catch (error) {
-        hideLoading();
+        if (loadingOverlay) {
+            loadingOverlay.style.setProperty('display', 'none', 'important');
+        }
         console.error('Error:', error);
         showAlert('error', 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
     }
@@ -117,6 +133,9 @@ async function editMainCategory(id) {
 // =========================================
 async function saveMainCategory() {
     const form = document.getElementById('maincatForm');
+    const saveBtn = document.getElementById('saveMainCatBtn');
+    const spinner = saveBtn.querySelector('.spinner-border');
+    const btnText = saveBtn.querySelector('.btn-text');
 
     // Validate
     if (!form.checkValidity()) {
@@ -124,9 +143,12 @@ async function saveMainCategory() {
         return;
     }
 
-    try {
-        showLoading('กำลังบันทึก...');
+    // Show loading in button
+    saveBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    btnText.textContent = 'กำลังบันทึก...';
 
+    try {
         const formData = new FormData(form);
 
         const response = await fetch(`${ADMIN_URL}/api/save_maincat.php`, {
@@ -136,7 +158,10 @@ async function saveMainCategory() {
 
         const data = await response.json();
 
-        hideLoading();
+        // Reset button
+        saveBtn.disabled = false;
+        spinner.classList.add('d-none');
+        btnText.textContent = 'บันทึก';
 
         if (data.success) {
             showAlert('success', data.message || 'บันทึกสำเร็จ');
@@ -150,7 +175,9 @@ async function saveMainCategory() {
             showAlert('error', data.message || 'เกิดข้อผิดพลาด');
         }
     } catch (error) {
-        hideLoading();
+        saveBtn.disabled = false;
+        spinner.classList.add('d-none');
+        btnText.textContent = 'บันทึก';
         console.error('Error:', error);
         showAlert('error', 'เกิดข้อผิดพลาดในการบันทึก');
     }

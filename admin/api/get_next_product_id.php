@@ -4,7 +4,7 @@
  * Returns the next available product ID for auto-generating product codes
  */
 
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

@@ -29,15 +29,24 @@ try {
     $transData = [];
     foreach ($translations as $t) {
         $transData[$t['lang_code']] = [
-            'transcat_name' => $t['transcat_name'],
+            'transcat_name'   => $t['transcat_name'],
             'transcat_nshort' => $t['transcat_nshort'],
             'transcat_detail' => $t['transcat_detail']
         ];
     }
 
+    // Fallback: if no 'th' translation, use main table values (Thai is stored directly)
+    if (!isset($transData['th'])) {
+        $transData['th'] = [
+            'transcat_name'   => $transcat['transcat_name'] ?? '',
+            'transcat_nshort' => $transcat['transcat_nshort'] ?? '',
+            'transcat_detail' => $transcat['transcat_detail'] ?? ''
+        ];
+    }
+
     echo json_encode([
-        'success' => true,
-        'transcat' => $transcat,
+        'success'      => true,
+        'transcat'     => $transcat,
         'translations' => $transData
     ]);
 

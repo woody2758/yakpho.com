@@ -4,7 +4,7 @@
  * Handles saving watermark settings and uploading watermark image
  */
 
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../../includes/functions/image.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -30,20 +30,29 @@ try {
         $tmpPath = $_FILES['watermark_image']['tmp_name'];
         $originalName = $_FILES['watermark_image']['name'];
         
-        // Validate file type (PNG only)
+        // Validate file type (PNG or WEBP for transparency)
         $imageInfo = getimagesize($tmpPath);
-        if ($imageInfo['mime'] !== 'image/png') {
+        $allowedMimes = ['image/png', 'image/webp'];
+        if (!in_array($imageInfo['mime'], $allowedMimes)) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Watermark must be a PNG file with transparency'
+                'message' => 'Watermark must be a PNG or WebP file with transparency'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
         
-        $filename = 'watermark_' . time() . '.png';
+        $filename = 'watermark_' . time() . '.webp';
         $destination = $uploadDir . '/' . $filename;
         
-        if (move_uploaded_file($tmpPath, $destination)) {
+        $sourceImage = load_image($tmpPath);
+        if ($sourceImage) {
+            $success = save_as_webp($sourceImage, $destination, 90);
+            imagedestroy($sourceImage);
+        } else {
+            $success = false;
+        }
+        
+        if ($success) {
             // Delete old watermark if exists
             $stmt = $db->prepare("SELECT setting_value FROM sitesettings WHERE setting_name = 'watermark_image'");
             $stmt->execute();
@@ -74,6 +83,9 @@ try {
         }
     }
     
+    // Log Activity
+    logStaffAction($db, 'UPDATE', 'sitesettings', null, "Updated site and watermark settings");
+
     echo json_encode([
         'success' => true,
         'message' => 'Settings saved successfully'

@@ -1,21 +1,53 @@
 <?php
 include __DIR__ . "/includes/config.php"; 
+require_once __DIR__ . "/../includes/config.php";
+require_once __DIR__ . "/../includes/frontend_data.php";
 include __DIR__ . "/includes/header.php"; 
+
+// 🌿 Dynamic Wholesale Matrix & Pricing Tiers from Database
+$wholesaleData = get_wholesale_matrix_data($db, 'th');
+$matrixRows    = $wholesaleData['matrix'];
+$PRICE_RATE    = $wholesaleData['price_rates'];
+$LOCAL_SHIP_TH = $wholesaleData['shipping_flat_th'] ?? 60;
+$COMPANY_NAME  = "Esther Synergy Co., Ltd. • YakPho Aroma";
+$VERSION       = "v4.0 (Dynamic Matrix & DB SKU Linked)";
+$UPDATED_AT    = date("Y-m-d");
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["order_text"], $_POST["ref"])) {
+  $ref = preg_replace("/[^0-9]/", "", $_POST["ref"]);
+  if ($ref === "") { $ref = (string)time(); }
+  $dir = __DIR__ . "/orders";
+  if (!is_dir($dir)) { mkdir($dir, 0777, true); }
+  $name = $dir . "/" . $ref . "_order.txt";
+  $order_text = str_replace("\\n", "\n", $_POST["order_text"]);
+  $ok = file_put_contents($name, $order_text);
+  header("Content-Type: application/json");
+  echo json_encode([ "saved" => $ok !== false, "file" => basename($name), "ref" => $ref ]);
+  exit;
+}
+
+$PRICE_RATE_JSON = json_encode($PRICE_RATE, JSON_UNESCAPED_UNICODE);
+$MATRIX_ROWS_JSON = json_encode($matrixRows, JSON_UNESCAPED_UNICODE);
+$SCENTS_JSON = json_encode($matrixRows, JSON_UNESCAPED_UNICODE);
 ?>
 <div class="topbar">
       <div class="inner">
-    <div class="brand"><a href="../">
-      <div class="brand-line1">YAKPHO</div>
-      <div class="brand-line2">Aroma</div>
-    </a>
-    </div>
+  <a href="../">      
+<div class="brand">
+<img src="../catalog/assets/img/YakPhoAromaLogo.webp" alt="YAKPHO Logo" class="brand-logo">
+
+  <div class="brand-text">
+    <div class="brand-line1">YAKPHO</div>
+    <div class="brand-line2">Aroma Balm</div>
+  
+  </div>
+</div>
+</a>
 
 
     <div class="search-wrap">
       <input type="text" id="pageSearch" placeholder="ค้นหา..." class="input-weblitepro search-input">
-      <button id="nextResult" class="btn-weblitepro search-btn" title="ค้นหา">
-        <i data-lucide="search"></i>
-      </button>
+    <i class="search-icon" data-lucide="search"></i>
     </div>
   </div>
 </div>
@@ -28,7 +60,7 @@ include __DIR__ . "/includes/header.php";
 <div class="card">
   <div class="body">
           <h3 class="h3">วิธีการสั่งซื้อ</h3>
-<a href="index.php" class="back-btn" aria-label="กลับหน้าหลัก">
+<a href="../" class="back-btn" aria-label="กลับหน้าหลัก">
   <i data-lucide="arrow-left"></i> กลับ
 </a>
   <div class="sub">
@@ -36,7 +68,7 @@ include __DIR__ . "/includes/header.php";
     <ol>
       <li>เลื่อนดูกลิ่นและสูตร เช่นสูตร ร้อน เย็น นวดตัว</li>
       <li>คลิกปุ่มบวกเพื่อเพิ่ม ปุ่มลบ เพื่อนำออก</li>
-      <li>ระบบรวมราคาให้อัตโนมัติเมื่อถือเรทราคาที่ต้อง</li>
+      <li>ระบบรวมราคาให้อัตโนมัติเมื่อถือเรทราคาที่ต้องการ</li>
       <li>เมื่อเลือกเสร็จแล้ว ราคารวมจะปรากฏด้านล่าง</li>
       <li>คลิกปุ่ม ส่งคำสั่งซื้อ แล้วนำข้อมูล วางที่ปุ่มแชท เพื่อส่งแอดมินได้เลยค่ะ</li>
       
@@ -54,56 +86,8 @@ include __DIR__ . "/includes/header.php";
 </section>
 <section id="order" class="section with-bg">
 <div class="wrap">
-  <?php
-
-$COMPANY_NAME = "Yakpho Aroma Intertrade Co., Ltd.";
-$VERSION      = "v3.2";
-$UPDATED_AT   = date("Y-m-d");
-$LOCAL_SHIP_TH = 60;
-
-$PRICE_RATE = [
-  ["min"=>1,   "price"=>690],
-  ["min"=>6,   "price"=>590],
-  ["min"=>10,  "price"=>560],
-  ["min"=>20,  "price"=>530],
-  ["min"=>30,  "price"=>500],
-  ["min"=>50,  "price"=>490],
-  ["min"=>100, "price"=>470],
-];
-
-$SCENTS = [
-  ["th"=>"สีขาว. กลิ่นต้นตำรับ",   "en"=>"Original",             "code"=>"001"],
-  ["th"=>"สีเหลือง. กลิ่นไพล",        "en"=>"Zingiber cassumunar", "code"=>"002"],
-  ["th"=>"สีเขียว. กลิ่นเสลดพังพอน",  "en"=>"Barleria Oil",        "code"=>"003"],
-  ["th"=>"สีเขียว. กลิ่นตะไคร้หอม",  "en"=>"Lemongrass",          "code"=>"004"],
-  ["th"=>"สีเขียว. กลิ่นหญ้าเอ็นยืด", "en"=>"Plantain",            "code"=>"005"],
-  ["th"=>"สีม่วง. กลิ่นลาเวนเดอร์",   "en"=>"Lavender",            "code"=>"006"],
-  ["th"=>"สีขาว. กลิ่นยูคาลิปตัส",    "en"=>"Eucalyptus",          "code"=>"007"],
-  ["th"=>"สีขาว. กลิ่นมะลิ",          "en"=>"Jasmine",             "code"=>"008"],
-  ["th"=>"สีชมพู. กลิ่นกุหลาบ",       "en"=>"Rose",                "code"=>"009"],
-  ["th"=>"สีเหลืองอ่อน. กลิ่นขิงมินท์", "en"=>"Ginger Mint",       "code"=>"010"],
-  ["th"=>"สีขาว. กลิ่นดอกโมก",        "en"=>"Water jasmine",       "code"=>"011"],
-  ["th"=>"สีขาว. กลิ่นน้ำมันมะพร้าว", "en"=>"Coconut Oil",         "code"=>"012"],
-];
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["order_text"], $_POST["ref"])) {
-  $ref = preg_replace("/[^0-9]/", "", $_POST["ref"]);
-  if ($ref === "") { $ref = (string)time(); }
-  $dir = __DIR__ . "/orders";
-  if (!is_dir($dir)) { mkdir($dir, 0777, true); }
-  $name = $dir . "/" . $ref . "_order.txt";
-  $order_text = str_replace("\\n", "\n", $_POST["order_text"]);
-  $ok = file_put_contents($name, $order_text);
-  header("Content-Type: application/json");
-  echo json_encode([ "saved" => $ok !== false, "file" => basename($name), "ref" => $ref ]);
-  exit;
-}
-
-$PRICE_RATE_JSON = json_encode($PRICE_RATE, JSON_UNESCAPED_UNICODE);
-$SCENTS_JSON     = json_encode($SCENTS, JSON_UNESCAPED_UNICODE);
-?>
-<h2 class="center"><i data-lucide="shopping-cart"></i> เลือกสินค้าจากตารางนี้</h2>
-  <!-- Debug: Total Scents = <?= count($SCENTS) ?> -->
+  <h2 class="center"><i data-lucide="shopping-cart"></i> เลือกสินค้าจากตารางนี้</h2>
+  <!-- Dynamic 12 Scents x 3 Formulas linked to DB products -->
   <table id="orderTable" aria-describedby="tableHelp">
     <thead>
       <tr class="head">
@@ -114,33 +98,46 @@ $SCENTS_JSON     = json_encode($SCENTS, JSON_UNESCAPED_UNICODE);
       </tr>
     </thead>
     <tbody>
-      <?php foreach($SCENTS as $i=>$s): ?>
+      <?php foreach($matrixRows as $i => $row): ?>
         <tr>
           <th scope="row" class="scent-th">
-            <?= str_pad($i+1,2,"0",STR_PAD_LEFT) ?>. <?= htmlspecialchars($s["th"]) ?>
-            <span class="scent-sub"><?= htmlspecialchars($s["en"]) ?></span>
+            <?= htmlspecialchars($row['name_th']) ?>
+            <span class="scent-sub"><?= htmlspecialchars($row['name_en']) ?></span>
           </th>
           <?php
-            $code = $s["code"];
-            foreach (["H","C","B"] as $f) {
-              $sku = $f . $code;
-              $label = ($f === "H" ? "สูตรร้อน" : ($f === "C" ? "สูตรเย็น" : "สูตรนวดตัว"));
-              echo '<td data-label="'.$label.'">';
-              echo '<div class="cell" data-formula="'.htmlspecialchars($f).'" data-sku="'.htmlspecialchars($sku).'">';
-              echo '<button class="btn minus" aria-label="ลดจำนวน">−</button>';
-              echo '<span class="qty" aria-live="polite">0</span>';
-              echo '<button class="btn plus" aria-label="เพิ่มจำนวน">+</button>';
-              echo '<span class="sku">SKU: '.htmlspecialchars($sku).'</span>';
-              echo '</div>';
-              echo '</td>';
-            }
+            $formulaList = [
+              'H' => ['label' => 'สูตรร้อน', 'data' => $row['hot']],
+              'C' => ['label' => 'สูตรเย็น', 'data' => $row['cool']],
+              'B' => ['label' => 'สูตรนวดตัว', 'data' => $row['massage']],
+            ];
+            foreach ($formulaList as $f => $fInfo):
+              $cellData = $fInfo['data'];
+              $sku = $cellData['sku'];
+              $pId = (int)$cellData['product_id'];
+              $pCode = $cellData['product_code'];
+              $label = $fInfo['label'];
           ?>
+            <td data-label="<?= $label ?>">
+              <div class="cell" 
+                   data-formula="<?= htmlspecialchars($f) ?>" 
+                   data-sku="<?= htmlspecialchars($sku) ?>"
+                   data-product-id="<?= $pId ?>"
+                   data-product-code="<?= htmlspecialchars($pCode) ?>"
+                   data-name="<?= htmlspecialchars($cellData['name']) ?>"
+                   data-scent="<?= htmlspecialchars($row['core_th']) ?>">
+                <button type="button" class="btn minus" aria-label="ลดจำนวน">−</button>
+                <span class="qty" aria-live="polite">0</span>
+                <button type="button" class="btn plus" aria-label="เพิ่มจำนวน">+</button>
+                <span class="sku">SKU: <?= htmlspecialchars($sku) ?></span>
+              </div>
+            </td>
+          <?php endforeach; ?>
         </tr>
       <?php endforeach; ?>
     </tbody>
   </table>
   <p id="tableHelp" class="opt" aria-hidden="true" style="color:#6b7280;margin-top:8px;">กดปุ่ม +/− เพื่อเลือกจำนวน (kg) ช่องที่มีจำนวน &gt; 0 จะมีสีไฮไลต์</p>
-          </div>
+</div>
 </section>
 
 <!-- ============================================================
@@ -210,22 +207,36 @@ $SCENTS_JSON     = json_encode($SCENTS, JSON_UNESCAPED_UNICODE);
 
 <section id="delivery" class="section ">
   <div class="wrap">
-  <div class="card">
+<div class="card">
   <div class="body">
     <h3>ข้อมูลการจัดส่ง / Shipping Policy:</h3>
+    <ul>
+      
+      <li>
+        <span class="fi fi-th"></span> <strong>ภายในประเทศไทย (Domestic – Thailand):</strong> เหมาจ่าย 60 บาทต่อออเดอร์<br>
+        <em>Flat rate shipping fee of 60 THB per order.</em>
+      </li>
 
-        <ul >
-          <li><span class="fi fi-th"></span> <strong>ภายในประเทศไทย (Domestic – Thailand):</strong> รวมค่าจัดส่งแล้ว 60 บาทต่อออเดอร์<br>
-              <em>Shipping cost of 60 THB per order is already included in the total.</em></li>
-          <li>🏢 <strong>มารับสินค้าเองที่บริษัทฯ (Self Pickup):</strong> ไม่คิดค่าจัดส่ง<br>
-              <em>No shipping fee for self-pickup at our warehouse.</em></li>
-          <li>🌏 <strong>จัดส่งต่างประเทศ (International Delivery):</strong> คิดตามค่าขนส่งจริงจากบริษัทขนส่ง โดยไม่บวกเพิ่ม<br>
-              <em>Charged at the actual shipping rate from the courier, with no extra markup.</em><br>
-              <small><em>(For international orders, the 60 THB domestic shipping fee will be automatically deducted.)</em></small></li>
-        </ul>
+      <li>
+        🛵 <strong>จัดส่งด่วนภายในวัน (Same Day Delivery):</strong> เฉพาะ กทม. และปริมณฑล (Lalamove) คิดค่าส่งตามจริง<br>
+        <small>สามารถเลือกโอนค่าส่ง หรือ จ่ายค่าส่งปลายทางได้ (ต้องชำระค่าสินค้าก่อนจัดส่ง / ไม่รับเก็บเงินค่าสินค้าปลายทาง)</small><br>
+        <em>For Bangkok & Vicinity. Delivery fee based on actual distance. Shipping fee can be paid upon arrival or transferred. (No COD for products).</em>
+      </li>
 
-    </div>
-    </div>
+      <li>
+        🏢 <strong>มารับสินค้าเองที่บริษัทฯ (Self Pickup):</strong> ไม่คิดค่าจัดส่ง (กรุณานัดหมายล่วงหน้า)<br>
+        <em>No shipping fee for self-pickup at our warehouse. (Please make an appointment).</em>
+      </li>
+
+      <li>
+        🌏 <strong>จัดส่งต่างประเทศ (International Delivery):</strong> คิดตามค่าขนส่งจริงจากบริษัทขนส่ง โดยไม่บวกเพิ่ม<br>
+        <em>Charged at the actual shipping rate from the courier, with no extra markup.</em><br>
+        <small><em>(For international orders, the domestic shipping fee will be automatically deducted.)</em></small>
+      </li>
+
+    </ul>
+  </div>
+</div>
     </div>
   </section>
 
@@ -406,7 +417,7 @@ document.querySelector("tbody").addEventListener("click",(e)=>{
     },800);
 
     setTimeout(()=>fly.remove(),850);
-    sound.up.play();
+    try { sound.up.play().catch(()=>{}); } catch(e){}
     Toast.fire({ icon:"success", title:`+1 ${label} (${sku})` });
 
   // ➖ ลบสินค้า → บินออกจาก summary
@@ -420,7 +431,7 @@ document.querySelector("tbody").addEventListener("click",(e)=>{
       { transform:'translate(120px,-180px) scale(1.2)', opacity:0 }
     ], { duration:700, easing:'cubic-bezier(.55,-0.4,.72,1.4)' });
     setTimeout(()=>fly.remove(),750);
-    sound.down.play();
+    try { sound.down.play().catch(()=>{}); } catch(e){}
     Toast.fire({ icon:"info", title:`−1 ${label} (${sku})` });
   }
 });
@@ -429,7 +440,7 @@ document.querySelector("tbody").addEventListener("click",(e)=>{
 // 🪶 แกนชื่อภาษาไทย (ตัดคำว่า “สี...” ออก)
 function thaiNameCore(th){ return th.replace(/^สี[^.]*\.\s*/,'').trim(); }
 
-// 🧾 สร้างข้อความสรุปคำสั่งซื้อ
+// 🧾 สร้างข้อความสรุปคำสั่งซื้อ (เชื่อมโยง SKU และ รหัสสินค้า DB)
 function buildSummaryText(ref){
   const lines = [];
   const now = new Date();
@@ -441,63 +452,68 @@ function buildSummaryText(ref){
     minute: '2-digit'
   });
 
-  lines.push("YAKPHO AROMA – ORDER SUMMARY");
+  lines.push("🌿 YAKPHO AROMA – สรุปคำสั่งซื้อเรทราคาส่ง B2B");
   lines.push("วันที่สั่งซื้อ: " + dateStr);
-  lines.push("#Ref"+ref);
+  lines.push("#Ref: " + ref);
   lines.push("-------------------------------");
 
   let total = 0;
 
   document.querySelectorAll(".cell").forEach(cell=>{
-    const qty = parseInt(cell.querySelector(".qty").textContent,10);
-    if(qty>0){
-      const sku  = cell.dataset.sku;
-      const code = sku.slice(1);
-      const s = SCENTS.find(x=>x.code===code);
-      const thCore = s ? thaiNameCore(s.th) : "";
-      lines.push(`${sku} ${s?s.en:""} (${thCore}) × ${qty} kg`.trim());
+    const qty = parseInt(cell.querySelector(".qty").textContent, 10) || 0;
+    if(qty > 0){
+      const sku   = cell.dataset.sku;
+      const pCode = cell.dataset.productCode || '';
+      const fCode = cell.dataset.formula;
+      const fName = fCode === 'H' ? 'สูตรร้อน' : (fCode === 'C' ? 'สูตรเย็น' : 'สูตรนวดตัว');
+      const scent = cell.dataset.scent || cell.closest('tr')?.querySelector('.scent-th')?.innerText.split('\n')[0] || '';
+      
+      lines.push(`• [${sku} / ${pCode}] ${scent} (${fName}) × ${qty} กก.`);
       total += qty;
     }
   });
 
   const unit  = total ? getRate(total) : 0;
   const grand = unit * total;
+  const shipping = <?= (int)$LOCAL_SHIP_TH ?>;
+  const grandTotal = grand + (total > 0 ? shipping : 0);
 
- lines.push("-------------------------------");
-  lines.push(`รวมทั้งหมด: ${total} kg`);
-  lines.push(`ราคาต่อกก.: ${unit} THB`);
-
-  const shipping = <?= $LOCAL_SHIP_TH ?>; // ค่าจัดส่งจาก PHP
-  const grandTotal = grand + (total > 0 ? shipping : 0); // บวกค่าขนส่งถ้ามีสินค้า
-
-  lines.push(`รวมสินค้า: ${grand.toLocaleString()} THB`);
-  lines.push(`ค่าจัดส่ง: ${shipping.toLocaleString()} THB`);
-  lines.push(`รวมสุทธิทั้งหมด: ${grandTotal.toLocaleString()} THB`);
   lines.push("-------------------------------");
-  lines.push("**หมายเหตุ:** รวมค่าจัดส่งภายในประเทศแล้ว (Self Pickup ฟรี)");
+  lines.push(`รวมน้ำหนักทั้งหมด: ${total} กก.`);
+  lines.push(`เรทราคาส่งโรงงาน: ${unit} บาท/กก.`);
+  lines.push(`รวมค่าสินค้า: ${grand.toLocaleString()} บาท`);
+  lines.push(`ค่าจัดส่งด่วน: ${shipping} บาท`);
+  lines.push(`ยอดชำระสุทธิ: ${grandTotal.toLocaleString()} บาท`);
+  lines.push("-------------------------------");
+  lines.push("บรรจุถุงซีล 1 กก. มาตรฐานส่งออก GMP • ผลิตสดใหม่ทุกคำสั่งซื้อ");
 
   return lines.join("\n");
 }
 
-// 📋 คัดลอก + บันทึกไฟล์ (พร้อมตรวจว่าสินค้ายังไม่ได้เลือก)
+// 📋 คัดลอก + ซิงก์ลงตะกร้าสินค้าจริง (api/cart.php) + บันทึกไฟล์
 async function doCopyAndSave(){
   // ✅ ตรวจสอบก่อนว่ามีสินค้าที่เลือกหรือไม่
-  const totalQty = Array.from(document.querySelectorAll(".qty"))
-    .reduce((sum, el) => sum + parseInt(el.textContent, 10), 0);
+  const bulkItems = [];
+  document.querySelectorAll(".cell").forEach(cell => {
+    const qty = parseInt(cell.querySelector(".qty").textContent, 10) || 0;
+    const pid = parseInt(cell.dataset.productId, 10);
+    if (qty > 0 && pid > 0) {
+      bulkItems.push({ product_id: pid, qty: qty });
+    }
+  });
 
-  if (totalQty === 0) {
+  if (bulkItems.length === 0) {
     Swal.fire({
       icon: "warning",
       title: "กรุณาเลือกสินค้าอย่างน้อย 1 รายการค่ะ",
       confirmButtonText: "ตกลง",
-      confirmButtonColor: "#6d28d9",
+      confirmButtonColor: "#0B3B35",
       background: "#fff",
       color: "#333"
     }).then(() => {
-      // 🚀 เลื่อนขึ้นบนสุดของหน้า
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 300, behavior: "smooth" });
     });
-    return; // ❌ หยุดการทำงานต่อ
+    return;
   }
 
   // ✅ ถ้ามีสินค้า → สร้างสรุปคำสั่งซื้อ
@@ -513,6 +529,17 @@ async function doCopyAndSave(){
     document.body.appendChild(ta);
     ta.select(); document.execCommand("copy");
     document.body.removeChild(ta);
+  }
+
+  // 2. ซิงก์สินค้าทั้งหมดลงตะกร้าจริงของระบบ (api/cart.php)
+  try {
+    await fetch("/yakpho.com/api/cart.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "add_bulk", items: bulkItems })
+    });
+  } catch(e) {
+    console.warn("Cart API add_bulk failed:", e);
   }
 
   // save file via POST
@@ -548,9 +575,13 @@ async function doCopyAndSave(){
           style="display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:13px;background:#a50b00;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">
           <i data-lucide='mail' style="width:14px;height:14px;"></i> Email
         </a>
+        <a href="/yakpho.com/th/checkout" onclick="Swal.close()" 
+          style="display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:13px;background:#0B3B35;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">
+          <i data-lucide='shopping-bag' style="width:14px;height:14px;"></i> ชำระเงินออนไลน์
+        </a>
       </div>
       <small style="display:block;margin-top:8px;color:#777;font-size:12px;">
-        รองรับทุกช่องทางติดต่อ YakPho Aroma
+        คัดลอกสรุปรายการแล้ว เลือกลิงก์ส่งแอดมิน หรือกดชำระเงินออนไลน์ได้ทันที
       </small>
     `,
     confirmButtonText: "ปิดหน้าต่าง",

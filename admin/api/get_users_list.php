@@ -21,7 +21,8 @@ try {
                 user_nickname,
                 user_email, 
                 user_mobile,
-                user_picture
+                user_picture,
+                user_last_active
                 FROM user 
                 WHERE user_del = 0 
                 AND user_id = ?
@@ -36,7 +37,8 @@ try {
                 user_nickname,
                 user_email, 
                 user_mobile,
-                user_picture
+                user_picture,
+                user_last_active
                 FROM user 
                 WHERE user_del = 0 
                 AND (
@@ -46,7 +48,7 @@ try {
                     user_email LIKE ? OR 
                     user_mobile LIKE ?
                 )
-                ORDER BY user_id DESC
+                ORDER BY user_last_active DESC, user_id DESC
                 LIMIT 50");
             $searchTerm = "%{$search}%";
             $stmt->execute([$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm]);
@@ -60,10 +62,11 @@ try {
             user_nickname, 
             user_email, 
             user_mobile,
-            user_picture
+            user_picture,
+            user_last_active
             FROM user 
             WHERE user_del = 0 
-            ORDER BY user_name DESC
+            ORDER BY user_last_active DESC, user_id DESC
             LIMIT 100");
         $stmt->execute();
     }

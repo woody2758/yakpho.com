@@ -5,24 +5,23 @@ require_once '../includes/auth.php';
 header('Content-Type: application/json');
 
 try {
-    // Get general info
-    $stmt = $db->query("SELECT * FROM shop_info LIMIT 1");
+    // 1. Get Main Info
+    $stmt = $db->query("SELECT * FROM shop_info WHERE shop_id = 1");
     $shop = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$shop) {
-        // Should not happen if migration ran, but just in case
-        $db->exec("INSERT INTO shop_info (shop_id) VALUES (1)");
+        // Create default if not exists
+        $db->query("INSERT INTO shop_info (shop_id, shop_phone) VALUES (1, '')");
         $shop = ['shop_id' => 1, 'shop_phone' => '', 'shop_email' => '', 'shop_tax_id' => '', 'shop_logo' => ''];
     }
 
-    // Get translations
-    $stmt = $db->prepare("SELECT * FROM shop_info_translations WHERE shop_id = ?");
-    $stmt->execute([$shop['shop_id']]);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+    // 2. Get All Translations
+    $stmt = $db->query("SELECT * FROM shop_info_translations WHERE shop_id = 1");
+    $trans_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
     $translations = [];
-    foreach ($rows as $row) {
-        $translations[$row['lang_code']] = $row;
+    foreach ($trans_raw as $t) {
+        $translations[$t['lang_code']] = $t;
     }
 
     echo json_encode([
@@ -34,4 +33,3 @@ try {
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-?>

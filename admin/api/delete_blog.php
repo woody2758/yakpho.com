@@ -21,10 +21,13 @@ try {
     // Soft delete - set blog_del = 1
     $stmt = $db->prepare("
         UPDATE blog 
-        SET blog_del = 1, blog_update = NOW() 
+        SET blog_del = 1, blog_update = NOW(), update_id = ? 
         WHERE blog_id = ? AND blog_del = 0
     ");
-    $stmt->execute([$blog_id]);
+    $stmt->execute([$_SESSION['admin_id'] ?? 0, $blog_id]);
+
+    // Log Activity
+    logStaffAction($db, 'DELETE', 'blog', $blog_id, "Moved blog to trash (ID: $blog_id)");
     
     if ($stmt->rowCount() === 0) {
         throw new Exception('Blog not found or already deleted');

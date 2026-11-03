@@ -4,7 +4,7 @@
  * Run this once to create the table for storing site-wide settings
  */
 
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

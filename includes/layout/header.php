@@ -63,7 +63,8 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
                 
                 <!-- Navigation -->
                 <nav class="site-nav" id="site-nav">
-                    <ul class="nav-menu">
+                    <ul class="nav-menu" id="top-nav-menu">
+                        <!-- Loaded via AJAX -->
                         <li><a href="<?= BASE_URL ?>/" class="nav-link <?= $current_page == 'index' ? 'active' : '' ?>">หน้าแรก</a></li>
                         <li><a href="<?= BASE_URL ?>/shop/" class="nav-link <?= $current_page == 'shop' ? 'active' : '' ?>">ผลิตภัณฑ์</a></li>
                         <li><a href="<?= BASE_URL ?>/blog/" class="nav-link <?= $current_page == 'blog' ? 'active' : '' ?>">บล็อก</a></li>
@@ -113,6 +114,11 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
             </div>
         </div>
     </header>
+    
+    <script>
+        const BASE_URL = '<?= BASE_URL ?>';
+    </script>
+    <script src="<?= BASE_URL ?>/assets/js/top-menus.js"></script>
     
     <!-- Main Content -->
     <main id="main-content">

@@ -40,6 +40,11 @@ function load_image($filePath) {
             return imagecreatefromgif($filePath);
         case 'image/webp':
             return imagecreatefromwebp($filePath);
+        case 'image/avif':
+            return function_exists('imagecreatefromavif') ? imagecreatefromavif($filePath) : false;
+        case 'image/bmp':
+        case 'image/x-ms-bmp':
+            return function_exists('imagecreatefrombmp') ? imagecreatefrombmp($filePath) : false;
         default:
             return false;
     }

@@ -341,15 +341,14 @@ async function editBlog(id) {
     // Clear all image states first
     clearImageStates();
 
-    // Show loading
-    Swal.fire({
-        title: 'Loading...',
-        html: 'กำลังโหลดข้อมูล',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Show modal instantly!
+    const modalElement = document.getElementById('blogModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modal.show();
+
+    // Show inside loader
+    const loader = document.getElementById('blogModalLoading');
+    if (loader) loader.classList.add('show');
 
     try {
         const response = await fetch(`../api/get_blog.php?id=${id}`);
@@ -361,15 +360,24 @@ async function editBlog(id) {
 
         const data = result.data;
 
-        // Close loading
-        Swal.close();
-
         document.getElementById('modalTitle').textContent = 'แก้ไขบล็อก';
         document.getElementById('blogId').value = data.blog_id;
         document.getElementById('blogCategory').value = data.blogcat_id;
         document.getElementById('blogUrl').value = data.blog_url || '';
         document.getElementById('blogPicture').value = data.blog_picture || '';
         document.getElementById('blogStatus').checked = data.blog_status == 1;
+
+        // Trigger status label change
+        const badge = document.getElementById('statusBadge');
+        if (badge) {
+            if (data.blog_status == 1) {
+                badge.textContent = 'เปิดใช้งาน';
+                badge.className = 'badge bg-success';
+            } else {
+                badge.textContent = 'ปิดใช้งาน';
+                badge.className = 'badge bg-secondary';
+            }
+        }
 
         // Set date
         if (data.blog_date) {
@@ -418,11 +426,12 @@ async function editBlog(id) {
         // Load gallery images
         loadGallery(data.gallery || []);
 
-        blogModal.show();
-
     } catch (error) {
         console.error('Error loading blog:', error);
+        modal.hide();
         Swal.fire('Error', error.message, 'error');
+    } finally {
+        if (loader) loader.classList.remove('show');
     }
 }
 
@@ -461,7 +470,6 @@ async function saveBlog() {
     // Check if cropper modal is still open - auto-crop if yes
     const cropperContainer = document.getElementById('blogCropperContainer');
     if (cropperContainer && cropperContainer.style.display !== 'none') {
-        // User selected image but didn't confirm - auto-crop with current selection
         console.log('Auto-cropping image before save...');
 
         try {
@@ -516,15 +524,14 @@ async function saveBlog() {
         return;
     }
 
-    // Show loading
-    Swal.fire({
-        title: 'กำลังบันทึก...',
-        html: 'กรุณารอสักครู่',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Handle save button loading spinner instead of Swal
+    const saveBtn = document.getElementById('btnSaveBlog');
+    let originalBtnHtml = '';
+    if (saveBtn) {
+        originalBtnHtml = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>กำลังบันทึก...';
+    }
 
     try {
         const response = await fetch('../api/save_blog.php', {
@@ -567,6 +574,11 @@ async function saveBlog() {
     } catch (error) {
         console.error('Error saving blog:', error);
         Swal.fire('Error', error.message, 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnHtml;
+        }
     }
 }
 

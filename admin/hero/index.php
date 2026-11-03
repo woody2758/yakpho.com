@@ -11,6 +11,48 @@ require_once __DIR__ . '/../includes/auth.php';
 ob_start();
 ?>
 
+<script>
+    const ADMIN_URL = '<?= ADMIN_URL ?>';
+    const BASE_URL = '<?= BASE_URL ?>';
+</script>
+
+<style>
+/* CSS overrides for premium dark mode on Hero Slider Management */
+[data-theme="dark"] .image-upload-area {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #e2e2e2 !important;
+}
+[data-theme="dark"] .image-upload-area:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border-color: #D1A55A !important;
+}
+[data-theme="dark"] .modal-content {
+    background-color: #1a1a1a !important;
+    color: #f0f0f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: #262626 !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: #2d2d2d !important;
+    color: #fff !important;
+    border-color: #555 !important;
+}
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(1) brightness(2);
+}
+</style>
+
 <!-- Page Header -->
 <div class="page-header">
             <h1><i data-lucide="image"></i> จัดการ Hero Slider</h1>
@@ -26,12 +68,12 @@ ob_start();
                     <table class="table" id="hero-table">
                         <thead>
                             <tr>
-                                <th width="50">ลำดับ</th>
+                                <th width="40">#</th>
+                                <th width="60">ID</th>
                                 <th width="120">รูปภาพ</th>
-                                <th>หัวข้อ (TH)</th>
-                                <th>คำบรรยาย</th>
-                                <th width="100">สถานะ</th>
-                                <th width="150">จัดการ</th>
+                                <th>ข้อมูลสไลด์ (หัวข้อ/คำบรรยาย)</th>
+                                <th width="100" class="text-center">สถานะ</th>
+                                <th width="120" class="text-center">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody id="hero-tbody">
@@ -47,7 +89,13 @@ ob_start();
 <!-- Hero Slide Modal -->
 <div class="modal fade" id="heroModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
-        <div class="modal-content">
+        <div class="modal-content" style="position: relative;">
+            <!-- Modal Premium Loading Overlay -->
+            <div class="modal-loading-overlay" id="heroModalLoading">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+                <h5 class="text-white mt-3 fw-bold">กำลังโหลดข้อมูล...</h5>
+            </div>
+            
             <div class="modal-header">
                 <h5 class="modal-title" id="heroModalLabel">เพิ่ม Hero Slide</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -111,12 +159,23 @@ ob_start();
                                 <input type="color" class="form-control" id="slide_bg_color" name="slide_bg_color" value="#0A2F2A">
                             </div>
 
+                            <!-- Button Links -->
+                            <div class="mb-3">
+                                <label class="form-label">ลิงก์ปุ่ม 1</label>
+                                <input type="text" class="form-control" id="button1_link" name="button1_link" placeholder="/shop">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">ลิงก์ปุ่ม 2</label>
+                                <input type="text" class="form-control" id="button2_link" name="button2_link" placeholder="/about">
+                            </div>
+
                             <!-- Status -->
                             <div class="mb-3">
                                 <label class="form-label">สถานะ</label>
                                 <select class="form-select" id="slide_status" name="slide_status">
-                                    <option value="active">เปิดใช้งาน</option>
-                                    <option value="inactive">ปิดใช้งาน</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
                                 </select>
                             </div>
                         </div>

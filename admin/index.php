@@ -1,13 +1,23 @@
 <?php
+require __DIR__ . "/includes/config.php";   // โหลด config ก่อน (จะตรวจ remember_token ด้วย)
+
+// ถ้าล็อกอินอยู่แล้วให้พาไปหน้า Dashboard ทันที
+if (!empty($_SESSION['admin_logged'])) {
+    header("Location: " . ADMIN_URL . "/dashboard.html");
+    exit;
+}
+
 $page_title = "เข้าสู่ระบบ Admin";
-require "includes/config.php";   // โหลด config ก่อน
-require "includes/header.php";   // แล้วค่อยโหลด header
+require __DIR__ . "/includes/header.php";   // แล้วค่อยโหลด header
 ?>
 
 <div class="login-wrapper">
   <div class="login-box">
-    <h3 class="login-title">YakPho Admin</h3>
-    <div class="login-subtitle">เข้าสู่ระบบเพื่อจัดการสินค้าและคำสั่งซื้อ</div>
+    <div class="text-center mb-4">
+        <img src="<?= ROOT_URL ?>/uploads/shop/Esther.Aroma.Icon.Logo.png" alt="Esther Aroma Logo" style="width: 60px; height: 60px; object-fit: contain; margin-bottom: 10px;">
+        <h3 class="login-title" style="letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; font-size: 1.25rem;">ESTHER AROMA</h3>
+        <div class="login-subtitle" style="color: #888; font-size: 0.85rem; margin-bottom: 15px;">Admin Control Panel</div>
+    </div>
 
     <form action="login.php" method="post">
 
@@ -29,6 +39,16 @@ require "includes/header.php";   // แล้วค่อยโหลด header
           style="position:absolute; right:12px; top:38px; cursor:pointer; font-size:18px; color:#999;">
           👁️
         </span>
+      </div>
+
+      <!-- Remember Me Checkbox (1 Year) -->
+      <div class="mb-3 d-flex align-items-center">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="remember" id="rememberMe" value="1" checked>
+          <label class="form-check-label" for="rememberMe">
+            จำฉันไว้ (1 ปี)
+          </label>
+        </div>
       </div>
 
       <button id="loginBtn" class="btn btn-yakpho w-100 mt-2">เข้าสู่ระบบ</button>
@@ -54,4 +74,4 @@ document.getElementById("togglePassword").addEventListener("click", function () 
 });
 </script>
 
-<?php include "includes/footer.php"; ?>
+<?php include __DIR__ . "/includes/footer.php"; ?>

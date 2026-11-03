@@ -6,7 +6,7 @@ try {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    require_once __DIR__ . '/../../includes/config.php';
+    require_once __DIR__ . '/../includes/config.php';
     require_once __DIR__ . '/../../includes/functions/product.php';
     require_once __DIR__ . '/../../includes/functions/attribute.php';
     require_once __DIR__ . '/../../includes/functions/image.php';
@@ -34,10 +34,38 @@ try {
     }
     
     // Prepare product data
+    $productSlug = $_POST['product_slug'] ?? '';
+    
+    // Auto-generate or Clean provided slug
+    if (empty($productSlug)) {
+        $nameToSlug = $_POST['product_name_en'] ?? $_POST['product_name_th'] ?? '';
+        $productSlug = $nameToSlug;
+    }
+
+    // Always clean the slug to be URL friendly
+    // 1. Lowercase
+    $productSlug = mb_strtolower($productSlug, 'UTF-8');
+    // 2. Replace spaces and special chars with hyphens
+    $productSlug = preg_replace('/[^a-z0-9\x{0E00}-\x{0E7F}]+/u', '-', $productSlug);
+    // 3. Remove double hyphens
+    $productSlug = preg_replace('/-+/', '-', $productSlug);
+    // 4. Trim hyphens from ends
+    $productSlug = trim($productSlug, '-');
+
+    // If still empty (e.g. only special chars), use fallback
+    if (empty($productSlug)) {
+        $productSlug = 'product-' . time();
+    } else if (!$isEdit || (isset($_POST['product_slug']) && empty($_POST['product_slug']))) {
+        // Only add random suffix if creating NEW or if user explicitly left it blank to auto-gen
+        $productSlug .= '-' . substr(md5(time()), 0, 4);
+    }
+
     $productData = [
         'product_code' => $productCode,
         'productcat_id' => $_POST['productcat_id'] ?? null,
-        'product_slug' => $_POST['product_slug'] ?? null,
+        'scent_id' => $_POST['scent_id'] ?? null,
+        'formula_id' => $_POST['formula_id'] ?? null,
+        'product_slug' => $productSlug,
         'product_price' => $_POST['product_price'] ?? 0,
         'product_nprice' => $_POST['product_nprice'] ?? 0,
         'product_cprice' => $_POST['product_cprice'] ?? 0,
@@ -47,6 +75,7 @@ try {
         'stock_alert_enabled' => isset($_POST['stock_alert_enabled']) ? 1 : 0,
         'stock_alert_level' => $_POST['stock_alert_level'] ?? 10,
         'product_status' => isset($_POST['product_status']) ? 1 : 0,
+        'vat_type' => $_POST['vat_type'] ?? 'included',
     ];
     
     if ($isEdit) {
@@ -200,6 +229,9 @@ try {
         }
     }
     
+    // Log Activity
+    logStaffAction($db, $isEdit ? 'UPDATE' : 'CREATE', 'product', $productId, ($isEdit ? "Updated" : "Created") . " product: " . ($_POST['product_name_th'] ?? $productId));
+
     echo json_encode([
         'success' => true,
         'message' => $isEdit ? 'บันทึกข้อมูลเรียบร้อยแล้ว' : 'เพิ่มสินค้าเรียบร้อยแล้ว',

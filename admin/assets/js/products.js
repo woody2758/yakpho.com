@@ -7,6 +7,10 @@ let productModal;
 let currentProductId = null;
 let cropper = null; // Cropper.js instance
 
+// Sorting variables
+let currentSortCol = 'default';
+let currentSortDir = 'ASC';
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize modal
@@ -166,7 +170,7 @@ async function loadProductsTable(page = 1) {
     container.style.pointerEvents = 'none';
 
     try {
-        const response = await fetch(`../api/get_products_table.php?page=${page}&search=${encodeURIComponent(search)}&category=${category}`);
+        const response = await fetch(`../api/get_products_table.php?page=${page}&search=${encodeURIComponent(search)}&category=${category}&sort_col=${currentSortCol}&sort_dir=${currentSortDir}`);
         const html = await response.text();
 
         container.innerHTML = html;
@@ -189,6 +193,24 @@ async function loadProductsTable(page = 1) {
         container.style.opacity = '1';
         container.style.pointerEvents = 'auto';
     }
+}
+
+/**
+ * Handle Sorting Click
+ */
+function toggleSort(col) {
+    if (currentSortCol === col) {
+        currentSortDir = currentSortDir === 'ASC' ? 'DESC' : 'ASC';
+    } else {
+        currentSortCol = col;
+        currentSortDir = 'DESC'; // usually first click sorts desc (e.g. highest price first), user preference can vary
+    }
+    
+    // Get current page if possible, otherwise page 1
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPage = urlParams.get('page') || 1;
+    
+    loadProductsTable(currentPage);
 }
 
 /**
@@ -253,6 +275,13 @@ function addProduct() {
     document.getElementById('galleryPreview').innerHTML = '';
     document.getElementById('mainImageInput').value = '';
     document.getElementById('galleryImagesInput').value = '';
+    document.getElementById('productScent').value = '';
+    document.getElementById('productFormula').value = '';
+    if (document.getElementById('productVatType')) {
+        document.getElementById('productVatType').value = 'included';
+    }
+
+
 
     // Generate product code (YP + next ID)
     generateProductCode();
@@ -272,19 +301,18 @@ function addProduct() {
 async function editProduct(productId) {
     currentProductId = productId;
 
-    // ✅ CRITICAL: Reset form first to clear old data
-    // This prevents translation fields from showing previous product's data
+    // ✅ Reset form first to clear old data
     document.getElementById('productForm').reset();
     document.getElementById('productId').value = productId;
 
-    // Reset all Summernote editors to blank
+    // Reset Summernote
     $('.tinymce-editor').each(function () {
         if ($(this).data('summernote-initialized')) {
             $(this).summernote('code', '');
         }
     });
 
-    // Reset image previews
+    // Reset images & previews
     document.getElementById('productImageBase64').value = '';
     document.getElementById('oldProductPicture').value = '';
     document.getElementById('croppedPreview').style.display = 'none';
@@ -292,24 +320,30 @@ async function editProduct(productId) {
     document.getElementById('galleryPreview').innerHTML = '';
     document.getElementById('mainImageInput').value = '';
     document.getElementById('galleryImagesInput').value = '';
-
-    // Reset attribute checkboxes
+    document.getElementById('productScent').value = '';
+    document.getElementById('productFormula').value = '';
     document.querySelectorAll('[name="attribute_groups[]"]').forEach(cb => cb.checked = false);
 
-    // Show loading
-    Swal.fire({
-        title: 'กำลังโหลด...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+
+
+    // ✅ OPEN MODAL IMMEDIATELY
+    productModal.show();
+    
+    // ✅ SHOW INTERNAL LOADING OVERLAY
+    const loadingOverlay = document.getElementById('modalLoadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('d-none');
+        loadingOverlay.style.setProperty('display', 'flex', 'important');
+    }
 
     try {
         const response = await fetch(`../api/get_product.php?id=${productId}`);
         const data = await response.json();
 
-        Swal.close();
+        // ✅ HIDE INTERNAL LOADING OVERLAY
+        if (loadingOverlay) {
+            loadingOverlay.style.setProperty('display', 'none', 'important');
+        }
 
         if (data.success) {
             const product = data.product;
@@ -329,7 +363,9 @@ async function editProduct(productId) {
             document.getElementById('productSlug').value = product.product_slug || '';
             document.getElementById('productCategory').value = product.productcat_id || '';
             document.getElementById('productStatus').checked = product.product_status == 1;
-            document.getElementById('priceTier').value = product.price_tier_id || '';
+            let tierId = product.price_tier_id;
+            if (tierId === '0' || tierId === 0) tierId = '';
+            document.getElementById('priceTier').value = tierId;
             document.getElementById('productPrice').value = product.product_price || 0;
             document.getElementById('productNPrice').value = product.product_nprice || 0;
             document.getElementById('productCPrice').value = product.product_cprice || 0;
@@ -337,9 +373,17 @@ async function editProduct(productId) {
             document.getElementById('productStock').value = product.product_stock || 0;
             document.getElementById('stockAlertEnabled').checked = product.stock_alert_enabled == 1;
             document.getElementById('stockAlertLevel').value = product.stock_alert_level || 10;
+            document.getElementById('productScent').value = product.scent_id || '';
+            document.getElementById('productFormula').value = product.formula_id || '';
+            if (document.getElementById('productVatType')) {
+                document.getElementById('productVatType').value = product.vat_type || 'included';
+            }
+
+
 
             // Toggle sections
-            document.getElementById('fixedPriceSection').style.display = product.price_tier_id ? 'none' : 'block';
+            const hasTier = product.price_tier_id && product.price_tier_id !== '0' && product.price_tier_id !== 0;
+            document.getElementById('fixedPriceSection').style.display = hasTier ? 'none' : 'block';
             document.getElementById('stockAlertSection').style.display = product.stock_alert_enabled ? 'block' : 'none';
 
             // Fill translations
@@ -412,7 +456,9 @@ async function editProduct(productId) {
             });
         }
     } catch (error) {
-        Swal.close();
+        if (loadingOverlay) {
+            loadingOverlay.style.setProperty('display', 'none', 'important');
+        }
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
@@ -423,32 +469,87 @@ async function editProduct(productId) {
 }
 
 /**
+ * Refresh all record counts in sidebar and UI
+ */
+async function refreshCounts() {
+    try {
+        // 1. Update Sidebar Badges
+        const responseCounts = await fetch('../api/get_counts.php');
+        const dataCounts = await responseCounts.json();
+        if (dataCounts.success) {
+            for (const [key, value] of Object.entries(dataCounts.counts)) {
+                const badge = document.getElementById(`badge-${key}`);
+                if (badge) badge.textContent = value;
+            }
+            
+            // Update total product count text at the bottom if exists
+            const totalProductCount = document.getElementById('totalProductCount');
+            if (totalProductCount && dataCounts.counts.product) {
+                totalProductCount.textContent = dataCounts.counts.product;
+            }
+        }
+
+        // 2. Update Category Filter Dropdown (The one with counts in brackets)
+        const responseCats = await fetch('../api/get_product_categories.php');
+        const dataCats = await responseCats.json();
+        if (dataCats.success) {
+            const categorySelect = document.getElementById('categoryFilter');
+            if (categorySelect) {
+                const currentVal = categorySelect.value;
+                
+                // Keep the "All Categories" option
+                let html = '<option value="0">ทุกหมวดหมู่</option>';
+                
+                dataCats.categories.forEach(cat => {
+                    const selected = (currentVal == cat.id) ? 'selected' : '';
+                    html += `<option value="${cat.id}" ${selected}>${cat.name} (${cat.count})</option>`;
+                });
+                
+                categorySelect.innerHTML = html;
+                
+                // If using Tom Select, sync it
+                if (categorySelect.tomselect) {
+                    categorySelect.tomselect.clearOptions();
+                    categorySelect.tomselect.addOptions(dataCats.categories.map(c => ({
+                        value: c.id,
+                        text: `${c.name} (${c.count})`
+                    })));
+                    categorySelect.tomselect.setValue(currentVal);
+                }
+                
+                // ✅ Update summary statistics (the count below the table)
+                if (typeof updateProductSummary === 'function') {
+                    updateProductSummary(currentVal);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error refreshing counts:', error);
+    }
+}
+
+/**
  * Save product (Add/Edit)
  */
 async function saveProduct() {
     const form = document.getElementById('productForm');
+    const saveBtn = document.getElementById('saveProductBtn');
+    const spinner = saveBtn.querySelector('.spinner-border');
+    const btnText = saveBtn.querySelector('.btn-text');
 
     // ✅ CRITICAL: Auto-save image if user uploaded but didn't crop/use
-    // This handles the case where user forgets to click buttons
     if (cropper && document.getElementById('imageCropperContainer').style.display !== 'none') {
-        // User uploaded image but didn't process it
-        // Auto-use original to prevent data loss
         console.log('⚠️ Auto-saving uploaded image before form submit');
         useOriginalImage();
-
-        // Wait a moment for image processing
         await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // Enhanced validation with specific messages
+    // Enhanced validation
     if (!form.checkValidity()) {
-        // Find first invalid field
         const invalidField = form.querySelector(':invalid');
-
         if (invalidField) {
             let fieldName = 'ฟิลด์นี้';
             const label = form.querySelector(`label[for="${invalidField.id}"]`);
-
             if (label) {
                 fieldName = label.textContent.replace('*', '').trim();
             } else if (invalidField.name) {
@@ -461,8 +562,6 @@ async function saveProduct() {
                 text: `${fieldName} จำเป็นต้องกรอก`,
                 confirmButtonText: 'ตกลง'
             });
-
-            // Focus on invalid field
             invalidField.focus();
             invalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
@@ -471,59 +570,10 @@ async function saveProduct() {
         return;
     }
 
-    // Show progress bar with smooth multi-phase animation
-    let timerInterval;
-    let progress = 0;
-
-    Swal.fire({
-        title: 'กำลังบันทึกข้อมูล...',
-        html: `
-            <div class="mb-3" id="progressStatus" style="font-weight: 500; color: #666;">กำลังเตรียมข้อมูล...</div>
-            <div class="progress" style="height: 30px; border-radius: 15px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
-                <div id="saveProgressBar" 
-                     class="progress-bar progress-bar-striped progress-bar-animated" 
-                     role="progressbar" 
-                     style="width: 0%; background: linear-gradient(45deg, #28a745 25%, #20c997 25%, #20c997 50%, #28a745 50%, #28a745 75%, #20c997 75%, #20c997); background-size: 40px 40px; transition: width 0.3s ease;">
-                    <span style="font-weight: bold; font-size: 14px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">0%</span>
-                </div>
-            </div>
-        `,
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-            const progressBar = document.getElementById('saveProgressBar');
-            const statusText = document.getElementById('progressStatus');
-
-            timerInterval = setInterval(() => {
-                // Phase 1: Quick to 30% (preparing)
-                if (progress < 30) {
-                    progress += 3;
-                    statusText.textContent = 'กำลังเตรียมข้อมูล...';
-                }
-                // Phase 2: Medium to 60% (uploading)
-                else if (progress < 60) {
-                    progress += 2;
-                    statusText.textContent = 'กำลังอัพโหลดข้อมูล...';
-                }
-                // Phase 3: Slower to 85% (processing images)
-                else if (progress < 85) {
-                    progress += 1;
-                    statusText.textContent = 'กำลังประมวลผลรูปภาพ...';
-                }
-                // Phase 4: Very slow to 95% (saving)
-                else if (progress < 95) {
-                    progress += 0.5;
-                    statusText.textContent = 'กำลังบันทึกลงฐานข้อมูล...';
-                }
-
-                progressBar.style.width = Math.floor(progress) + '%';
-                progressBar.querySelector('span').textContent = Math.floor(progress) + '%';
-            }, 150);
-        },
-        willClose: () => {
-            clearInterval(timerInterval);
-        }
-    });
+    // Show loading in button
+    saveBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    btnText.textContent = 'กำลังบันทึก...';
 
     try {
         const formData = new FormData(form);
@@ -535,31 +585,10 @@ async function saveProduct() {
 
         const data = await response.json();
 
-        // Complete progress bar smoothly
-        clearInterval(timerInterval);
-        const progressBar = document.getElementById('saveProgressBar');
-        const statusText = document.getElementById('progressStatus');
-
-        if (progressBar && statusText) {
-            statusText.textContent = 'เสร็จสิ้น! ✓';
-            statusText.style.color = '#28a745';
-
-            // Smooth animation to 100%
-            const completeInterval = setInterval(() => {
-                progress += 3;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(completeInterval);
-                }
-                progressBar.style.width = progress + '%';
-                progressBar.querySelector('span').textContent = progress + '%';
-            }, 30);
-
-            // Wait to show 100%
-            await new Promise(resolve => setTimeout(resolve, 600));
-        }
-
-        Swal.close();
+        // Reset button state
+        saveBtn.disabled = false;
+        spinner.classList.add('d-none');
+        btnText.textContent = 'บันทึก';
 
         if (data.success) {
             // Close modal
@@ -576,7 +605,9 @@ async function saveProduct() {
 
             // Reload table
             loadProductsTable(1);
-
+            
+            // Refresh sidebar counts
+            refreshCounts();
         } else {
             Swal.fire({
                 icon: 'error',
@@ -585,7 +616,11 @@ async function saveProduct() {
             });
         }
     } catch (error) {
-        Swal.close();
+        // Reset button state
+        saveBtn.disabled = false;
+        spinner.classList.add('d-none');
+        btnText.textContent = 'บันทึก';
+        
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
@@ -607,58 +642,46 @@ async function deleteProduct(productId, productName) {
         showCancelButton: true,
         confirmButtonText: 'ลบ',
         cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#dc3545'
+        confirmButtonColor: '#dc3545',
+        showLoaderOnConfirm: true,
+        preConfirm: async () => {
+            try {
+                const response = await fetch('../api/delete_product.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId })
+                });
+
+                if (!response.ok) {
+                    throw new Error('ไม่สามารถลบสินค้าได้');
+                }
+
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'ไม่สามารถลบสินค้าได้');
+                }
+                return data;
+            } catch (error) {
+                Swal.showValidationMessage(`ข้อผิดพลาด: ${error.message}`);
+            }
+        },
+        allowOutsideClick: () => !Swal.isLoading()
     });
 
-    if (!result.isConfirmed) return;
-
-    // Show loading
-    Swal.fire({
-        title: 'กำลังลบ...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    try {
-        const response = await fetch('../api/delete_product.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId })
-        });
-
-        const data = await response.json();
-
-        Swal.close();
-
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'สำเร็จ',
-                text: 'ลบสินค้าเรียบร้อย',
-                timer: 1500,
-                showConfirmButton: false
-            });
-
-            // Reload table
-            loadProductsTable(1);
-
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'เกิดข้อผิดพลาด',
-                text: data.message || 'ไม่สามารถลบสินค้าได้'
-            });
-        }
-    } catch (error) {
-        Swal.close();
-        console.error('Error:', error);
+    if (result.isConfirmed) {
         Swal.fire({
-            icon: 'error',
-            title: 'เกิดข้อผิดพลาด',
-            text: 'ไม่สามารถลบสินค้าได้'
+            icon: 'success',
+            title: 'สำเร็จ',
+            text: 'ลบสินค้าเรียบร้อย',
+            timer: 1500,
+            showConfirmButton: false
         });
+
+        // Reload table
+        loadProductsTable(1);
+
+        // Refresh sidebar counts
+        refreshCounts();
     }
 }
 
@@ -722,31 +745,81 @@ function saveProductOrder() {
 
     fetch('../api/save_product_order.php', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order: order })
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('✓ Product order saved');
-
-                // Reinitialize Sortable to keep it working
-                // This ensures drag & drop works after first sort
-                setTimeout(() => {
-                    initializeSortable();
-                }, 100);
-            } else {
-                console.error('Error saving product order:', data.message);
-                // Reinitialize even on error to keep functionality
-                initializeSortable();
-            }
-        })
-        .catch(error => {
-            console.error('Error saving product order:', error);
-            // Reinitialize on error
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('✓ Product order saved');
+            setTimeout(() => { initializeSortable(); }, 100);
+        } else {
+            console.error('Error saving product order:', data.message);
             initializeSortable();
+        }
+    })
+    .catch(error => {
+        console.error('Error saving product order:', error);
+        initializeSortable();
+    });
+}
+
+/**
+ * Quick update product fields (Price, Stock, etc.) via AJAX
+ */
+async function quickUpdate(productId, field, value) {
+    const input = event.target;
+    const originalBackground = input.style.backgroundColor;
+    input.style.backgroundColor = '#fff3cd';
+
+    try {
+        const response = await fetch('../api/quick_update_product.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product_id: productId, field: field, value: value })
         });
+        const data = await response.json();
+        if (data.success) {
+            input.style.backgroundColor = '#d4edda';
+            setTimeout(() => { input.style.backgroundColor = originalBackground; }, 1000);
+        } else {
+            input.style.backgroundColor = '#f8d7da';
+            alert('บันทึกไม่สำเร็จ: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        input.style.backgroundColor = '#f8d7da';
+    }
+}
+
+/**
+ * Toggle product status via AJAX
+ */
+async function toggleStatus(productId, newStatus) {
+    const container = document.getElementById(`status-container-${productId}`);
+    const originalHtml = container.innerHTML;
+    container.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status"></span>';
+
+    try {
+        const response = await fetch('../api/quick_update_product.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product_id: productId, field: 'product_status', value: newStatus })
+        });
+        const data = await response.json();
+        if (data.success) {
+            if (newStatus == 1) {
+                container.innerHTML = `<button type="button" class="badge bg-success border-0" onclick="toggleStatus(${productId}, 0)" style="cursor: pointer;" title="คลิกเพื่อปิดการใช้งาน">เปิดใช้งาน</button>`;
+            } else {
+                container.innerHTML = `<button type="button" class="badge bg-secondary border-0" onclick="toggleStatus(${productId}, 1)" style="cursor: pointer;" title="คลิกเพื่อเปิดการใช้งาน">ปิดใช้งาน</button>`;
+            }
+        } else {
+            alert('เปลี่ยนสถานะไม่สำเร็จ: ' + data.message);
+            container.innerHTML = originalHtml;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        container.innerHTML = originalHtml;
+    }
 }
 

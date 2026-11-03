@@ -49,7 +49,13 @@ ob_start();
 <!-- Add/Edit Modal -->
 <div class="modal fade" id="aboutusModal" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-xl">
-        <div class="modal-content">
+        <div class="modal-content" style="position: relative;">
+            <!-- Modal Premium Loading Overlay -->
+            <div class="modal-loading-overlay" id="aboutusModalLoading">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+                <h5 class="text-white mt-3 fw-bold">กำลังโหลดข้อมูล...</h5>
+            </div>
+            
             <div class="modal-header">
                 <h5 class="modal-title" id="modalTitle">Add About Us</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -142,7 +148,7 @@ ob_start();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="saveAboutUs()">
+                <button type="button" id="btnSaveAboutUs" class="btn btn-primary" onclick="saveAboutUs()">
                     <i data-lucide="save"></i> Save
                 </button>
             </div>

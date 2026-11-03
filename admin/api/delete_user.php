@@ -5,7 +5,7 @@
 header('Content-Type: application/json');
 session_start();
 
-require_once __DIR__ . "/../../includes/config.php";
+require_once __DIR__ . "/../includes/config.php";
 
 // 1. Check Auth
 if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
@@ -31,8 +31,11 @@ if ($id == $_SESSION['admin_id']) {
 
 // 4. Execute Soft Delete
 try {
-    $stmt = $db->prepare("UPDATE user SET user_del = 1, updated_at = NOW() WHERE user_id = ?");
-    if ($stmt->execute([$id])) {
+    $stmt = $db->prepare("UPDATE user SET user_del = 1, updated_at = NOW(), update_id = ? WHERE user_id = ?");
+    if ($stmt->execute([$_SESSION['admin_id'] ?? 0, $id])) {
+        // Log Activity
+        logStaffAction($db, 'DELETE', 'user', $id, "Soft deleted user ID: $id");
+        
         echo json_encode(['success' => true, 'message' => 'ลบสมาชิกเรียบร้อยแล้ว']);
     } else {
         echo json_encode(['success' => false, 'message' => 'เกิดข้อผิดพลาดในการลบ']);

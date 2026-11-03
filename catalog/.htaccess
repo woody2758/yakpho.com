@@ -3,7 +3,7 @@
 # ============================================================
 Options +FollowSymLinks
 RewriteEngine On
-RewriteBase /catalog/
+RewriteBase /yakpho.com/catalog/
 
 # ✅ ให้เรียก .html แล้วไปหาไฟล์ .php
 RewriteCond %{REQUEST_FILENAME}.php -f
@@ -12,8 +12,13 @@ RewriteRule ^(.+)\.html$ $1.php [L]
 # ✅ Redirect /order.html → /order.php โดยตรง (ถ้ามีการเรียก URL นี้)
 RewriteRule ^order\.html$ order.php [L]
 
-# ให้เข้าถึง /order ได้เลย โดยไม่ต้องพิมพ์ .html หรือ .php
-RewriteCond %{REQUEST_FILENAME}.php -f
+# ✅ ปรับ URL ที่มี .php ให้กลายเป็นแบบไม่มีนามสกุล (Redirect 301)
+RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
+RewriteRule ^(.*)\.php$ $1 [R=301,L]
+
+# ✅ ให้เข้าถึง /order หรือไฟล์ใดๆ ได้เลย โดยไม่ต้องพิมพ์ .php (รองรับการเติม / ต่อท้าย)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^/]+)/?$ $1.php [L]
 
 

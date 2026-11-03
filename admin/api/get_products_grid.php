@@ -15,8 +15,8 @@ try {
         FROM productcat pc
         LEFT JOIN productcat_translations pct ON pc.productcat_id = pct.productcat_id 
             AND pct.lang_code = 'th'
-        WHERE pc.productcat_del = 0
-        ORDER BY pc.productcat_id ASC
+        WHERE pc.productcat_del = 0 AND pc.productcat_status = 1
+        ORDER BY pc.productcat_index ASC, pc.productcat_id ASC
     ");
     $catStmt->execute();
     $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -29,6 +29,7 @@ try {
             p.product_code,
             p.product_price,
             p.product_picture,
+            p.vat_type,
             pt.product_name
         FROM product p
         LEFT JOIN product_translations pt ON p.product_id = pt.product_id 
@@ -48,27 +49,30 @@ try {
         
         // Format product images
         $formattedProducts = array_map(function($p) {
-            // Build image path
-            if (!empty($p['product_picture'])) {
-                // Try small version first (thumbnail)
-                $imagePath = str_replace('original-', 'small-', $p['product_picture']);
-                $imagePath = str_replace(['uploads/products/', '.jpg', '.jpeg', '.png', '.gif'], 
-                                        ['uploads/products/', '.webp', '.webp', '.webp', '.webp'], 
-                                        $imagePath);
+            $filename = $p['product_picture'];
+            
+            if (!empty($filename)) {
+                // Determine the correct image path
+                // Check if it already has pathing info, if not assume uploads/products/
+                $basePath = (strpos($filename, 'uploads/products/') !== false) ? '' : 'uploads/products/';
                 
-                $fullPath = __DIR__ . '/../../' . $imagePath;
+                // Try small version first
+                $smallFilename = 'small-' . basename($filename);
+                $smallPath = $basePath . $smallFilename;
                 
-                // Fallback to original if small doesn't exist
-                if (!file_exists($fullPath) && !empty($p['product_picture'])) {
-                    $imagePath = $p['product_picture'];
+                // Fallback to original if small doesn't exist or just use filename as is
+                // We'll trust the UI to handle standard pathing
+                if (strpos($filename, 'uploads/products/') === false) {
+                    $p['product_image_url'] = ROOT_URL . "/uploads/products/small-" . $filename;
+                } else {
+                    $p['product_image_url'] = ROOT_URL . "/" . $filename;
                 }
                 
-                $p['product_image_url'] = ROOT_URL . '/' . $imagePath;
             } else {
-                $p['product_image_url'] = ROOT_URL . '/uploads/products/default.png';
+                $p['product_image_url'] = ROOT_URL . '/admin/assets/images/placeholder.png';
             }
             
-            unset($p['product_picture']); // Remove file path, keep URL only
+            unset($p['product_picture']); 
             return $p;
         }, array_values($catProducts));
         

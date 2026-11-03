@@ -11,7 +11,7 @@ try {
 
     $userId = (int)$_GET['user_id'];
 
-    $stmt = $db->prepare("SELECT * FROM addr WHERE user_id = ? ORDER BY addr_id DESC");
+    $stmt = $db->prepare("SELECT a.*, p.name_th as province_name FROM addr a LEFT JOIN provinces p ON a.provinces_id = p.provinces_id WHERE a.user_id = ? ORDER BY a.addr_id DESC");
     $stmt->execute([$userId]);
     $addresses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -6,11 +6,46 @@ require_once __DIR__ . "/../includes/auth.php";
 ob_start();
 ?>
 
+<style>
+/* บังคับ Dark Mode ให้เข้มแน่นอน ตามหน้า order_status.php */
+[data-theme="dark"] .modal-content {
+    background-color: #1a1a1a !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #333 !important;
+}
+[data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
+    background-color: #262626 !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus {
+    background-color: #2d2d2d !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .modal-header, [data-theme="dark"] .modal-footer {
+    border-color: #333 !important;
+}
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+[data-theme="dark"] .modal-title {
+    color: #3498db !important;
+}
+[data-theme="dark"] #modalLoadingOverlay {
+    background-color: rgba(26, 26, 26, 0.9) !important;
+}
+</style>
+
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i data-lucide="folder-tree" class="me-2"></i>จัดการหมวดหมู่หลัก</h2>
+        <h2 class="mb-0">
+            <i data-lucide="folder-tree" class="me-2"></i>
+            <span class="d-none d-sm-inline">จัดการ</span>หมวดหมู่หลัก
+        </h2>
         <button onclick="addMainCategory()" class="btn btn-success">
-            <i data-lucide="plus" style="width:16px; height:16px; margin-right:6px;"></i> เพิ่มหมวดหมู่หลัก
+            <i data-lucide="plus" style="width:16px; height:16px; margin-right:4px;"></i> 
+            <span class="d-none d-sm-inline">เพิ่มหมวดหมู่หลัก</span>
+            <span class="d-inline d-sm-none">เพิ่ม</span>
         </button>
     </div>
 
@@ -20,12 +55,8 @@ ob_start();
             <div class="row g-3">
                 <div class="col-md-12">
                     <div class="position-relative">
-                        <input type="text" id="searchInput" class="form-control" placeholder="ค้นหาชื่อหมวดหมู่หลัก...">
-                        <span id="clearSearch" class="position-absolute end-0 top-50 translate-middle-y d-none align-items-center justify-content-center" 
-                              style="cursor:pointer; margin-right:8px; width:20px; height:20px; border-radius:50%; background-color:rgba(108, 117, 125, 0.2);" 
-                              title="ล้างคำค้นหา" onclick="clearSearch()">
-                            <i data-lucide="x" style="width:12px; height:12px; color:#6c757d;"></i>
-                        </span>
+                        <input type="search" id="searchInput" onsearch="if(this.value==='') { if(typeof performSearch === 'function') performSearch(); else if(this.form) this.form.submit(); else window.location.search=''; }" class="form-control" placeholder="ค้นหาชื่อหมวดหมู่หลัก...">
+                        
                     </div>
                 </div>
             </div>
@@ -55,6 +86,13 @@ ob_start();
 <div class="modal fade" id="maincatModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <!-- Loading Overlay -->
+            <div id="modalLoadingOverlay" class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-white" style="z-index: 1060; border-radius: .5rem; display: none !important;">
+                <div class="text-center">
+                    <div class="spinner-border text-primary mb-2" role="status"></div>
+                    <div class="text-muted">กำลังโหลดข้อมูล...</div>
+                </div>
+            </div>
             <div class="modal-header">
                 <h5 class="modal-title" id="modalTitle">เพิ่มหมวดหมู่หลัก</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -147,7 +185,10 @@ ob_start();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" onclick="saveMainCategory()" class="btn btn-primary">บันทึก</button>
+                <button type="button" id="saveMainCatBtn" onclick="saveMainCategory()" class="btn btn-primary">
+                    <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                    <span class="btn-text">บันทึก</span>
+                </button>
             </div>
         </div>
     </div>

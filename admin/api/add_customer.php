@@ -35,7 +35,7 @@ $addr_detail2 = trim($input['addr_detail2']);
 $postcode = trim($input['postcode']);
 $province_id = (int)$input['province_id'];
 $addr_forword = trim($input['addr_forword'] ?? '');
-$addr_type = trim($input['addr_type'] ?? 'ที่บ้าน');
+$addr_type = trim($input['addr_type'] ?? '1');
 $source_page = $input['source_page'] ?? '';
 
 // Validate mobile length (9-10 digits)
@@ -81,11 +81,23 @@ try {
     }
 
     // Insert new user
+    $user_password = $input['password'] ?? '';
+    if (empty($user_password)) {
+        // Default to last 6 digits of the mobile number
+        $user_password = substr($mobile, -6);
+        // If mobile is somehow shorter than 6 digits (should be prevented by earlier validation), use the whole mobile
+        if ($user_password === false || strlen($user_password) < 6) {
+            $user_password = str_pad($mobile, 6, '0', STR_PAD_LEFT);
+        }
+    }
+    
+    $hashed_password = password_hash($user_password, PASSWORD_DEFAULT);
     $stmt = $db->prepare(
-        "INSERT INTO user (user_name, user_lastname, user_nickname, user_mobile, user_email, role, user_status, user_start) " .
-        "VALUES (?, ?, ?, ?, ?, 'customer', 1, NOW())"
+        "INSERT INTO user (user_name, user_lastname, user_nickname, user_mobile, user_email, user_password, role, user_status, user_start) " .
+        "VALUES (?, ?, ?, ?, ?, ?, 'customer', 1, NOW())"
     );
-    $result = $stmt->execute([$name, $lastname, $nickname, $mobile, $email]);
+    $result = $stmt->execute([$name, $lastname, $nickname, $mobile, $email, $hashed_password]);
+    
     if (!$result) {
         throw new Exception('Failed to insert user: ' . implode(', ', $stmt->errorInfo()));
     }

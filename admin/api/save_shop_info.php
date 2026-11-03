@@ -5,83 +5,93 @@ require_once '../includes/auth.php';
 header('Content-Type: application/json');
 
 try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception('Invalid request method');
-    }
+    $shop_id = 1; // Always use shop_id 1
+    $shop_phone = isset($_POST['shop_phone']) ? trim($_POST['shop_phone']) : '';
+    $shop_email = isset($_POST['shop_email']) ? trim($_POST['shop_email']) : '';
+    $shop_tax_id = isset($_POST['shop_tax_id']) ? trim($_POST['shop_tax_id']) : '';
 
-    $shop_id = isset($_POST['shop_id']) ? (int)$_POST['shop_id'] : 1;
-    $shop_phone = $_POST['shop_phone'] ?? '';
-    $shop_email = $_POST['shop_email'] ?? '';
-    $shop_tax_id = $_POST['shop_tax_id'] ?? '';
-    
     $db->beginTransaction();
 
-    // 1. Update General Info
-    $sql = "UPDATE shop_info SET 
-            shop_phone = :phone, 
-            shop_email = :email, 
-            shop_tax_id = :tax_id 
-            WHERE shop_id = :id";
+    // 1. Handle Logo Upload
+    $logo_sql = "";
+    $params_main = [$shop_phone, $shop_email, $shop_tax_id];
     
-    $stmt = $db->prepare($sql);
-    $stmt->execute([
-        ':phone' => $shop_phone,
-        ':email' => $shop_email,
-        ':tax_id' => $shop_tax_id,
-        ':id' => $shop_id
-    ]);
+    if (isset($_FILES['shop_logo']) && $_FILES['shop_logo']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = '../../uploads/shop/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
 
-    // 2. Handle Logo Upload
-    if (isset($_FILES['shop_logo']) && $_FILES['shop_logo']['error'] == 0) {
-        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        $ext = strtolower(pathinfo($_FILES['shop_logo']['name'], PATHINFO_EXTENSION));
-        
-        if (in_array($ext, $allowed)) {
-            $filename = 'shop_logo_' . time() . '.' . $ext;
-            $target = '../../uploads/shop/' . $filename;
-            
-            if (!file_exists('../../uploads/shop/')) {
-                mkdir('../../uploads/shop/', 0777, true);
-            }
+        $file_ext = strtolower(pathinfo($_FILES['shop_logo']['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'jfif', 'svg', 'bmp', 'heic', 'heif'];
 
-            if (move_uploaded_file($_FILES['shop_logo']['tmp_name'], $target)) {
-                // Update DB
-                $stmt = $db->prepare("UPDATE shop_info SET shop_logo = ? WHERE shop_id = ?");
-                $stmt->execute([$filename, $shop_id]);
+        if (in_array($file_ext, $allowed)) {
+            require_once __DIR__ . '/../../includes/functions/image.php';
+            if ($file_ext === 'svg') {
+                $new_filename = 'logo_' . time() . '.svg';
+                $dest_path = $upload_dir . $new_filename;
+                if (move_uploaded_file($_FILES['shop_logo']['tmp_name'], $dest_path)) {
+                    $logo_sql = ", shop_logo = ?";
+                    $params_main[] = $new_filename;
+                }
+            } else {
+                $new_filename = 'logo_' . time() . '.webp';
+                $dest_path = $upload_dir . $new_filename;
+                $sourceImage = load_image($_FILES['shop_logo']['tmp_name']);
+                if ($sourceImage) {
+                    if (save_as_webp($sourceImage, $dest_path, 90)) {
+                        $logo_sql = ", shop_logo = ?";
+                        $params_main[] = $new_filename;
+                    }
+                    imagedestroy($sourceImage);
+                }
             }
         }
     }
 
-    // 3. Update Translations
-    $languages = ['th', 'en', 'de', 'fr', 'cn', 'kr'];
+    $params_main[] = $shop_id;
     
-    $stmtCheck = $db->prepare("SELECT translation_id FROM shop_info_translations WHERE shop_id = ? AND lang_code = ?");
-    $stmtInsert = $db->prepare("INSERT INTO shop_info_translations (shop_id, lang_code, shop_name, shop_address, official_name, official_address) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmtUpdate = $db->prepare("UPDATE shop_info_translations SET shop_name = ?, shop_address = ?, official_name = ?, official_address = ? WHERE translation_id = ?");
+    // Update main shop info
+    $stmt = $db->prepare("UPDATE shop_info SET shop_phone = ?, shop_email = ?, shop_tax_id = ? $logo_sql WHERE shop_id = ?");
+    $stmt->execute($params_main);
 
+    // 2. Handle Translations (Loop through common languages)
+    $languages = ['th', 'en', 'de', 'fr', 'zh', 'ko', 'ja', 'ru', 'ar', 'he'];
+    
     foreach ($languages as $lang) {
-        $shop_name = $_POST["shop_name_$lang"] ?? '';
-        $shop_address = $_POST["shop_address_$lang"] ?? '';
-        $official_name = $_POST["official_name_$lang"] ?? '';
-        $official_address = $_POST["official_address_$lang"] ?? '';
+        $name = isset($_POST["shop_name_$lang"]) ? trim($_POST["shop_name_$lang"]) : '';
+        $addr = isset($_POST["shop_address_$lang"]) ? trim($_POST["shop_address_$lang"]) : '';
+        $off_name = isset($_POST["official_name_$lang"]) ? trim($_POST["official_name_$lang"]) : '';
+        $off_addr = isset($_POST["official_address_$lang"]) ? trim($_POST["official_address_$lang"]) : '';
 
-        $stmtCheck->execute([$shop_id, $lang]);
-        $exists = $stmtCheck->fetchColumn();
+        if (empty($name) && empty($addr) && empty($off_name) && empty($off_addr)) continue;
 
-        if ($exists) {
-            $stmtUpdate->execute([$shop_name, $shop_address, $official_name, $official_address, $exists]);
+        // Check if exists (Generic check using only shop_id and lang_code)
+        $check = $db->prepare("SELECT shop_id FROM shop_info_translations WHERE shop_id = ? AND lang_code = ? LIMIT 1");
+        $check->execute([$shop_id, $lang]);
+        
+        if ($check->fetch()) {
+            $upd = $db->prepare("UPDATE shop_info_translations SET 
+                                shop_name = ?, shop_address = ?, 
+                                official_name = ?, official_address = ? 
+                                WHERE shop_id = ? AND lang_code = ?");
+            $upd->execute([$name, $addr, $off_name, $off_addr, $shop_id, $lang]);
         } else {
-            $stmtInsert->execute([$shop_id, $lang, $shop_name, $shop_address, $official_name, $official_address]);
+            $ins = $db->prepare("INSERT INTO shop_info_translations 
+                                (shop_id, lang_code, shop_name, shop_address, official_name, official_address) 
+                                VALUES (?, ?, ?, ?, ?, ?)");
+            $ins->execute([$shop_id, $lang, $name, $addr, $off_name, $off_addr]);
         }
     }
 
     $db->commit();
+
+    // Log Activity
+    logStaffAction($db, 'UPDATE', 'shop_info', $shop_id, "Updated shop information and settings");
+
     echo json_encode(['success' => true]);
 
 } catch (Exception $e) {
-    if ($db->inTransaction()) {
-        $db->rollBack();
-    }
+    if ($db->inTransaction()) $db->rollBack();
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-?>

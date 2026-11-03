@@ -14,6 +14,70 @@ $currentPage = $_GET['page'] ?? 1;
 ob_start();
 ?>
 
+<style>
+/* บังคับ Dark Mode ให้เข้มแน่นอน ตามหน้า order_status.php */
+[data-theme="dark"] .modal-content {
+    background-color: #1a1a1a !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #333 !important;
+}
+[data-theme="dark"] .modal-content .card {
+    background-color: #262626 !important;
+    border-color: #333 !important;
+    color: #f0f0f0 !important;
+}
+[data-theme="dark"] .modal-content .card-header {
+    background-color: #1e1e1e !important;
+    border-bottom: 1px solid #333 !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .form-control, 
+[data-theme="dark"] .form-select {
+    background-color: #262626 !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .form-control:focus, 
+[data-theme="dark"] .form-select:focus {
+    background-color: #2d2d2d !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .modal-header, 
+[data-theme="dark"] .modal-footer {
+    border-color: #333 !important;
+}
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+[data-theme="dark"] .modal-title {
+    color: #3498db !important;
+}
+[data-theme="dark"] #modalLoadingOverlay {
+    background-color: rgba(26, 26, 26, 0.9) !important;
+}
+
+/* ปรับแต่ง Tabs ด้านในให้เข้ากับ Dark Mode */
+[data-theme="dark"] .modal-content .nav-tabs {
+    border-bottom: 1px solid #333 !important;
+}
+[data-theme="dark"] .modal-content .nav-tabs .nav-link {
+    color: #888 !important;
+    border: none !important;
+    background: transparent !important;
+}
+[data-theme="dark"] .modal-content .nav-tabs .nav-link.active {
+    color: #fff !important;
+    background-color: #3498db !important;
+    border-radius: 5px !important;
+}
+
+/* จัดการ Textarea ก่อนโหลด Editor */
+[data-theme="dark"] .modal-content textarea.form-control {
+    background-color: #2d2d2d !important;
+    color: #fff !important;
+}
+</style>
+
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0"><i data-lucide="package"></i> จัดการสินค้า</h2>
@@ -28,19 +92,12 @@ ob_start();
             <div class="row g-3">
                 <div class="col-md-4">
                     <div class="position-relative">
-                        <input type="text" 
+                        <input type="search" 
                                class="form-control" 
-                               id="searchInput"
+                               id="searchInput" onsearch="if(this.value==='') { if(typeof performSearch === 'function') performSearch(); else if(this.form) this.form.submit(); else window.location.search=''; }"
                                placeholder="ค้นหาสินค้า (ชื่อ, รหัส, ID)" 
                                value="<?= htmlspecialchars($search) ?>">
-                        <?php if (!empty($search)): ?>
-                        <span onclick="clearSearch()" 
-                              class="position-absolute end-0 top-50 translate-middle-y d-flex align-items-center justify-content-center" 
-                              style="cursor:pointer; margin-right:8px; width:20px; height:20px; border-radius:50%; background-color:rgba(108, 117, 125, 0.2);"
-                              title="ล้างคำค้นหา">
-                            <i data-lucide="x" style="width:12px; height:12px; color:#6c757d;"></i>
-                        </span>
-                        <?php endif; ?>
+                        
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -118,8 +175,15 @@ ob_start();
 
 <!-- Add/Edit Product Modal (Fullscreen) -->
 <div class="modal fade" id="productModal" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-fullscreen">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
+            <!-- Loading Overlay -->
+            <div id="modalLoadingOverlay" class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-white" style="z-index: 1060; border-radius: 0; display: none !important;">
+                <div class="text-center">
+                    <div class="spinner-border text-primary mb-2" role="status"></div>
+                    <div class="text-muted">กำลังโหลดข้อมูล...</div>
+                </div>
+            </div>
             <div class="modal-header">
                 <h5 class="modal-title" id="productModalTitle">
                     <i data-lucide="package"></i> <span id="modalTitleText">เพิ่มสินค้า</span>
@@ -518,10 +582,46 @@ ob_start();
                                                                ORDER BY pc.productcat_index ASC, pc.productcat_id ASC");
                                             while ($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                                 echo '<option value="' . $cat['productcat_id'] . '">' . 
-                                                     htmlspecialchars($cat['productcat_name']) . '</option>';
+                                                      htmlspecialchars($cat['productcat_name']) . '</option>';
                                             }
                                             ?>
                                         </select>
+                                    </div>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">กลิ่น (Scent)</label>
+                                            <select id="productScent" name="scent_id" class="form-select">
+                                                <option value="">-- เลือกกลิ่น --</option>
+                                                <?php
+                                                $stmt = $db->query("SELECT pa.attribute_id, pat.attribute_name 
+                                                                   FROM product_attributes pa
+                                                                   JOIN product_attribute_groups pag ON pa.group_id = pag.group_id
+                                                                   LEFT JOIN product_attribute_translations pat ON pa.attribute_id = pat.attribute_id AND pat.lang_code = 'th'
+                                                                   WHERE pag.group_code = 'scent' AND pa.attribute_status = 1
+                                                                   ORDER BY pa.attribute_index ASC, pat.attribute_name ASC");
+                                                while ($attr = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                    echo '<option value="' . $attr['attribute_id'] . '">' . htmlspecialchars($attr['attribute_name']) . '</option>';
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">สูตร (Formula)</label>
+                                            <select id="productFormula" name="formula_id" class="form-select">
+                                                <option value="">-- เลือกสูตร --</option>
+                                                <?php
+                                                $stmt = $db->query("SELECT pa.attribute_id, pat.attribute_name 
+                                                                   FROM product_attributes pa
+                                                                   JOIN product_attribute_groups pag ON pa.group_id = pag.group_id
+                                                                   LEFT JOIN product_attribute_translations pat ON pa.attribute_id = pat.attribute_id AND pat.lang_code = 'th'
+                                                                   WHERE pag.group_code = 'formula' AND pa.attribute_status = 1
+                                                                   ORDER BY pa.attribute_index ASC, pa.attribute_id ASC");
+                                                while ($attr = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                    echo '<option value="' . $attr['attribute_id'] . '">' . htmlspecialchars($attr['attribute_name']) . '</option>';
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="productStatus" name="product_status" checked>
@@ -607,6 +707,13 @@ ob_start();
                                             ?>
                                         </select>
                                     </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">ประเภทภาษี (VAT Type)</label>
+                                        <select id="productVatType" name="vat_type" class="form-select">
+                                            <option value="included">ราคารวมภาษีแล้ว (VAT Included)</option>
+                                            <option value="excluded">ราคายังไม่รวมภาษี (VAT Excluded)</option>
+                                        </select>
+                                    </div>
                                     <div id="fixedPriceSection">
                                         <div class="mb-3">
                                             <label class="form-label">ราคาขาย</label>
@@ -655,8 +762,9 @@ ob_start();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" class="btn btn-primary" onclick="saveProduct()">
-                    <i data-lucide="save"></i> บันทึก
+                <button type="button" id="saveProductBtn" class="btn btn-primary" onclick="saveProduct()">
+                    <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                    <span class="btn-text">บันทึก</span>
                 </button>
             </div>
         </div>

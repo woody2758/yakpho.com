@@ -6,6 +6,42 @@ require_once __DIR__ . "/../includes/auth.php";
 ob_start();
 ?>
 
+<style>
+/* บังคับ Dark Mode ให้เข้มแน่นอน ตามหน้า order_status.php */
+[data-theme="dark"] .modal-content {
+    background-color: #1a1a1a !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #333 !important;
+}
+[data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
+    background-color: #262626 !important;
+    border-color: #444 !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus {
+    background-color: #2d2d2d !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .modal-header, [data-theme="dark"] .modal-footer {
+    border-color: #333 !important;
+}
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+[data-theme="dark"] .modal-title {
+    color: #3498db !important;
+}
+[data-theme="dark"] #modalLoadingOverlay {
+    background-color: rgba(26, 26, 26, 0.9) !important;
+}
+/* ปรับแต่งการ์ดตั้งค่า Matrix สินค้าสั่งผลิตในโหมดมืด */
+[data-theme="dark"] .card.bg-light {
+    background-color: #262626 !important;
+    border: 1px solid #333 !important;
+    color: #f0f0f0 !important;
+}
+</style>
+
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0"><i data-lucide="folder-tree" class="me-2"></i>จัดการหมวดสินค้า</h2>
@@ -20,12 +56,8 @@ ob_start();
             <div class="row g-3">
                 <div class="col-md-12">
                     <div class="position-relative">
-                        <input type="text" id="searchInput" class="form-control" placeholder="ค้นหาชื่อหมวดสินค้า...">
-                        <span id="clearSearch" class="position-absolute end-0 top-50 translate-middle-y d-none align-items-center justify-content-center" 
-                              style="cursor:pointer; margin-right:8px; width:20px; height:20px; border-radius:50%; background-color:rgba(108, 117, 125, 0.2);" 
-                              title="ล้างคำค้นหา" onclick="clearSearch()">
-                            <i data-lucide="x" style="width:12px; height:12px; color:#6c757d;"></i>
-                        </span>
+                        <input type="search" id="searchInput" onsearch="if(this.value==='') { if(typeof performSearch === 'function') performSearch(); else if(this.form) this.form.submit(); else window.location.search=''; }" class="form-control" placeholder="ค้นหาชื่อหมวดสินค้า...">
+                        
                     </div>
                 </div>
             </div>
@@ -33,7 +65,16 @@ ob_start();
     </div>
 
     <!-- Categories Table -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm position-relative" style="overflow: hidden;">
+        <!-- Table Loading Overlay -->
+        <div id="tableLoadingOverlay" class="position-absolute d-flex align-items-center justify-content-center bg-white bg-opacity-75" 
+             style="z-index: 1000; top: 0; left: 0; right: 0; bottom: 0; display: none !important;">
+            <div class="text-center">
+                <div class="spinner-border text-primary mb-2" role="status"></div>
+                <div class="text-primary fw-bold">กำลังอัปเดตลำดับ...</div>
+            </div>
+        </div>
+
         <div class="card-body p-0">
             <div id="tableContainer">
                 <div class="text-center py-5">
@@ -55,6 +96,13 @@ ob_start();
 <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <!-- Loading Overlay -->
+            <div id="modalLoadingOverlay" class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-white" style="z-index: 1060; border-radius: .5rem; display: none !important;">
+                <div class="text-center">
+                    <div class="spinner-border text-primary mb-2" role="status"></div>
+                    <div class="text-muted">กำลังโหลดข้อมูล...</div>
+                </div>
+            </div>
             <div class="modal-header">
                 <h5 class="modal-title" id="modalTitle">เพิ่มหมวดสินค้า</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -73,13 +121,47 @@ ob_start();
                         <small class="text-muted">หมวดหมู่หลักที่ประเภทนี้อยู่ภายใต้ (เช่น ยักโพธิ์, เอสเธอร์, อื่นๆ)</small>
                     </div>
                     
-                    <!-- Status Toggle -->
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="categoryStatus" name="productcat_status" checked>
-                            <label class="form-check-label" for="categoryStatus">
-                                <span class="badge bg-success" id="statusBadge">เปิดใช้งาน</span>
-                            </label>
+                    <!-- Status & Production Toggle -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label d-block">สถานะการใช้งาน</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="categoryStatus" name="productcat_status" checked>
+                                <label class="form-check-label" for="categoryStatus">
+                                    <span class="badge bg-success" id="statusBadge">เปิดใช้งาน</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label d-block text-primary fw-bold"><i data-lucide="factory" class="me-1" style="width:16px;"></i> สินค้าสั่งผลิต</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="is_production" name="is_production">
+                                <label class="form-check-label" for="is_production">ระบุเป็นสินค้าสำหรับสั่งผลิต</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Production Matrix Settings (Visible only when is_production is checked) -->
+                    <div id="productionSettings" class="card bg-light border-0 mb-4" style="display: none;">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary mb-3 small fw-bold">ตั้งค่าสำหรับตารางใบสั่งผลิต (Matrix Settings)</h6>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label class="form-label small">ชื่อกลุ่ม (Row)</label>
+                                    <input type="text" name="prod_group_name" id="prod_group_name" class="form-control form-control-sm" placeholder="เช่น ยักษ์โพธิ์บาล์ม">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">ขนาด (Column Main)</label>
+                                    <input type="text" name="prod_size" id="prod_size" class="form-control form-control-sm" placeholder="เช่น 1kg, 500g">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">สูตร (Column Sub)</label>
+                                    <input type="text" name="prod_formula" id="prod_formula" class="form-control form-control-sm" placeholder="เช่น สูตรร้อน, สูตรเย็น">
+                                </div>
+                            </div>
+                            <div class="mt-2 text-muted" style="font-size: 11px;">
+                                <i data-lucide="info" style="width:12px; height:12px;" class="me-1"></i> ใช้สำหรับจัดกลุ่มข้อมูลในหน้าใบสั่งผลิตให้ตรงช่อง
+                            </div>
                         </div>
                     </div>
 
@@ -210,7 +292,10 @@ ob_start();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" onclick="saveCategory()" class="btn btn-primary">บันทึก</button>
+                <button type="button" id="saveCategoryBtn" onclick="saveCategory()" class="btn btn-primary">
+                    <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                    <span class="btn-text">บันทึก</span>
+                </button>
             </div>
         </div>
     </div>
@@ -260,6 +345,12 @@ document.addEventListener('DOMContentLoaded', function() {
         searchTimeout = setTimeout(() => {
             loadCategoriesTable(1, value);
         }, 300);
+    });
+
+    // Production toggle visibility handler
+    document.getElementById('is_production').addEventListener('change', function() {
+        const settings = document.getElementById('productionSettings');
+        settings.style.display = this.checked ? 'block' : 'none';
     });
 });
 

@@ -20,7 +20,7 @@ ob_start();
             <div class="row g-3">
                 <div class="col-md-12">
                     <div class="position-relative">
-                        <input type="text" id="searchInput" class="form-control" placeholder="ค้นหาชื่อหมวดบล็อก...">
+                        <input type="search" id="searchInput" onsearch="if(this.value==='') { if(typeof performSearch === 'function') performSearch(); else if(this.form) this.form.submit(); else window.location.search=''; }" class="form-control" placeholder="ค้นหาชื่อหมวดบล็อก...">
                     </div>
                 </div>
             </div>
@@ -49,7 +49,13 @@ ob_start();
 <!-- Add/Edit Category Modal -->
 <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content" style="position: relative;">
+            <!-- Modal Premium Loading Overlay -->
+            <div class="modal-loading-overlay" id="categoryModalLoading">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+                <h5 class="text-white mt-3 fw-bold">กำลังโหลดข้อมูล...</h5>
+            </div>
+            
             <div class="modal-header">
                 <h5 class="modal-title" id="modalTitle">เพิ่มหมวดบล็อก</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -196,7 +202,7 @@ ob_start();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" onclick="saveCategory()" class="btn btn-primary">บันทึก</button>
+                <button type="button" id="btnSaveBlogcat" onclick="saveCategory()" class="btn btn-primary">บันทึก</button>
             </div>
         </div>
     </div>

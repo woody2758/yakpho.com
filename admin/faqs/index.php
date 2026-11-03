@@ -19,7 +19,7 @@ ob_start();
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-8">
-                    <input type="text" id="searchInput" class="form-control" placeholder="ค้นหา FAQ...">
+                    <input type="search" id="searchInput" onsearch="if(this.value==='') { if(typeof performSearch === 'function') performSearch(); else if(this.form) this.form.submit(); else window.location.search=''; }" class="form-control" placeholder="ค้นหา FAQ...">
                 </div>
                 <div class="col-md-4">
                     <select id="categoryFilter" class="form-select">
@@ -49,7 +49,13 @@ ob_start();
 <!-- Add/Edit Modal -->
 <div class="modal fade" id="faqModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
-        <div class="modal-content">
+        <div class="modal-content" style="position: relative;">
+            <!-- Modal Premium Loading Overlay -->
+            <div class="modal-loading-overlay" id="faqModalLoading">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+                <h5 class="text-white mt-3 fw-bold">กำลังโหลดข้อมูล...</h5>
+            </div>
+            
             <div class="modal-header">
                 <h5 class="modal-title" id="modalTitle">เพิ่ม FAQ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -202,7 +208,7 @@ ob_start();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" onclick="saveFAQ()" class="btn btn-primary">บันทึก</button>
+                <button type="button" id="btnSaveFaqs" onclick="saveFAQ()" class="btn btn-primary">บันทึก</button>
             </div>
         </div>
     </div>

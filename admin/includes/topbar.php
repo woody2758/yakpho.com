@@ -5,7 +5,21 @@
 $ADMIN_ID    = $ADMIN_ID    ?? ($_SESSION['admin_id']    ?? 0);
 $ADMIN_NAME  = $ADMIN_NAME  ?? ($_SESSION['admin_name']  ?? "ผู้ดูแลระบบ");
 $ADMIN_ROLE  = $ADMIN_ROLE  ?? ($_SESSION['admin_role']  ?? "");
-$ADMIN_PIC   = $_SESSION['admin_picture'] ?? "default.png";
+
+// ดึงรูปโปรไฟล์ล่าสุดจากฐานข้อมูลเพื่อป้องกันปัญหา Session ไม่ตรง
+if ($ADMIN_ID && isset($db)) {
+    try {
+        $picStmt = $db->prepare("SELECT user_picture FROM user WHERE user_id = ? LIMIT 1");
+        $picStmt->execute([$ADMIN_ID]);
+        $dbPic = $picStmt->fetchColumn();
+        $ADMIN_PIC = !empty($dbPic) ? $dbPic : "default.png";
+        $_SESSION['admin_picture'] = $ADMIN_PIC;
+    } catch (Exception $e) {
+        $ADMIN_PIC = $_SESSION['admin_picture'] ?? "default.png";
+    }
+} else {
+    $ADMIN_PIC = $_SESSION['admin_picture'] ?? "default.png";
+}
 
 // สร้าง path รูปโปรไฟล์ (HTTP)
 $profilePath = ROOT_URL . "/uploads/profile/" . ($ADMIN_ID ?: "default") . "/" . $ADMIN_PIC;
@@ -30,7 +44,7 @@ if (!file_exists($profileFile) || empty($ADMIN_PIC)) {
 
         <?php if ($ADMIN_ROLE === "owner" || $ADMIN_ROLE === "admin"): ?>
             <button class="btn-topbar-icon"
-                    onclick="location.href='<?= ADMIN_URL ?>/settings.php'"
+                    onclick="location.href='<?= ADMIN_URL ?>/settings/'"
                     aria-label="Settings">
                 <i data-lucide="settings"></i>
             </button>
@@ -51,7 +65,7 @@ if (!file_exists($profileFile) || empty($ADMIN_PIC)) {
                     <div class="pd-role">Role: <?= htmlspecialchars($ADMIN_ROLE ?: "-") ?></div>
                 </div>
 
-                <a href="<?= ADMIN_URL ?>/profile.php" class="pd-item">
+                <a href="<?= ADMIN_URL ?>/users/edit.php?id=<?= $ADMIN_ID ?>" class="pd-item">
                     <i data-lucide="user"></i>
                     <span>แก้ไขข้อมูลส่วนตัว</span>
                 </a>

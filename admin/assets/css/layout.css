@@ -35,7 +35,7 @@ body.admin-layout {
 .sidebar-brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 20px;
 }
 
@@ -45,6 +45,16 @@ body.admin-layout {
     border-radius: 12px;
     background: radial-gradient(circle at 30% 0%, #fdf4e3 0, #b37c2b 40%, #5e3c10 100%);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.sidebar-brand img,
+.brand-logo-img {
+    width: 34px !important;
+    height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
 }
 
 .brand-text {
@@ -75,7 +85,7 @@ body.admin-layout {
 .menu-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     padding: 10px 12px;
     border-radius: 10px;
     font-size: 14px;
@@ -87,6 +97,18 @@ body.admin-layout {
 .menu-item i {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
+}
+
+.menu-item span:not(.badge) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+.menu-item .badge {
+    flex-shrink: 0;
 }
 
 .menu-item:hover {
@@ -122,7 +144,7 @@ body.admin-layout {
 .menu-group-title {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     font-size: 14px;
     font-weight: 500;
 }
@@ -170,9 +192,34 @@ body.admin-layout {
 }
 
 .menu-item.sub-item.active {
-    background: linear-gradient(120deg, rgba(209, 165, 90, 0.15), rgba(209, 165, 90, 0.04));
-    border-left: 2px solid var(--yak-gold);
-    padding-left: 40px;
+    background: #198754 !important; /* Force Emerald Green as requested by screenshot */
+    color: #fff !important;
+    border-left: 3px solid #fff;
+    padding-left: 39px;
+    margin: 0;
+    border-radius: 0;
+}
+
+/* Rounded top for first active sub-item in a block */
+.menu-item.sub-item.active:first-child,
+.menu-item.sub-item:not(.active) + .menu-item.sub-item.active {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    margin-top: 2px;
+}
+
+/* Rounded bottom for last active sub-item in a block */
+.menu-item.sub-item.active:last-child,
+.menu-item.sub-item.active:has(+ .menu-item.sub-item:not(.active)) {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    margin-bottom: 2px;
+}
+
+.menu-group.current-group .menu-group-header {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    font-weight: 600;
 }
 
 
@@ -235,8 +282,8 @@ body.admin-layout {
 
 /* Settings button */
 .btn-topbar-icon {
-    background: var(--sidebar-hover);
-    border: 1px solid var(--sidebar-border);
+    background: transparent;
+    border: 1px solid transparent;
     border-radius: 10px;
     width: 36px;
     height: 36px;
@@ -245,6 +292,12 @@ body.admin-layout {
     justify-content: center;
     cursor: pointer;
     box-sizing: border-box;
+    color: var(--fg);
+    transition: all 0.2s;
+}
+.btn-topbar-icon:hover {
+    background: var(--sidebar-hover);
+    border-color: var(--sidebar-border);
 }
 
 /* Profile wrapper */
@@ -264,7 +317,7 @@ body.admin-layout {
     object-fit: cover;
     cursor: pointer;
     border: 2px solid var(--sidebar-border);
-    background: var(--sidebar-hover);
+    background: var(--card-bg, #fff);
 }
 
 /* ============================== */
@@ -287,7 +340,7 @@ body.admin-layout {
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     color: var(--fg);
 }
 

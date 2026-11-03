@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../../includes/functions/product.php';
 
 header('Content-Type: application/json');
@@ -23,6 +23,9 @@ try {
     $result = delete_product($productId, $adminId);
     
     if ($result) {
+        // Log Activity
+        logStaffAction($db, 'DELETE', 'product', $productId, "Deleted product ID: $productId");
+        
         echo json_encode(['success' => true, 'message' => 'Product deleted successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to delete product']);

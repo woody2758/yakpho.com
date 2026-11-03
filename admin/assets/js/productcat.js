@@ -35,6 +35,18 @@ async function loadMainCategories() {
                 option.textContent = cat.name_th + (cat.name_en ? ` (${cat.name_en})` : '');
                 select.appendChild(option);
             });
+
+            // If using Tom Select, sync the changes
+            if (select.tomselect) {
+                select.tomselect.clearOptions();
+                data.categories.forEach(cat => {
+                    select.tomselect.addOption({
+                        value: cat.maincat_id,
+                        text: cat.name_th + (cat.name_en ? ` (${cat.name_en})` : '')
+                    });
+                });
+                select.tomselect.sync();
+            }
         }
     } catch (error) {
         console.error('Error loading main categories:', error);
@@ -103,7 +115,13 @@ function addCategory() {
     document.getElementById('statusBadge').className = 'badge bg-success';
 
     // Reset main category selection
-    document.getElementById('maincat_id').value = '';
+    const maincatSelect = document.getElementById('maincat_id');
+    if (maincatSelect) {
+        maincatSelect.value = '';
+        if (maincatSelect.tomselect) {
+            maincatSelect.tomselect.clear();
+        }
+    }
 
     // Show first tab
     const firstTab = document.querySelector('[data-bs-target="#lang-th"]');
@@ -111,6 +129,13 @@ function addCategory() {
         const tab = new bootstrap.Tab(firstTab);
         tab.show();
     }
+
+    // Reset production settings
+    document.getElementById('is_production').checked = false;
+    document.getElementById('productionSettings').style.display = 'none';
+    document.getElementById('prod_group_name').value = '';
+    document.getElementById('prod_size').value = '';
+    document.getElementById('prod_formula').value = '';
 
     categoryModal.show();
 
@@ -124,24 +149,27 @@ function addCategory() {
  * Edit category
  */
 async function editCategory(categoryId) {
-    // ✅ CRITICAL: Reset form first to clear old data
+    // ✅ Reset form first to clear old data
     document.getElementById('categoryForm').reset();
     document.getElementById('categoryId').value = categoryId;
 
-    // Show loading
-    Swal.fire({
-        title: 'กำลังโหลด...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // ✅ OPEN MODAL IMMEDIATELY
+    categoryModal.show();
+    
+    // ✅ SHOW INTERNAL LOADING OVERLAY
+    const loadingOverlay = document.getElementById('modalLoadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.setProperty('display', 'flex', 'important');
+    }
 
     try {
         const response = await fetch(`${ADMIN_URL}/api/get_productcat.php?id=${categoryId}`);
         const data = await response.json();
 
-        Swal.close();
+        // ✅ HIDE INTERNAL LOADING OVERLAY
+        if (loadingOverlay) {
+            loadingOverlay.style.setProperty('display', 'none', 'important');
+        }
 
         if (data.success) {
             const category = data.category;
@@ -153,8 +181,22 @@ async function editCategory(categoryId) {
             // Set main category
             const maincatSelect = document.getElementById('maincat_id');
             if (maincatSelect && category.maincat_id) {
-                maincatSelect.value = category.maincat_id;
+                const val = category.maincat_id.toString();
+                maincatSelect.value = val;
+                
+                // If using Tom Select, update the UI
+                if (maincatSelect.tomselect) {
+                    maincatSelect.tomselect.setValue(val);
+                }
             }
+
+            // Set production settings
+            const isProd = category.is_production == 1;
+            document.getElementById('is_production').checked = isProd;
+            document.getElementById('productionSettings').style.display = isProd ? 'block' : 'none';
+            document.getElementById('prod_group_name').value = category.prod_group_name || '';
+            document.getElementById('prod_size').value = category.prod_size || '';
+            document.getElementById('prod_formula').value = category.prod_formula || '';
 
             // Update status badge
             const statusBadge = document.getElementById('statusBadge');
@@ -202,7 +244,9 @@ async function editCategory(categoryId) {
             });
         }
     } catch (error) {
-        Swal.close();
+        if (loadingOverlay) {
+            loadingOverlay.style.setProperty('display', 'none', 'important');
+        }
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
@@ -217,6 +261,9 @@ async function editCategory(categoryId) {
  */
 async function saveCategory() {
     const form = document.getElementById('categoryForm');
+    const saveBtn = document.getElementById('saveCategoryBtn');
+    const spinner = saveBtn.querySelector('.spinner-border');
+    const btnText = saveBtn.querySelector('.btn-text');
 
     // Validate
     if (!form.checkValidity()) {
@@ -224,14 +271,10 @@ async function saveCategory() {
         return;
     }
 
-    // Show loading
-    Swal.fire({
-        title: 'กำลังบันทึก...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Show loading in button
+    saveBtn.disabled = true;
+    spinner.classList.remove('d-none');
+    btnText.textContent = 'กำลังบันทึก...';
 
     try {
         const formData = new FormData(form);
@@ -243,7 +286,10 @@ async function saveCategory() {
 
         const data = await response.json();
 
-        Swal.close();
+        // Reset button
+        saveBtn.disabled = false;
+        spinner.classList.add('d-none');
+        btnText.textContent = 'บันทึก';
 
         if (data.success) {
             // Close modal
@@ -269,7 +315,9 @@ async function saveCategory() {
             });
         }
     } catch (error) {
-        Swal.close();
+        saveBtn.disabled = false;
+        spinner.classList.add('d-none');
+        btnText.textContent = 'บันทึก';
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
@@ -437,30 +485,57 @@ function saveNewOrder() {
     const rows = document.querySelectorAll('.sortable-row');
     const order = Array.from(rows).map(row => row.dataset.id);
 
-    fetch(`../api/save_productcat_order.php`, {
+    console.log('Sorting Page:', currentPage, 'Order:', order);
+
+    if (order.length === 0) {
+        console.warn('No rows found for sorting');
+        return;
+    }
+
+    // Show Loading Overlay
+    const overlay = document.getElementById('tableLoadingOverlay');
+    if (overlay) {
+        overlay.style.setProperty('display', 'flex', 'important');
+    }
+
+    fetch(`${ADMIN_URL}/api/save_productcat_order.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order })
+        body: JSON.stringify({ 
+            order: order,
+            page: currentPage,
+            limit: 15
+        })
     })
         .then(res => res.json())
         .then(data => {
+            // Hide Overlay
+            if (overlay) {
+                overlay.style.setProperty('display', 'none', 'important');
+            }
+
             if (data.success) {
-                // Optional: Show subtle toast notification
-                // console.log('✓ บันทึกลำดับเรียบร้อย');
+                // Subtle success feedback could be added here if needed, 
+                // but usually the spinner disappearing is enough.
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'ไม่สามารถบันทึกลำดับได้',
-                    text: data.message,
-                    toast: true,
-                    position: 'top-end',
-                    timer: 3000,
-                    showConfirmButton: false
+                    text: data.message
                 });
             }
         })
         .catch(error => {
+            // Hide Overlay
+            if (overlay) {
+                overlay.style.setProperty('display', 'none', 'important');
+            }
             console.error('Error saving order:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'
+            });
         });
 }
 

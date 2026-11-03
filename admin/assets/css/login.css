@@ -35,3 +35,32 @@
     font-size: 13px;
     color: #666;
 }
+
+/* Remember Me Checkbox */
+.login-box .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.login-box .form-check-input {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+    border-color: #cbd5e1;
+    margin-top: 0;
+}
+
+.login-box .form-check-input:checked {
+    background-color: #D1A55A;
+    border-color: #B5883E;
+}
+
+.login-box .form-check-label {
+    cursor: pointer;
+    font-size: 13px;
+    color: #4b5563;
+    user-select: none;
+    line-height: 1.2;
+}

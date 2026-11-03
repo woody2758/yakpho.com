@@ -62,10 +62,11 @@ ob_start();
                             </div>
                         </div>
 
+                        <?php $can_edit_role_status = in_array($ADMIN_ROLE, ['owner', 'admin']); ?>
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label class="form-label">ตำแหน่ง (Role)</label>
-                                <select name="role" class="form-select">
+                                <select name="role" class="form-select" <?= $can_edit_role_status ? '' : 'disabled' ?>>
                                     <option value="member" <?= $user['role'] == 'member' ? 'selected' : '' ?>>Member (สมาชิกทั่วไป)</option>
                                     <option value="staff" <?= $user['role'] == 'staff' ? 'selected' : '' ?>>Staff (พนักงาน)</option>
                                     <option value="editor" <?= $user['role'] == 'editor' ? 'selected' : '' ?>>Editor (ผู้ดูแลเนื้อหา)</option>
@@ -76,7 +77,7 @@ ob_start();
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">สถานะ</label>
-                                <select name="status" class="form-select">
+                                <select name="status" class="form-select" <?= $can_edit_role_status ? '' : 'disabled' ?>>
                                     <option value="1" <?= $user['user_status'] == 1 ? 'selected' : '' ?>>Active (ใช้งานปกติ)</option>
                                     <option value="0" <?= $user['user_status'] == 0 ? 'selected' : '' ?>>Inactive (ระงับใช้งาน)</option>
                                 </select>

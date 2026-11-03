@@ -292,14 +292,14 @@ function addFAQ() {
  * Edit FAQ
  */
 async function editFAQ(id) {
-    Swal.fire({
-        title: 'Loading...',
-        html: 'กำลังโหลดข้อมูล',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Show modal instantly!
+    const modalElement = document.getElementById('faqModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modal.show();
+
+    // Show inside loader
+    const loader = document.getElementById('faqModalLoading');
+    if (loader) loader.classList.add('show');
 
     try {
         const response = await fetch(`../api/get_faqs.php?id=${id}`);
@@ -311,11 +311,21 @@ async function editFAQ(id) {
 
         const data = result.data;
 
-        Swal.close();
-
         document.getElementById('modalTitle').textContent = 'แก้ไข FAQ';
         document.getElementById('faqId').value = data.faqs_id;
         document.getElementById('faqStatus').checked = data.faqs_status == 1;
+
+        // Trigger status label change
+        const badge = document.getElementById('statusBadge');
+        if (badge) {
+            if (data.faqs_status == 1) {
+                badge.textContent = 'เปิดใช้งาน';
+                badge.className = 'badge bg-success';
+            } else {
+                badge.textContent = 'ปิดใช้งาน';
+                badge.className = 'badge bg-secondary';
+            }
+        }
 
         // Populate category dropdown
         const categorySelect = document.getElementById('faqCategory');
@@ -333,11 +343,12 @@ async function editFAQ(id) {
             $(`[name="faqs_detail_${lang}"]`).summernote('code', trans.faqs_detail || '');
         });
 
-        faqModal.show();
-
     } catch (error) {
         console.error('Error loading FAQ:', error);
+        modal.hide();
         Swal.fire('Error', error.message, 'error');
+    } finally {
+        if (loader) loader.classList.remove('show');
     }
 }
 
@@ -371,15 +382,14 @@ async function saveFAQ() {
         return;
     }
 
-    // Show loading
-    Swal.fire({
-        title: 'กำลังบันทึก...',
-        html: 'กรุณารอสักครู่',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Handle save button loading spinner instead of Swal
+    const saveBtn = document.getElementById('btnSaveFaqs');
+    let originalBtnHtml = '';
+    if (saveBtn) {
+        originalBtnHtml = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>กำลังบันทึก...';
+    }
 
     try {
         const response = await fetch('../api/save_faqs.php', {
@@ -417,6 +427,11 @@ async function saveFAQ() {
     } catch (error) {
         console.error('Error saving FAQ:', error);
         Swal.fire('Error', error.message, 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnHtml;
+        }
     }
 }
 

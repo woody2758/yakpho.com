@@ -1,0 +1,286 @@
+/* ===========================================================
+   Esther.rest Compact / Narrow Design System
+   =========================================================== */
+
+:root {
+    --narrow-width: 100%;
+}
+
+body {
+    font-size: 12.5px !important;
+    line-height: 1.4 !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Icons inside buttons spacing */
+.btn i, .btn svg {
+    margin-right: 6px;
+}
+
+/* Small specific adjustment for xs buttons */
+.btn-xs i, .btn-xs svg {
+    margin-right: 4px;
+}
+
+/* Global Full-Width Container */
+.container-admin {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0px 4px; /* Reduced for mobile */
+}
+
+@media (min-width: 768px) {
+    .container-admin {
+        padding: 5px 10px;
+    }
+}
+
+/* Sidebar Compact */
+body.admin-layout .sidebar {
+    width: 220px;
+}
+body.admin-layout .main {
+    margin-left: 220px;
+}
+
+/* Compact Typography */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 0.4rem;
+}
+
+/* Compact Cards */
+.card {
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+}
+
+/* Compact Tables */
+.table td, .table th {
+    padding: 0.5rem 0.5rem;
+}
+
+/* Order Specific Compact Styles */
+.order-card {
+    border-radius: 10px !important;
+    margin-bottom: 12px !important;
+}
+
+.order-card .card-header {
+    font-size: 0.7rem;
+    padding: 2px 5px !important;
+}
+
+.order-card .card-body {
+    padding: 0 !important;
+}
+
+.order-card .table th, 
+.order-card .table td {
+    padding: 4px 8px !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+.order-card .table thead th {
+    background-color: #f8f9fa;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.order-card .badge {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+}
+
+.order-item-img {
+    width: 35px;
+    height: 35px;
+}
+
+/* Buttons Compact */
+.btn-sm {
+    padding: 4px 10px !important;
+    font-size: 11.5px !important;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Dashboard Status Cards Compact */
+#statusDashboard .card {
+    padding: 10px;
+}
+#statusDashboard .card-title {
+    font-size: 1.1rem !important;
+}
+#statusDashboard .card-subtitle {
+    font-size: 0.75rem !important;
+}
+
+/* Ultra Compact Elements */
+.btn-xs {
+    padding: 2px 8px !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    line-height: 1;
+    border-radius: 4px !important;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.2px;
+}
+
+.form-control-sm {
+    height: 24px !important;
+    font-size: 11px !important;
+    padding: 2px 5px !important;
+}
+
+
+
+/* Sidebar Refinement - Ultra Compact Emerald Theme */
+.sidebar {
+    background-color: #fcfdfb !important; /* Light Emerald Tint */
+    border-right: 1px solid rgba(0,0,0,0.04) !important;
+}
+
+.sidebar .menu-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 5px 12px !important;
+    margin: 1px 6px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    font-size: 11.5px !important; /* Smaller font */
+    color: #4b5563 !important; /* Gray 600 */
+    transition: all 0.1s ease !important;
+    text-decoration: none !important;
+}
+
+.sidebar .menu-item:hover {
+    background-color: rgba(16, 185, 129, 0.05) !important; /* Light Emerald */
+    color: #059669 !important; /* Emerald 600 */
+}
+
+.sidebar .menu-item.active {
+    background-color: #10b981 !important; /* Emerald 500 */
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15) !important;
+}
+
+.sidebar .menu-item i, 
+.sidebar .menu-item svg {
+    width: 14px !important; /* Micro icons */
+    height: 14px !important;
+    margin-right: 8px !important; /* Closer to text */
+    opacity: 0.8 !important;
+}
+
+.sidebar .menu-item.active i,
+.sidebar .menu-item.active svg {
+    opacity: 1 !important;
+}
+
+.sidebar .menu-item span {
+    flex-grow: 1 !important;
+}
+
+/* Sidebar Badges Refinement */
+.sidebar .badge {
+    padding: 1px 6px !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #6b7280 !important;
+    margin-left: 6px !important;
+}
+
+.sidebar .menu-item.active .badge {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+/* Menu Group Header (Clear Sections) */
+.menu-group-header {
+    background-color: rgba(16, 185, 129, 0.03) !important;
+    margin: 4px 6px 2px 6px !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+}
+
+.menu-group-title {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #10b981 !important; /* Emerald Title */
+    opacity: 0.8;
+}
+
+.menu-group-arrow {
+    width: 10px !important;
+    height: 10px !important;
+    color: #10b981 !important;
+}
+
+/* Dark Mode Sidebar Overrides */
+[data-theme="dark"] .sidebar {
+    background-color: #1a1d23 !important; /* Dark background */
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .sidebar .menu-item {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme="dark"] .sidebar .menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #10b981 !important;
+}
+
+[data-theme="dark"] .sidebar .menu-item.active {
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .sidebar .badge {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-theme="dark"] .menu-group-header {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.menu-group.current-group .menu-group-header {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+
+/* Content Management / About & Contact Admin Classes (md/AGENT.md - Zero Inline CSS) */
+.map-preview {
+    border-radius: 8px;
+    overflow: hidden;
+}
+.map-preview iframe {
+    width: 100% !important;
+    height: 200px !important;
+    border: 0 !important;
+}
+.cropper-modal-container {
+    max-height: 500px;
+    overflow: hidden;
+}
+.cropper-modal-img {
+    max-width: 100%;
+}
+.about-preview-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}

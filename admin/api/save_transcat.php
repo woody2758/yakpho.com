@@ -11,70 +11,73 @@ try {
         throw new Exception('Invalid input');
     }
 
-    $id = isset($data['transcat_id']) ? (int)$data['transcat_id'] : 0;
-    $index = $data['transcat_index'];
-    $link = $data['transcat_link'];
-    $cod = isset($data['transcat_cod']) ? (int)$data['transcat_cod'] : 0;
+    $id     = isset($data['transcat_id']) ? (int)$data['transcat_id'] : 0;
+    $index  = $data['transcat_index'] ?? 1;
+    $link   = trim($data['transcat_link'] ?? '');
+    $cod    = isset($data['transcat_cod']) ? (int)$data['transcat_cod'] : 0;
     $status = isset($data['transcat_status']) ? (int)$data['transcat_status'] : 1;
-    $translations = $data['translations'];
+    $translations = $data['translations'] ?? [];
+
+    // Thai values (stored in main table as fallback)
+    $thName    = $translations['th']['transcat_name']    ?? '';
+    $thNshort  = $translations['th']['transcat_nshort']  ?? '';
+    $thDetail  = $translations['th']['transcat_detail']  ?? '';
 
     $db->beginTransaction();
 
     if ($id > 0) {
-        // Update
+        // Update main table
         $stmt = $db->prepare("UPDATE transcat SET 
-            transcat_index = ?, 
-            transcat_link = ?, 
-            transcat_cod = ?, 
+            transcat_index  = ?, 
+            transcat_link   = ?, 
+            transcat_cod    = ?, 
             transcat_status = ?,
+            transcat_name   = ?,
+            transcat_nshort = ?,
+            transcat_detail = ?,
             transcat_update = NOW()
             WHERE transcat_id = ?");
-        $stmt->execute([$index, $link, $cod, $status, $id]);
+        $stmt->execute([$index, $link, $cod, $status, $thName, $thNshort, $thDetail, $id]);
     } else {
-        // Insert
+        // Insert new
         $stmt = $db->prepare("INSERT INTO transcat 
-            (transcat_index, transcat_link, transcat_cod, transcat_status, transcat_date, transcat_update) 
-            VALUES (?, ?, ?, ?, NOW(), NOW())");
-        $stmt->execute([$index, $link, $cod, $status]);
+            (transcat_index, transcat_link, transcat_cod, transcat_status, 
+             transcat_name, transcat_nshort, transcat_detail,
+             transcat_date, transcat_update) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
+        $stmt->execute([$index, $link, $cod, $status, $thName, $thNshort, $thDetail]);
         $id = $db->lastInsertId();
     }
 
-    // Update Translations
+    // Update / Insert Translations for each language
     foreach ($translations as $lang => $trans) {
-        // Check if exists
+        $name    = $trans['transcat_name']    ?? '';
+        $nshort  = $trans['transcat_nshort']  ?? '';
+        $detail  = $trans['transcat_detail']  ?? '';
+
+        // Check if row already exists
         $stmt = $db->prepare("SELECT id FROM transcat_translations WHERE transcat_id = ? AND lang_code = ?");
         $stmt->execute([$id, $lang]);
         $exists = $stmt->fetchColumn();
 
         if ($exists) {
             $stmt = $db->prepare("UPDATE transcat_translations SET 
-                transcat_name = ?, 
+                transcat_name   = ?, 
                 transcat_nshort = ?, 
                 transcat_detail = ? 
                 WHERE transcat_id = ? AND lang_code = ?");
-            $stmt->execute([
-                $trans['transcat_name'],
-                $trans['transcat_nshort'],
-                $trans['transcat_detail'],
-                $id,
-                $lang
-            ]);
+            $stmt->execute([$name, $nshort, $detail, $id, $lang]);
         } else {
             $stmt = $db->prepare("INSERT INTO transcat_translations 
                 (transcat_id, lang_code, transcat_name, transcat_nshort, transcat_detail) 
                 VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $id,
-                $lang,
-                $trans['transcat_name'],
-                $trans['transcat_nshort'],
-                $trans['transcat_detail']
-            ]);
+            $stmt->execute([$id, $lang, $name, $nshort, $detail]);
         }
     }
 
     $db->commit();
-    echo json_encode(['success' => true]);
+
+    echo json_encode(['success' => true, 'id' => $id]);
 
 } catch (Exception $e) {
     if ($db->inTransaction()) {

@@ -155,3 +155,266 @@
 @keyframes yak-spin {
     to { transform: translateY(-50%) rotate(360deg); }
 }
+
+
+/* ---------------------------------
+   STANDARD ADMIN ACTION BUTTONS (Icons only, elegant & balanced)
+   --------------------------------- */
+.btn-action-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+    background: transparent;
+    color: var(--fg);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+}
+
+.btn-action-icon i,
+.btn-action-icon svg {
+    width: 17px;
+    height: 17px;
+}
+
+.btn-action-icon:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-action-icon.btn-action-key {
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.35);
+    background: rgba(56, 189, 248, 0.08);
+}
+.btn-action-icon.btn-action-key:hover {
+    background: #38bdf8;
+    color: #021714;
+    border-color: #38bdf8;
+}
+
+.btn-action-icon.btn-action-edit {
+    color: #eab308;
+    border-color: rgba(234, 179, 8, 0.35);
+    background: rgba(234, 179, 8, 0.08);
+}
+.btn-action-icon.btn-action-edit:hover {
+    background: #eab308;
+    color: #021714;
+    border-color: #eab308;
+}
+
+.btn-action-icon.btn-action-delete {
+    color: #f43f5e;
+    border-color: rgba(244, 63, 94, 0.35);
+    background: rgba(244, 63, 94, 0.08);
+}
+.btn-action-icon.btn-action-delete:hover {
+    background: #f43f5e;
+    color: #ffffff;
+    border-color: #f43f5e;
+}
+
+.btn-action-icon.btn-action-vip {
+    color: #d1a55a;
+    border-color: rgba(209, 165, 90, 0.45);
+    background: rgba(209, 165, 90, 0.1);
+}
+.btn-action-icon.btn-action-vip:hover {
+    background: #d1a55a;
+    color: #021714;
+    border-color: #d1a55a;
+}
+
+.btn-action-icon.btn-action-tier {
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.45);
+    background: rgba(16, 185, 129, 0.1);
+}
+.btn-action-icon.btn-action-tier:hover {
+    background: #10b981;
+    color: #ffffff;
+    border-color: #10b981;
+}
+
+.badge-tier-general {
+    background: rgba(100, 116, 139, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+.badge-tier-vip {
+    background: rgba(217, 119, 6, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(217, 119, 6, 0.35);
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+.badge-tier-partner {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+.badge-tier-oem {
+    background: rgba(209, 165, 90, 0.15);
+    color: #D1A55A;
+    border: 1px solid rgba(209, 165, 90, 0.35);
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+.bg-gold-subtle {
+    background: rgba(209, 165, 90, 0.12) !important;
+    border: 1px solid rgba(209, 165, 90, 0.25) !important;
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+
+/* ==============================================================================
+ * CRM, Loyalty & Admin Standard Utility Classes per md/AGENT.md (Zero Inline CSS)
+ * ============================================================================== */
+.card-kpi-green { border-left: 4px solid #16a34a !important; }
+.card-kpi-amber { border-left: 4px solid #d97706 !important; }
+.card-kpi-emerald { border-left: 4px solid #0c3b2e !important; }
+.card-kpi-gold { border-left: 4px solid #d4af37 !important; }
+.card-kpi-red { border-left: 4px solid #ef4444 !important; }
+.card-kpi-blue { border-left: 4px solid #0284c7 !important; }
+
+.table-dense { font-size: 13px !important; }
+.avatar-img-sm { width: 32px !important; height: 32px !important; object-fit: cover !important; }
+.avatar-placeholder-sm { width: 32px !important; height: 32px !important; font-size: 11px !important; }
+.avatar-img-xs { width: 28px !important; height: 28px !important; object-fit: cover !important; }
+.avatar-placeholder-xs { width: 28px !important; height: 28px !important; font-size: 11px !important; }
+
+.badge-verified { font-size: 9px !important; }
+.badge-sub { font-size: 10px !important; }
+.badge-merge-tag { cursor: pointer !important; font-size: 12px !important; }
+.cursor-pointer { cursor: pointer !important; }
+.sidebar-brand img, .brand-logo-img { width: 34px !important; height: 34px !important; max-width: 34px !important; max-height: 34px !important; object-fit: contain !important; flex-shrink: 0 !important; }
+.text-fs-11 { font-size: 11px !important; }
+.text-fs-13 { font-size: 13px !important; }
+.input-ref-link { font-size: 11px !important; width: 170px !important; }
+
+.icon-xs { width: 12px !important; height: 12px !important; }
+.icon-sm { width: 14px !important; height: 14px !important; }
+.icon-md { width: 24px !important; height: 24px !important; }
+
+.text-truncate-260 { max-width: 260px !important; }
+.preview-iframe { width: 100% !important; height: 550px !important; border: none !important; }
+
+.tier-badge-member { background: #475569 !important; color: #fff !important; font-weight: 600; padding: 6px 12px; }
+.tier-badge-vip { background: #d97706 !important; color: #fff !important; font-weight: 600; padding: 6px 12px; }
+.tier-badge-dealer { background: #0c3b2e !important; color: #fff !important; font-weight: 600; padding: 6px 12px; }
+.tier-badge-oem { background: #d4af37 !important; color: #021714 !important; font-weight: 600; padding: 6px 12px; }
+
+.spinner-snake {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-rotate 0.75s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes spinner-rotate {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Section Tags & Badges --- */
+.admin-section-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 0.65rem;
+}
+.admin-tag-resend {
+    background: rgba(99, 102, 241, 0.12);
+    color: #4f46e5;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+}
+.admin-tag-line {
+    background: rgba(6, 199, 85, 0.12);
+    color: #059669;
+    border: 1px solid rgba(6, 199, 85, 0.25);
+}
+.admin-tag-login {
+    background: rgba(209, 165, 90, 0.15);
+    color: #92400e;
+    border: 1px solid rgba(209, 165, 90, 0.3);
+}
+
+/* --- Callback URL Box --- */
+.callback-url-box {
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(209, 165, 90, 0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+.callback-url-text {
+    display: block;
+    word-break: break-all;
+    font-size: 0.78rem;
+    color: #92400e;
+    background: transparent;
+    padding: 4px 0 0 0;
+}
+.text-gold-accent {
+    color: #b38b45;
+}
+
+/* --- Buttons Luxury Esther Synergy --- */
+.btn-gold-save {
+    background: linear-gradient(135deg, #D1A55A 0%, #b38b45 100%) !important;
+    color: #072520 !important;
+    font-weight: 700 !important;
+    border: none !important;
+    box-shadow: 0 4px 14px rgba(209, 165, 90, 0.3) !important;
+    transition: all 0.25s ease !important;
+}
+.btn-gold-save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(209, 165, 90, 0.45) !important;
+    color: #000000 !important;
+}
+
+.btn-emerald-send {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: none !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
+    transition: all 0.25s ease !important;
+}
+.btn-emerald-send:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-gold {
+    border: 1px solid rgba(209, 165, 90, 0.5) !important;
+    color: #b38b45 !important;
+    background: transparent !important;
+    transition: all 0.2s ease !important;
+}
+.btn-outline-gold:hover {
+    background: #D1A55A !important;
+    color: #072520 !important;
+    border-color: #D1A55A !important;
+}
+

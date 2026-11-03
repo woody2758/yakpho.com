@@ -1,9 +1,15 @@
+function checkAdminDark() {
+    if (typeof getAdminIsDark === 'function') return getAdminIsDark();
+    return document.documentElement.getAttribute('data-theme') === 'dark' ||
+           (document.body && checkAdminDark()) ||
+           (localStorage.getItem('yakpho-theme') || 'dark') === 'dark';
+}
 /**
  * Address Management JavaScript
  * Handles CRUD operations for user addresses via AJAX
  */
 
-let currentUserId = null;
+let currentAddressUserId = null;
 let currentUserName = '';
 let provincesLoadedForAddress = false;
 
@@ -11,7 +17,7 @@ let provincesLoadedForAddress = false;
  * Open Address Modal
  */
 function openAddressModal(userId, userName) {
-    currentUserId = userId;
+    currentAddressUserId = userId;
     currentUserName = userName;
 
     // Update modal title
@@ -121,15 +127,17 @@ function renderAddressCards(addresses) {
         2: 'building-2',
         3: 'file-text',
         4: 'package',
-        5: 'user-check'
+        5: 'user-check',
+        6: 'clock'
     };
 
     const typeLabels = {
         1: 'ที่บ้าน',
         2: 'ที่ทำงาน',
         3: 'ที่อยู่สำหรับออกบิล/ใบกำกับภาษี',
-        4: 'ใช้เป็นผู้ส่งในนาม',
-        5: 'ผู้รับแทน'
+        4: 'ส่งในนาม',
+        5: 'ผู้รับแทน',
+        6: 'ที่อยู่รับสินค้าชั่วคราว'
     };
 
     const typeBadges = {
@@ -137,7 +145,8 @@ function renderAddressCards(addresses) {
         2: 'bg-primary',
         3: 'bg-warning text-dark',
         4: 'bg-info text-dark',
-        5: 'bg-secondary'
+        5: 'bg-secondary',
+        6: 'bg-dark'
     };
 
     let html = '<div class="row g-3">';
@@ -180,9 +189,9 @@ function renderAddressCards(addresses) {
                             ${escapeHtml(addr.addr_mobile)}
                         </p>
                         
-                        <p class="mb-1 small">${escapeHtml(addr.addr_detail)}</p>
-                        ${addr.addr_detail2 ? `<p class="mb-1 small">${escapeHtml(addr.addr_detail2)}</p>` : ''}
-                        <p class="mb-0 small">
+                        <p class="mb-1 small text-muted" style="white-space: pre-wrap;">${escapeHtml(addr.addr_detail)}</p>
+                        ${addr.addr_detail2 ? `<p class="mb-1 small text-muted" style="white-space: pre-wrap;">${escapeHtml(addr.addr_detail2)}</p>` : ''}
+                        <p class="mb-0 small text-muted">
                             ${addr.province_name ? escapeHtml(addr.province_name) : ''} 
                             ${addr.addr_postcode ? escapeHtml(addr.addr_postcode) : ''}
                         </p>
@@ -208,7 +217,7 @@ function showAddressForm() {
     // Reset form
     document.getElementById('addressForm').reset();
     document.getElementById('addr_id').value = '';
-    document.getElementById('user_id').value = currentUserId;
+    document.getElementById('user_id').value = currentAddressUserId;
     document.getElementById('formTitle').textContent = 'เพิ่มที่อยู่ใหม่';
 
     // Show form
@@ -225,21 +234,45 @@ function showAddressForm() {
  * Edit address
  */
 function editAddress(addrId) {
-    // Show loading
-    Swal.fire({
-        title: 'กำลังโหลด...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        },
-        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
-    });
+    // Show form container immediately
+    const container = document.getElementById('addressFormContainer');
+    const form = document.getElementById('addressForm');
+    
+    container.style.display = 'block';
+    document.getElementById('formTitle').textContent = 'กำลังโหลดข้อมูลที่อยู่...';
+    
+    // Add a temporary overlay spinner to the form
+    const loaderHtml = `
+        <div id="form-loader" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted small">กำลังดึงข้อมูล...</p>
+        </div>
+    `;
+    
+    // Hide form fields while loading
+    const formFields = form.querySelector('.row.g-3');
+    const formButtons = form.querySelector('.mt-3.d-flex');
+    if (formFields) formFields.style.opacity = '0';
+    if (formButtons) formButtons.style.opacity = '0';
+    
+    // Add loader if not exists
+    if (!document.getElementById('form-loader')) {
+        form.insertAdjacentHTML('afterbegin', loaderHtml);
+    }
+
+    // Scroll to form
+    container.scrollIntoView({ behavior: 'smooth' });
 
     fetch(`${ADMIN_URL}/api/get_address.php?id=${addrId}`)
         .then(response => response.json())
         .then(data => {
-            Swal.close();
+            // Remove loader
+            const loader = document.getElementById('form-loader');
+            if (loader) loader.remove();
+            
+            // Show fields
+            if (formFields) formFields.style.opacity = '1';
+            if (formButtons) formButtons.style.opacity = '1';
 
             if (data.success) {
                 const addr = data.address;
@@ -257,31 +290,31 @@ function editAddress(addrId) {
                 document.getElementById('addr_forword').value = addr.addr_forword || '';
 
                 document.getElementById('formTitle').textContent = 'แก้ไขที่อยู่';
-
-                // Show form
-                document.getElementById('addressFormContainer').style.display = 'block';
-
-                // Scroll to form
-                document.getElementById('addressFormContainer').scrollIntoView({ behavior: 'smooth' });
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
                     text: data.message || 'ไม่สามารถโหลดข้อมูลได้',
-                    background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                    color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                    background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                    color: checkAdminDark() ? '#fff' : '#545454'
                 });
+                cancelAddressForm();
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            // Remove loader
+            const loader = document.getElementById('form-loader');
+            if (loader) loader.remove();
+            
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
-                background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                color: checkAdminDark() ? '#fff' : '#545454'
             });
+            cancelAddressForm();
         });
 }
 
@@ -303,16 +336,11 @@ function saveAddress() {
     const isEdit = addrId && addrId !== '';
     const url = isEdit ? `${ADMIN_URL}/api/update_address.php` : `${ADMIN_URL}/api/add_address.php`;
 
-    // Show loading
-    Swal.fire({
-        title: 'กำลังบันทึก...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        },
-        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
-    });
+    // In-button loading state
+    const saveBtn = form.querySelector('button[onclick="saveAddress()"]');
+    const originalBtnHtml = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> กำลังบันทึก...`;
 
     fetch(url, {
         method: 'POST',
@@ -323,6 +351,10 @@ function saveAddress() {
     })
         .then(response => response.json())
         .then(data => {
+            // Restore button
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnHtml;
+
             if (data.success) {
                 Swal.fire({
                     icon: 'success',
@@ -330,34 +362,38 @@ function saveAddress() {
                     text: data.message,
                     timer: 1500,
                     showConfirmButton: false,
-                    background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                    color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                    background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                    color: checkAdminDark() ? '#fff' : '#545454'
                 });
 
                 // Hide form and reload addresses
                 cancelAddressForm();
-                loadAddresses(currentUserId);
-
-                // Update address count in main table
-                updateAddressCount(currentUserId);
+                loadAddresses(currentAddressUserId);
+                
+                // Update counter if possible
+                updateAddressCount(currentAddressUserId);
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
                     text: data.message || 'ไม่สามารถบันทึกข้อมูลได้',
-                    background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                    color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                    background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                    color: checkAdminDark() ? '#fff' : '#545454'
                 });
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            // Restore button
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnHtml;
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
-                background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                color: checkAdminDark() ? '#fff' : '#545454'
             });
         });
 }
@@ -379,8 +415,8 @@ function deleteAddress(addrId, permanent = false) {
         confirmButtonText: 'ใช่, ลบเลย',
         cancelButtonText: 'ยกเลิก',
         confirmButtonColor: '#d33',
-        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+        background: checkAdminDark() ? '#1e1e1e' : '#fff',
+        color: checkAdminDark() ? '#fff' : '#545454'
     }).then((result) => {
         if (result.isConfirmed) {
             // Show loading
@@ -390,8 +426,8 @@ function deleteAddress(addrId, permanent = false) {
                 didOpen: () => {
                     Swal.showLoading();
                 },
-                background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                color: checkAdminDark() ? '#fff' : '#545454'
             });
 
             fetch(`${ADMIN_URL}/api/delete_address.php`, {
@@ -410,22 +446,22 @@ function deleteAddress(addrId, permanent = false) {
                             text: data.message,
                             timer: 1500,
                             showConfirmButton: false,
-                            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                            color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                            background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                            color: checkAdminDark() ? '#fff' : '#545454'
                         });
 
                         // Reload addresses
-                        loadAddresses(currentUserId);
-
-                        // Update address count in main table
-                        updateAddressCount(currentUserId);
+                        loadAddresses(currentAddressUserId);
+                        
+                        // Update counter if possible
+                        updateAddressCount(currentAddressUserId);
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'เกิดข้อผิดพลาด',
                             text: data.message || 'ไม่สามารถลบที่อยู่ได้',
-                            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                            color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                            background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                            color: checkAdminDark() ? '#fff' : '#545454'
                         });
                     }
                 })
@@ -435,8 +471,8 @@ function deleteAddress(addrId, permanent = false) {
                         icon: 'error',
                         title: 'Error',
                         text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
-                        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                        background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                        color: checkAdminDark() ? '#fff' : '#545454'
                     });
                 });
         }
@@ -455,8 +491,8 @@ function setDefaultAddress(addrId) {
         confirmButtonText: 'ใช่, ตั้งเป็นหลัก',
         cancelButtonText: 'ยกเลิก',
         confirmButtonColor: '#10b981',
-        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+        background: checkAdminDark() ? '#1e1e1e' : '#fff',
+        color: checkAdminDark() ? '#fff' : '#545454'
     }).then((result) => {
         if (result.isConfirmed) {
             // Show loading
@@ -466,8 +502,8 @@ function setDefaultAddress(addrId) {
                 didOpen: () => {
                     Swal.showLoading();
                 },
-                background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                color: checkAdminDark() ? '#fff' : '#545454'
             });
 
             fetch(`${ADMIN_URL}/api/set_default_address.php`, {
@@ -486,19 +522,19 @@ function setDefaultAddress(addrId) {
                             text: data.message,
                             timer: 1500,
                             showConfirmButton: false,
-                            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                            color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                            background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                            color: checkAdminDark() ? '#fff' : '#545454'
                         });
 
                         // Reload addresses to show updated default
-                        loadAddresses(currentUserId);
+                        loadAddresses(currentAddressUserId);
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'เกิดข้อผิดพลาด',
                             text: data.message || 'ไม่สามารถตั้งเป็นที่อยู่หลักได้',
-                            background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                            color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                            background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                            color: checkAdminDark() ? '#fff' : '#545454'
                         });
                     }
                 })
@@ -508,8 +544,8 @@ function setDefaultAddress(addrId) {
                         icon: 'error',
                         title: 'Error',
                         text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
-                        background: document.body.getAttribute('data-theme') === 'dark' ? '#1e1e1e' : '#fff',
-                        color: document.body.getAttribute('data-theme') === 'dark' ? '#fff' : '#545454'
+                        background: checkAdminDark() ? '#1e1e1e' : '#fff',
+                        color: checkAdminDark() ? '#fff' : '#545454'
                     });
                 });
         }

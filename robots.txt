@@ -1,0 +1,33 @@
+User-agent: *
+Allow: /
+Allow: /llms.txt
+Disallow: /admin/
+Disallow: /staff/
+Disallow: /scratch/
+Disallow: /api/
+Disallow: /api_external/
+
+# AI Search Crawlers (AEO / GEO Optimization)
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /llms.txt
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+
+User-agent: Applebot
+Allow: /
+
+Sitemap: https://yakpho.com/sitemap.xml
+

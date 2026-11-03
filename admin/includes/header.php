@@ -2,6 +2,7 @@
 if (!isset($page_title)) { 
     $page_title = "YakPho Admin"; 
 }
+$ver = '?v=' . time();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -9,6 +10,12 @@ if (session_status() === PHP_SESSION_NONE) {
 <!DOCTYPE html>
 <html lang="th">
 <head>
+    <!-- Favicon & Touch Icon (Esther Aroma Official Branding) -->
+    <link rel="icon" type="image/webp" href="<?= ROOT_URL ?>/assets/img/favicons/favicon.webp">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= ROOT_URL ?>/assets/img/favicons/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= ROOT_URL ?>/assets/img/favicons/apple-touch-icon.png">
+    <link rel="shortcut icon" href="<?= ROOT_URL ?>/favicon.ico">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($page_title) ?> - YakPho Admin</title>
@@ -26,6 +33,7 @@ if (session_status() === PHP_SESSION_NONE) {
 <link rel="stylesheet" href="<?= ADMIN_URL ?>/assets/css/components.css<?= $ver ?>">
 <link rel="stylesheet" href="<?= ADMIN_URL ?>/assets/css/login.css<?= $ver ?>">
 <link rel="stylesheet" href="<?= ADMIN_URL ?>/assets/css/sweetalert.css<?= $ver ?>">
+<link rel="stylesheet" href="<?= ADMIN_URL ?>/assets/css/dark_fixes.css<?= $ver ?>">
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

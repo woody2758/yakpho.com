@@ -51,8 +51,19 @@ if ($action === 'create') {
     $confirm  = $_POST['confirm_password'];
     $name     = trim($_POST['name']);
     $tel      = trim($_POST['tel']);
-    $role     = $_POST['role'];
-    $status   = $_POST['status'];
+    
+    // ตรวจสอบสิทธิ์การแก้ไข Role และ Status
+    $can_edit_role_status = in_array($ADMIN_ROLE, ['owner', 'admin']);
+    
+    if ($can_edit_role_status) {
+        $role   = $_POST['role'];
+        $status = $_POST['status'];
+    } else {
+        // หากไม่มีสิทธิ์ ให้ดึงค่าเดิมจากฐานข้อมูล
+        $existing_user = get_user_by_id($id);
+        $role   = $existing_user['role'];
+        $status = $existing_user['user_status'];
+    }
 
     // Check exists
     if (check_user_exists($email, $id)) {

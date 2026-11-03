@@ -81,6 +81,9 @@ try {
     
     $db->commit();
     
+    // Log Activity
+    logStaffAction($db, $faqs_id > 0 ? 'UPDATE' : 'CREATE', 'faqs', $faqs_id, ($faqs_id > 0 ? "Updated" : "Created") . " FAQ: " . ($translations['th']['faqs_name'] ?? $faqs_id));
+
     echo json_encode([
         'success' => true,
         'message' => 'FAQ saved successfully',

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 
 header('Content-Type: application/json');
 
@@ -31,12 +31,20 @@ try {
         $stmt = $db->prepare("UPDATE productcat SET 
                               maincat_id = ?,
                               productcat_status = ?,
+                              is_production = ?,
+                              prod_group_name = ?,
+                              prod_size = ?,
+                              prod_formula = ?,
                               productcat_update = NOW(),
                               update_id = ?
                               WHERE productcat_id = ?");
         $stmt->execute([
             $_POST['maincat_id'] ?? null,
             isset($_POST['productcat_status']) ? 1 : 0,
+            isset($_POST['is_production']) ? 1 : 0,
+            $_POST['prod_group_name'] ?? null,
+            $_POST['prod_size'] ?? null,
+            $_POST['prod_formula'] ?? null,
             $_SESSION['admin_id'] ?? 0,
             $categoryId
         ]);
@@ -46,12 +54,21 @@ try {
         $stmt->execute([$categoryId]);
         
     } else {
+        // Get max index for new category
+        $maxIndex = $db->query("SELECT MAX(productcat_index) FROM productcat")->fetchColumn() ?: 0;
+        $nextIndex = $maxIndex + 1;
+
         // Insert new category
-        $stmt = $db->prepare("INSERT INTO productcat (maincat_id, productcat_status, productcat_date, productcat_del, save_id) 
-                              VALUES (?, ?, NOW(), 0, ?)");
+        $stmt = $db->prepare("INSERT INTO productcat (maincat_id, productcat_status, is_production, prod_group_name, prod_size, prod_formula, productcat_index, productcat_date, productcat_del, save_id) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 0, ?)");
         $stmt->execute([
             $_POST['maincat_id'] ?? null,
             isset($_POST['productcat_status']) ? 1 : 0,
+            isset($_POST['is_production']) ? 1 : 0,
+            $_POST['prod_group_name'] ?? null,
+            $_POST['prod_size'] ?? null,
+            $_POST['prod_formula'] ?? null,
+            $nextIndex,
             $_SESSION['admin_id'] ?? 0
         ]);
         $categoryId = $db->lastInsertId();
@@ -74,6 +91,9 @@ try {
     
     $db->commit();
     
+    // Log Activity
+    logStaffAction($db, $isEdit ? 'UPDATE' : 'CREATE', 'productcat', $categoryId, ($isEdit ? "Updated" : "Created") . " category: " . ($_POST['productcat_name_th'] ?? $categoryId));
+
     echo json_encode([
         'success' => true,
         'message' => $isEdit ? 'บันทึกการแก้ไขเรียบร้อย' : 'เพิ่มหมวดสินค้าเรียบร้อย',

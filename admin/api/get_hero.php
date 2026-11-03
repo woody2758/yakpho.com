@@ -5,7 +5,7 @@
  */
 
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
 
 try {
     $slide_id = $_GET['id'] ?? 0;

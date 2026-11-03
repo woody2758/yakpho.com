@@ -15,7 +15,12 @@ try {
     $items = $data['items'];
     $addr_id = isset($data['addr_id']) ? (int)$data['addr_id'] : null;
     $shipping_cost = isset($data['shipping_cost']) ? (float)$data['shipping_cost'] : 0;
+    $paycat_id = isset($data['paycat_id']) ? (int)$data['paycat_id'] : 1; // Default to ID 1 (Transfer/Cash)
+    $discount = isset($data['orders_discount']) ? (float)$data['orders_discount'] : 0;
     $order_msg = isset($data['order_msg']) ? trim($data['order_msg']) : '';
+    $orders_channel = !empty($data['orders_channel']) ? trim($data['orders_channel']) : null;
+    $orders_country_id = isset($data['orders_country_id']) ? (int)$data['orders_country_id'] : 171;
+    $agent_user_id = !empty($data['agent_user_id']) ? (int)$data['agent_user_id'] : null;
     
     if (empty($items)) {
         throw new Exception('กรุณาเลือกสินค้าอย่างน้อย 1 รายการ');
@@ -38,39 +43,62 @@ try {
         }
         $subtotal += (float)$item['price'] * (int)$item['qty'];
     }
-    $grandtotal = $subtotal + $shipping_cost;
+
+    // COD Fee (Rounded to integer)
+    $cod_fee = ($paycat_id == 2) ? round($subtotal * 0.03) : 0;
+    $grandtotal = ($subtotal + $shipping_cost + $cod_fee) - $discount;
+    
+    $orders_is_vat = isset($data['orders_is_vat']) ? (int)$data['orders_is_vat'] : 0;
+    
+    // สร้างเลขที่ออเดอร์ (orders_no) รูปแบบ YYYYMMDD + สุ่ม 4 หลัก
+    $orders_no = date('Ymd') . rand(1000, 9999);
     
     // 2. สร้าง Order (สถานะเริ่มต้น = 1)
     $stmt = $db->prepare("INSERT INTO orders 
-        (user_id, orders_date, orders_subtotal, orders_shipping, 
-         orders_grandtotal, orders_status, orders_msg, addr_id) 
-        VALUES (?, NOW(), ?, ?, ?, 1, ?, ?)");
-    $stmt->execute([$user_id, $subtotal, $shipping_cost, $grandtotal, $order_msg, $addr_id]);
+        (user_id, orders_no, orders_date, orders_total, orders_delicost, orders_discount, orders_cod,
+         orders_grandtotal, orders_status, orders_msg, addr_id, orders_is_vat, paycat_id, 
+         orders_channel, orders_country_id, agent_user_id, save_id) 
+        VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([
+        $user_id, $orders_no, $subtotal, $shipping_cost, $discount, $cod_fee, 
+        $grandtotal, $order_msg, $addr_id, $orders_is_vat, $paycat_id, 
+        $orders_channel, $orders_country_id, $agent_user_id, $_SESSION['admin_id'] ?? 0
+    ]);
     
     $order_id = $db->lastInsertId();
+
+    // 2.1 Update User Last Active
+    $stmt_active = $db->prepare("UPDATE user SET user_last_active = NOW() WHERE user_id = ?");
+    $stmt_active->execute([$user_id]);
     
     // 3. เพิ่มรายการสินค้า
     $stmt = $db->prepare("INSERT INTO ordetail 
-        (orders_id, product_id, ordetail_qty, unit_price, subtotal) 
-        VALUES (?, ?, ?, ?, ?)");
+        (orders_id, product_id, ordetail_qty, product_price, subtotal, ordetail_memo, item_cost) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)");
     
     foreach ($items as $item) {
         $product_id = (int)$item['product_id'];
         $qty = (int)$item['qty'];
         $price = (float)$item['price'];
+        $memo = $item['memo'] ?? '';
         $item_total = $price * $qty;
         
-        // ตรวจสอบว่าสินค้ามีอยู่จริง
-        $check = $db->prepare("SELECT product_id FROM product WHERE product_id = ?");
+        // ตรวจสอบว่าสินค้ามีอยู่จริง และดึงต้นทุนสินค้ามาด้วย
+        $check = $db->prepare("SELECT product_id, product_cprice FROM product WHERE product_id = ?");
         $check->execute([$product_id]);
-        if (!$check->fetch()) {
+        $prod = $check->fetch(PDO::FETCH_ASSOC);
+        if (!$prod) {
             throw new Exception("ไม่พบสินค้า ID: {$product_id}");
         }
+        $item_cost = isset($prod['product_cprice']) ? (float)$prod['product_cprice'] : 0.00;
         
-        $stmt->execute([$order_id, $product_id, $qty, $price, $item_total]);
+        $stmt->execute([$order_id, $product_id, $qty, $price, $item_total, $memo, $item_cost]);
     }
     
     $db->commit();
+    
+    // Log Activity
+    logStaffAction($db, 'CREATE', 'orders', $order_id, "Created new order #{$orders_no} - Total: " . number_format($grandtotal, 2));
     
     echo json_encode([
         'success' => true,

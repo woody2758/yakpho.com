@@ -18,10 +18,14 @@ try {
     $stmt = $db->prepare("
         UPDATE aboutus SET 
             aboutus_del = 1,
-            aboutus_update = NOW()
+            aboutus_update = NOW(),
+            update_id = ?
         WHERE aboutus_id = ? AND aboutus_del = 0
     ");
-    $stmt->execute([$id]);
+    $stmt->execute([$_SESSION['admin_id'] ?? 0, $id]);
+
+    // Log Activity
+    logStaffAction($db, 'DELETE', 'aboutus', $id, "Deleted About Us record (ID: $id)");
     
     if ($stmt->rowCount() === 0) {
         throw new Exception('About Us not found');

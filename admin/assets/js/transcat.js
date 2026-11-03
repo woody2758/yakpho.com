@@ -17,21 +17,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function loadTranscatTable(search = '') {
     const container = document.getElementById('tableContainer');
+    const countEl = document.getElementById('tableCount');
     const currentLang = localStorage.getItem('activeLanguageTab') || 'th';
 
-    fetch(`${ADMIN_URL}/api/get_transcat_table.php?search=${search}&lang=${currentLang}`)
+    container.style.opacity = '0.5';
+    container.style.pointerEvents = 'none';
+
+    fetch(`${ADMIN_URL}/api/get_transcat_table.php?search=${encodeURIComponent(search)}&lang=${currentLang}`)
         .then(response => response.json())
         .then(data => {
+            container.style.opacity = '1';
+            container.style.pointerEvents = 'auto';
             if (data.success) {
                 container.innerHTML = data.html;
+                if (countEl) countEl.textContent = `พบ ${data.total} รายการ`;
                 lucide.createIcons();
             } else {
-                container.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                container.innerHTML = `<div class="alert alert-danger m-3">${data.message}</div>`;
             }
         })
         .catch(error => {
+            container.style.opacity = '1';
+            container.style.pointerEvents = 'auto';
             console.error('Error:', error);
-            container.innerHTML = '<div class="alert alert-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+            container.innerHTML = '<div class="alert alert-danger m-3">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
         });
 }
 
@@ -62,9 +71,12 @@ function editTranscat(id) {
 
                 // Common fields
                 form.elements['transcat_index'].value = t.transcat_index;
-                form.elements['transcat_link'].value = t.transcat_link;
+                form.elements['transcat_link'].value = t.transcat_link || '';
                 form.elements['transcat_cod'].checked = t.transcat_cod == 1;
                 form.elements['transcat_status'].checked = t.transcat_status == 1;
+
+                // Trigger preview update
+                if (typeof previewTrackingLink === 'function') previewTrackingLink();
 
                 // Translations
                 ['th', 'en'].forEach(lang => {

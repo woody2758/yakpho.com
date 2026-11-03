@@ -24,12 +24,12 @@ try {
     }
 
     // Validate file type
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp', 'image/x-ms-bmp'];
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mimeType = $finfo->file($file['tmp_name']);
 
     if (!in_array($mimeType, $allowedTypes)) {
-        throw new Exception('Invalid file type. Only JPG, PNG, and WebP are allowed.');
+        throw new Exception('Invalid file type. Please upload a standard image file (JPG, PNG, GIF, WEBP, AVIF, BMP).');
     }
 
     // Create upload directory if not exists
@@ -47,9 +47,9 @@ try {
         throw new Exception('Failed to load image');
     }
 
-    // Resize if too large (e.g. > 1200px)
-    $maxWidth = 1200;
-    $maxHeight = 1200;
+    // Resize if too large (e.g. > 1000px)
+    $maxWidth = 1000;
+    $maxHeight = 1000;
     $width = imagesx($sourceImage);
     $height = imagesy($sourceImage);
 
@@ -65,7 +65,7 @@ try {
     $targetFilename = $filename . '.webp';
     $targetPath = $uploadDir . '/' . $targetFilename;
 
-    if (!save_as_webp($sourceImage, $targetPath, 85)) {
+    if (!save_as_webp($sourceImage, $targetPath, 70)) {
         throw new Exception('Failed to save WebP image');
     }
     imagedestroy($sourceImage);
@@ -75,8 +75,11 @@ try {
     $stmt->execute([$orderId, $targetFilename, $_SESSION['admin_id'] ?? 0]);
 
     // Also update the main orders table for backward compatibility (optional, or just use the latest one)
-    $stmt = $db->prepare("UPDATE orders SET orders_slip = ? WHERE orders_id = ?");
-    $stmt->execute([$targetFilename, $orderId]);
+    $stmt = $db->prepare("UPDATE orders SET orders_slip = ?, update_id = ?, orders_update = NOW() WHERE orders_id = ?");
+    $stmt->execute([$targetFilename, $_SESSION['admin_id'] ?? 0, $orderId]);
+
+    // Log Activity
+    logStaffAction($db, 'UPDATE', 'orders', $orderId, "Uploaded payment slip: $targetFilename");
 
     echo json_encode([
         'success' => true,

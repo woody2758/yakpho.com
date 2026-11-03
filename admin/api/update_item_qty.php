@@ -1,0 +1,84 @@
+<?php
+require_once '../includes/config.php';
+require_once '../includes/auth.php';
+
+header('Content-Type: application/json');
+
+try {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (!isset($data['ordetail_id']) || !isset($data['qty']) || !isset($data['order_id'])) {
+        throw new Exception('Missing required parameters');
+    }
+    
+    $ordetail_id = (int)$data['ordetail_id'];
+    $qty = (int)$data['qty'];
+    $order_id = (int)$data['order_id'];
+    
+    if ($qty < 1) throw new Exception('จำนวนต้องไม่น้อยกว่า 1');
+    
+    $db->beginTransaction();
+    
+    // Check if order is locked
+    $stmt = $db->prepare("SELECT orders_status, orders_delicost FROM orders WHERE orders_id = ?");
+    $stmt->execute([$order_id]);
+    $order_check = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$order_check) throw new Exception('ไม่พบออเดอร์');
+    
+    $lockedStatuses = [6, 11, 7, 8, 9];
+    if (in_array((int)$order_check['orders_status'], $lockedStatuses)) {
+        throw new Exception('ออเดอร์นี้ถูกล็อกแล้ว ไม่สามารถแก้ไขจำนวนได้');
+    }
+
+    // 1. Get current item price
+    $stmt = $db->prepare("SELECT product_price FROM ordetail WHERE ordetail_id = ?");
+    $stmt->execute([$ordetail_id]);
+    $item = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$item) throw new Exception('ไม่พบรายการสินค้า');
+    
+    $price = (float)$item['product_price'];
+    $subtotal = $price * $qty;
+
+    // 2. Update quantity and subtotal
+    $stmt = $db->prepare("UPDATE ordetail SET ordetail_qty = ?, subtotal = ? WHERE ordetail_id = ?");
+    $stmt->execute([$qty, $subtotal, $ordetail_id]);
+
+    // 3. Recalculate Order Totals
+    $stmt = $db->prepare("SELECT SUM(subtotal) as new_subtotal FROM ordetail WHERE orders_id = ?");
+    $stmt->execute([$order_id]);
+    $totals = $stmt->fetch(PDO::FETCH_ASSOC);
+    $new_subtotal = $totals ? (float)$totals['new_subtotal'] : 0.00;
+    
+    // Fetch discount and paycat_id to correctly preserve calculations
+    $stmt_sum = $db->prepare("SELECT orders_discount, paycat_id FROM orders WHERE orders_id = ?");
+    $stmt_sum->execute([$order_id]);
+    $order_meta = $stmt_sum->fetch(PDO::FETCH_ASSOC);
+    
+    $shipping = (float)$order_check['orders_delicost'];
+    $discount = $order_meta ? (float)$order_meta['orders_discount'] : 0.00;
+    $paycat_id = $order_meta ? (int)$order_meta['paycat_id'] : 1;
+    
+    $cod_fee = ($paycat_id == 2) ? round($new_subtotal * 0.03) : 0;
+    $new_grandtotal = ($new_subtotal + $shipping + $cod_fee) - $discount;
+
+    $stmt = $db->prepare("UPDATE orders SET orders_total = ?, orders_cod = ?, orders_grandtotal = ?, update_id = ?, orders_update = NOW() WHERE orders_id = ?");
+    $stmt->execute([$new_subtotal, $cod_fee, $new_grandtotal, $_SESSION['admin_id'] ?? 0, $order_id]);
+
+    // Log Activity
+    logStaffAction($db, 'UPDATE', 'orders', $order_id, "Updated item quantity (ID: $ordetail_id) to $qty");
+
+    $db->commit();
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'อัพเดทจำนวนสำเร็จ',
+        'new_subtotal' => $new_subtotal,
+        'new_grandtotal' => $new_grandtotal
+    ]);
+
+} catch (Exception $e) {
+    if ($db->inTransaction()) $db->rollBack();
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}
+?>

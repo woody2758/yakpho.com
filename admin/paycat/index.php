@@ -20,12 +20,8 @@ ob_start();
             <div class="row g-3">
                 <div class="col-md-12">
                     <div class="position-relative">
-                        <input type="text" id="searchInput" class="form-control" placeholder="ค้นหาชื่อวิธีการชำระเงิน หรือ รหัสย่อ...">
-                        <span id="clearSearch" class="position-absolute end-0 top-50 translate-middle-y d-none align-items-center justify-content-center" 
-                              style="cursor:pointer; margin-right:8px; width:20px; height:20px; border-radius:50%; background-color:rgba(108, 117, 125, 0.2);" 
-                              title="ล้างคำค้นหา" onclick="clearSearch()">
-                            <i data-lucide="x" style="width:12px; height:12px; color:#6c757d;"></i>
-                        </span>
+                        <input type="search" id="searchInput" onsearch="if(this.value==='') { if(typeof performSearch === 'function') performSearch(); else if(this.form) this.form.submit(); else window.location.search=''; }" class="form-control" placeholder="ค้นหาชื่อวิธีการชำระเงิน หรือ รหัสย่อ...">
+                        
                     </div>
                 </div>
             </div>

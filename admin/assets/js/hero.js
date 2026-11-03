@@ -11,7 +11,6 @@ const Hero = {
      */
     init() {
         this.loadTable();
-        this.initializeImageUpload();
     },
 
     /**
@@ -19,39 +18,48 @@ const Hero = {
      */
     async loadTable() {
         try {
-            const response = await fetch('/admin/api/get_hero_table.php');
-            const data = await response.json();
-
+            // Show loading if it's the first load or requested
             const tbody = document.getElementById('hero-tbody');
+            if (tbody.innerHTML.trim() === '' || tbody.innerText.includes('กำลังโหลด')) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2">กำลังโหลดข้อมูล...</div></td></tr>';
+            }
+
+            const response = await fetch(`${ADMIN_URL}/api/get_hero_table.php`);
+            const data = await response.json();
 
             if (data.success && data.slides.length > 0) {
                 tbody.innerHTML = data.slides.map((slide, index) => `
                     <tr data-id="${slide.slide_id}">
-                        <td>
+                        <td class="text-center">
                             <i data-lucide="grip-vertical" style="cursor:move;color:#999;"></i>
-                            ${index + 1}
                         </td>
+                        <td><code>${slide.slide_id}</code></td>
                         <td>
                             ${slide.slide_image ?
-                        `<img src="/yakpho.com/uploads/hero/${slide.slide_image}" style="width:100px;height:60px;object-fit:cover;border-radius:4px;">` :
+                        `<img src="${BASE_URL}/uploads/hero/${slide.slide_image}" style="width:100px;height:60px;object-fit:cover;border-radius:4px;">` :
                         '<div style="width:100px;height:60px;background:#f0f0f0;border-radius:4px;display:flex;align-items:center;justify-content:center;"><i data-lucide="image" width="24" height="24"></i></div>'
                     }
                         </td>
-                        <td><strong>${slide.slide_title || '-'}</strong></td>
-                        <td class="text-muted small">${this.truncate(slide.slide_subtitle, 60)}</td>
                         <td>
+                            <div class="fw-bold mb-1">${slide.slide_title || '-'}</div>
+                            <div class="text-muted small">${this.truncate(slide.slide_subtitle, 100)}</div>
+                        </td>
+                        <td class="text-center">
                             <button class="btn btn-sm ${slide.slide_status === 'active' ? 'btn-success' : 'btn-secondary'}" 
+                                    style="min-width: 70px;"
                                     onclick="Hero.toggleStatus(${slide.slide_id}, '${slide.slide_status}')">
-                                ${slide.slide_status === 'active' ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                                ${slide.slide_status === 'active' ? 'Active' : 'Inactive'}
                             </button>
                         </td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" onclick="Hero.edit(${slide.slide_id})" title="แก้ไข">
-                                <i data-lucide="edit-2" width="16" height="16"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="Hero.delete(${slide.slide_id})" title="ลบ">
-                                <i data-lucide="trash-2" width="16" height="16"></i>
-                            </button>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="Hero.edit(${slide.slide_id})" title="แก้ไข">
+                                    <i data-lucide="edit-3" width="16" height="16"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="Hero.delete(${slide.slide_id})" title="ลบ">
+                                    <i data-lucide="trash-2" width="16" height="16"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
@@ -65,30 +73,7 @@ const Hero = {
         }
     },
 
-    /**
-     * Initialize image upload
-     */
-    initializeImageUpload() {
-        const uploadArea = document.getElementById('imageUploadArea');
-        const fileInput = document.getElementById('slide_image');
-        const preview = document.getElementById('imagePreview');
-        const placeholder = document.getElementById('uploadPlaceholder');
 
-        uploadArea.addEventListener('click', () => fileInput.click());
-
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    placeholder.style.display = 'none';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    },
 
     /**
      * Open modal for new slide
@@ -109,8 +94,36 @@ const Hero = {
      * Edit slide
      */
     async edit(slideId) {
+        // Open modal instantly!
+        const modalElement = document.getElementById('heroModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+
+        // Show the inside loader overlay!
+        const loader = document.getElementById('heroModalLoading');
+        if (loader) loader.classList.add('show');
+
         try {
-            const response = await fetch(`/admin/api/get_hero.php?id=${slideId}`);
+            // Reset form before loading new data
+            document.getElementById('heroForm').reset();
+            document.getElementById('heroImageBase64').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('uploadPlaceholder').style.display = 'block';
+
+            // Clear all translations
+            const languages = ['th', 'en', 'zh', 'de', 'fr', 'ja', 'ko', 'ru', 'ar', 'he'];
+            languages.forEach(lang => {
+                const title = document.getElementById(`slide_title_${lang}`);
+                const subtitle = document.getElementById(`slide_subtitle_${lang}`);
+                const b1 = document.getElementById(`button1_text_${lang}`);
+                const b2 = document.getElementById(`button2_text_${lang}`);
+                if (title) title.value = '';
+                if (subtitle) subtitle.value = '';
+                if (b1) b1.value = '';
+                if (b2) b2.value = '';
+            });
+
+            const response = await fetch(`${ADMIN_URL}/api/get_hero.php?id=${slideId}`);
             const data = await response.json();
 
             if (data.success) {
@@ -126,14 +139,13 @@ const Hero = {
 
                 // Set image
                 if (slide.slide_image) {
-                    document.getElementById('imagePreview').src = `/yakpho.com/uploads/hero/${slide.slide_image}`;
+                    document.getElementById('imagePreview').src = `${BASE_URL}/uploads/hero/${slide.slide_image}`;
                     document.getElementById('imagePreview').style.display = 'block';
                     document.getElementById('uploadPlaceholder').style.display = 'none';
                     document.getElementById('existing_image').value = slide.slide_image;
                 }
 
                 // Set translations
-                const languages = ['th', 'en', 'zh', 'de', 'fr', 'ja', 'ko', 'ru', 'ar', 'he'];
                 languages.forEach(lang => {
                     const trans = slide.translations.find(t => t.lang_code === lang);
                     if (trans) {
@@ -145,11 +157,17 @@ const Hero = {
                 });
 
                 document.getElementById('heroModalLabel').textContent = 'แก้ไข Hero Slide';
-                const modal = new bootstrap.Modal(document.getElementById('heroModal'));
-                modal.show();
+            } else {
+                modal.hide();
+                Swal.fire('ผิดพลาด!', data.message || 'ไม่สามารถโหลดข้อมูลได้', 'error');
             }
         } catch (error) {
             console.error('Error loading slide:', error);
+            modal.hide();
+            Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+        } finally {
+            // Hide the inside loader overlay
+            if (loader) loader.classList.remove('show');
         }
     },
 
@@ -161,8 +179,17 @@ const Hero = {
 
         const formData = new FormData(document.getElementById('heroForm'));
 
+        // Handle save button loading spinner instead of Swal
+        const saveBtn = document.querySelector('#heroForm button[type="submit"]');
+        let originalBtnHtml = '';
+        if (saveBtn) {
+            originalBtnHtml = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>กำลังบันทึก...';
+        }
+
         try {
-            const response = await fetch('/admin/api/save_hero.php', {
+            const response = await fetch(`${ADMIN_URL}/api/save_hero.php`, {
                 method: 'POST',
                 body: formData
             });
@@ -171,7 +198,9 @@ const Hero = {
 
             if (data.success) {
                 Swal.fire('สำเร็จ!', 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
-                bootstrap.Modal.getInstance(document.getElementById('heroModal')).hide();
+                const modalElement = document.getElementById('heroModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) modal.hide();
                 this.loadTable();
             } else {
                 Swal.fire('ผิดพลาด!', data.message || 'ไม่สามารถบันทึกได้', 'error');
@@ -179,6 +208,13 @@ const Hero = {
         } catch (error) {
             console.error('Error saving slide:', error);
             Swal.fire('ผิดพลาด!', 'เกิดข้อผิดพลาดในการบันทึก', 'error');
+        } finally {
+            // Restore save button state
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalBtnHtml;
+                if (window.lucide) lucide.createIcons();
+            }
         }
     },
 
@@ -189,7 +225,7 @@ const Hero = {
         const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
 
         try {
-            const response = await fetch('/admin/api/save_hero.php', {
+            const response = await fetch(`${ADMIN_URL}/api/save_hero.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `slide_id=${slideId}&slide_status=${newStatus}&quick_toggle=1`
@@ -220,10 +256,8 @@ const Hero = {
 
         if (result.isConfirmed) {
             try {
-                const response = await fetch('/admin/api/delete_hero.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `slide_id=${slideId}`
+                const response = await fetch(`${ADMIN_URL}/api/delete_hero.php?slide_id=${slideId}`, {
+                    method: 'POST'
                 });
 
                 const data = await response.json();
@@ -249,7 +283,7 @@ const Hero = {
         }));
 
         try {
-            const response = await fetch('/admin/api/save_hero_order.php', {
+            const response = await fetch(`${ADMIN_URL}/api/save_hero_order.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order })

@@ -5,7 +5,8 @@
  */
 
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions/image.php';
 
 try {
     session_start();
@@ -40,35 +41,32 @@ try {
         $base64_image = $_POST['hero_image_base64'];
         
         // Remove data:image prefix
-        if (preg_match('/^data:image\/(\w+);base64,/', $base64_image, $type)) {
+        if (preg_match('/^data:image\/([\w\+\-]+);base64,/', $base64_image, $type)) {
             $base64_image = substr($base64_image, strpos($base64_image, ',') + 1);
-            $type = strtolower($type[1]); // jpg, png, gif, etc.
-            
-            if (!in_array($type, ['jpg', 'jpeg', 'png', 'webp'])) {
-                throw new Exception('Invalid image type from base64');
-            }
         } else {
             throw new Exception('Invalid base64 image format');
         }
         
         $base64_image = str_replace(' ', '+', $base64_image);
-        $image_data = base64_decode($base64_image);
         
-        if ($image_data === false) {
-            throw new Exception('Base64 decode failed');
+        $sourceImage = load_image_from_base64($base64_image);
+        if (!$sourceImage) {
+            throw new Exception('ไม่สามารถอ่านไฟล์รูปภาพได้');
         }
         
-        $new_filename = 'hero_' . time() . '_' . uniqid() . '.jpg'; // Always save as JPG
+        $new_filename = 'hero_' . time() . '_' . uniqid() . '.webp';
         $upload_path = $upload_dir . $new_filename;
         
-        if (file_put_contents($upload_path, $image_data)) {
+        if (save_as_webp($sourceImage, $upload_path, 85)) {
+            imagedestroy($sourceImage);
             // Delete old image
             if ($slide_image && file_exists($upload_dir . $slide_image)) {
-                unlink($upload_dir . $slide_image);
+                @unlink($upload_dir . $slide_image);
             }
             $slide_image = $new_filename;
         } else {
-            throw new Exception('Failed to save base64 image');
+            imagedestroy($sourceImage);
+            throw new Exception('Failed to save base64 image as WebP');
         }
     }
     // Handle traditional file upload
@@ -79,25 +77,36 @@ try {
         }
         
         $file_ext = strtolower(pathinfo($_FILES['slide_image']['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'jfif', 'svg', 'bmp', 'heic', 'heif'];
         
         if (!in_array($file_ext, $allowed)) {
-            throw new Exception('Invalid file type. Only JPG, PNG, WEBP allowed.');
+            throw new Exception('Invalid file type. Only standard images allowed.');
         }
         
         if ($_FILES['slide_image']['size'] > 5 * 1024 * 1024) {
             throw new Exception('File too large. Maximum 5MB.');
         }
         
-        $new_filename = 'hero_' . time() . '_' . uniqid() . '.' . $file_ext;
-        $upload_path = $upload_dir . $new_filename;
-        
-        if (move_uploaded_file($_FILES['slide_image']['tmp_name'], $upload_path)) {
-            // Delete old image
-            if ($slide_image && file_exists($upload_dir . $slide_image)) {
-                unlink($upload_dir . $slide_image);
+        if ($file_ext === 'svg') {
+            $new_filename = 'hero_' . time() . '_' . uniqid() . '.svg';
+            $upload_path = $upload_dir . $new_filename;
+            
+            if (move_uploaded_file($_FILES['slide_image']['tmp_name'], $upload_path)) {
+                if ($slide_image && file_exists($upload_dir . $slide_image)) @unlink($upload_dir . $slide_image);
+                $slide_image = $new_filename;
             }
-            $slide_image = $new_filename;
+        } else {
+            $new_filename = 'hero_' . time() . '_' . uniqid() . '.webp';
+            $upload_path = $upload_dir . $new_filename;
+            
+            $sourceImage = load_image($_FILES['slide_image']['tmp_name']);
+            if ($sourceImage) {
+                if (save_as_webp($sourceImage, $upload_path, 85)) {
+                    if ($slide_image && file_exists($upload_dir . $slide_image)) @unlink($upload_dir . $slide_image);
+                    $slide_image = $new_filename;
+                }
+                imagedestroy($sourceImage);
+            }
         }
     }
     

@@ -30,6 +30,9 @@ try {
         throw new Exception('FAQ not found or already deleted');
     }
     
+    // Log Activity
+    logStaffAction($db, 'DELETE', 'faqs', $id, "Deleted FAQ ID: $id");
+
     echo json_encode([
         'success' => true,
         'message' => 'FAQ deleted successfully'
