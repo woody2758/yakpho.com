@@ -837,7 +837,7 @@ function get_catalog_products(PDO $db, array $filters = [], string $lang = 'th')
 
     $sql = "
         SELECT p.product_id, p.product_code, p.productcat_id, p.product_price, p.product_nprice,
-               p.product_picture, p.product_weight, p.product_likes, p.scent_id, p.formula_id,
+               p.product_picture, p.product_weight, 0 AS product_likes,
                pc.maincat_id, pc.prod_size, pc.prod_formula,
                COALESCE(NULLIF(pct.productcat_name, ''), NULLIF(pct_en.productcat_name, ''), NULLIF(pct_th.productcat_name, ''), pc.productcat_name) AS category_name,
                COALESCE(NULLIF(pt.product_name, ''), NULLIF(pt_en.product_name, ''), NULLIF(pt_th.product_name, ''), p.product_name) AS product_name,
