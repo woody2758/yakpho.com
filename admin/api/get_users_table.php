@@ -240,18 +240,22 @@ ob_start();
                         </div>
                         <?php
                         $addr_count = count_user_addresses($u['user_id']);
-                        $tierClass = match($u['member_tier'] ?? 'general') {
+                        $tierCode = $u['member_tier'] ?? 'general';
+                        $tierClasses = [
                             'vip_spa'           => 'badge-tier-vip',
                             'therapist_partner' => 'badge-tier-partner',
                             'oem_export'        => 'badge-tier-oem',
-                            default             => 'badge-tier-general',
-                        };
-                        $tierLabel = match($u['member_tier'] ?? 'general') {
+                            'general'           => 'badge-tier-general',
+                        ];
+                        $tierClass = $tierClasses[$tierCode] ?? 'badge-tier-general';
+
+                        $tierLabels = [
                             'vip_spa'           => '👑 VIP Spa',
                             'therapist_partner' => '⭐ Partner',
                             'oem_export'        => '💎 OEM',
-                            default             => '🌿 General',
-                        };
+                            'general'           => '🌿 General',
+                        ];
+                        $tierLabel = $tierLabels[$tierCode] ?? '🌿 General';
                         $userPoints = (int)($u['m_stamp_points'] ?? 0);
                         ?>
                         <div class="d-flex align-items-center flex-wrap gap-1 mt-1">

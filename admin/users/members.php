@@ -231,12 +231,13 @@ ob_start();
                 <?php else: ?>
                 <?php foreach ($users as $u): 
                     $tierInfo = get_member_tier_info($u['member_tier'] ?: 'general');
-                    $tierBadgeClass = match($u['member_tier']) {
+                    $tierBadgeMap = [
                         'vip_spa'           => 'tier-badge-vip',
                         'therapist_partner' => 'tier-badge-dealer',
                         'oem_export'        => 'tier-badge-oem',
-                        default             => 'tier-badge-member',
-                    };
+                        'general'           => 'tier-badge-member',
+                    ];
+                    $tierBadgeClass = $tierBadgeMap[$u['member_tier'] ?? 'general'] ?? 'tier-badge-member';
                 ?>
                 <tr>
                     <td class="ps-3">

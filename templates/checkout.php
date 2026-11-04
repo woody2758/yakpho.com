@@ -548,15 +548,21 @@ function handleZipcodeLookup(val) {
                         // 2. Suggestions chips
                         const wrap = document.getElementById('zipSuggestionsWrap');
                         const list = document.getElementById('zipSuggestionsList');
+                        const detail2 = document.getElementById('addrDetail2Input');
                         if (data.suggestions && data.suggestions.length > 0) {
                             list.innerHTML = '';
+                            if (detail2 && (!detail2.value.trim() || detail2.value.trim() === '')) {
+                                detail2.value = data.suggestions[0];
+                            }
                             data.suggestions.forEach(s => {
                                 const btn = document.createElement('button');
                                 btn.type = 'button';
-                                btn.className = 'zip-chip';
+                                btn.className = 'zip-chip' + (detail2 && detail2.value.trim() === s ? ' active' : '');
                                 btn.textContent = '📍 ' + s;
                                 btn.onclick = () => {
-                                    document.getElementById('addrDetail2Input').value = s;
+                                    if (detail2) detail2.value = s;
+                                    list.querySelectorAll('.zip-chip').forEach(b => b.classList.remove('active'));
+                                    btn.classList.add('active');
                                 };
                                 list.appendChild(btn);
                             });

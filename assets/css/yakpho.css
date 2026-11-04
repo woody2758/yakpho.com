@@ -14597,9 +14597,11 @@ button.member-login-btn-cancel:hover {
     cursor: pointer;
     transition: all 0.15s ease;
 }
-.zip-chip:hover {
+.zip-chip:hover,
+.zip-chip.active {
     background: #F59E0B;
     color: #0F172A;
+    border-color: #F59E0B;
 }
 
 /* E-Stamp Toggle Switch Card */

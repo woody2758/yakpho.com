@@ -58,18 +58,33 @@ try {
     } else {
         // 1. Build the base conditions for counting and ID fetching
         $where = " WHERE 1=1";
-        $joins = "";
+        $joins = " LEFT JOIN user u ON o.user_id = u.user_id LEFT JOIN addr a ON o.addr_id = a.addr_id";
         $params = [];
 
-        if ($search) {
-            $joins .= " LEFT JOIN user u ON o.user_id = u.user_id";
-            $cleanSearch = str_replace('C', '', $search);
-            $where .= " AND (o.orders_no LIKE :search 
-                          OR u.user_name LIKE :search 
-                          OR u.user_lastname LIKE :search
-                          OR o.user_id = :exact_id)";
-            $params[':search'] = "%$search%";
-            $params[':exact_id'] = $cleanSearch;
+        if ($search !== '') {
+            $searchConds = [
+                "o.orders_no LIKE :search",
+                "o.orders_tracking LIKE :search",
+                "u.user_name LIKE :search",
+                "u.user_lastname LIKE :search",
+                "CONCAT(COALESCE(u.user_name,''), ' ', COALESCE(u.user_lastname,'')) LIKE :search",
+                "u.user_mobile LIKE :search",
+                "u.user_tel LIKE :search",
+                "u.user_email LIKE :search",
+                "a.addr_name LIKE :search",
+                "a.addr_mobile LIKE :search",
+                "a.addr_detail LIKE :search"
+            ];
+            $params[':search'] = "%{$search}%";
+
+            // If query contains customer ID (e.g. C7221, c7221, 7221)
+            $cleanDigits = preg_replace('/[^0-9]/', '', $search);
+            if ($cleanDigits !== '' && is_numeric($cleanDigits)) {
+                $searchConds[] = "o.user_id = :exact_uid";
+                $params[':exact_uid'] = (int)$cleanDigits;
+            }
+
+            $where .= " AND (" . implode(" OR ", $searchConds) . ")";
         }
 
         if ($status_id > 0 || (isset($_GET['status']) && $_GET['status'] === 'cancelled')) {
@@ -840,12 +855,13 @@ try {
         $range = 2; // Number of pages to show around current page
         $showFirst = $page > ($range + 2);
         $showLast = $page < ($totalPages - ($range + 1));
+        $searchJsArg = htmlspecialchars(json_encode($search, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
     ?>
     <nav aria-label="Page navigation">
         <ul class="pagination justify-content-end mb-0">
             <!-- Previous -->
             <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(<?= $page - 1 ?>)" aria-label="Previous">
+                <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(<?= $page - 1 ?>, <?= $searchJsArg ?>)" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
@@ -853,7 +869,7 @@ try {
             <!-- First Page -->
             <?php if ($showFirst): ?>
                 <li class="page-item">
-                    <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(1)">1</a>
+                    <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(1, <?= $searchJsArg ?>)">1</a>
                 </li>
                 <li class="page-item disabled"><span class="page-link">...</span></li>
             <?php endif; ?>
@@ -865,7 +881,7 @@ try {
                     <?php if ($showLast && $i == $totalPages) continue; ?>
                     
                     <li class="page-item <?= $page == $i ? 'active' : '' ?>">
-                        <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(<?= $i ?>)"><?= $i ?></a>
+                        <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(<?= $i ?>, <?= $searchJsArg ?>)"><?= $i ?></a>
                     </li>
                 <?php endif; ?>
             <?php endfor; ?>
@@ -874,13 +890,13 @@ try {
             <?php if ($showLast): ?>
                 <li class="page-item disabled"><span class="page-link">...</span></li>
                 <li class="page-item">
-                    <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(<?= $totalPages ?>)"><?= $totalPages ?></a>
+                    <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(<?= $totalPages ?>, <?= $searchJsArg ?>)"><?= $totalPages ?></a>
                 </li>
             <?php endif; ?>
 
             <!-- Next -->
             <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-                <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(<?= $page + 1 ?>)" aria-label="Next">
+                <a class="page-link" href="javascript:void(0)" onclick="loadOrderTable(<?= $page + 1 ?>, <?= $searchJsArg ?>)" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>

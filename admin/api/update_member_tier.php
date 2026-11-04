@@ -86,12 +86,7 @@ try {
         'user_id'      => $userId,
         'member_tier'  => $newTier,
         'tier_name'    => $tierInfo['badge'] . ' ' . $tierInfo['short_name'],
-        'tier_badge'   => match($newTier) {
-            'vip_spa'           => 'badge-tier-vip',
-            'therapist_partner' => 'badge-tier-partner',
-            'oem_export'        => 'badge-tier-oem',
-            default             => 'badge-tier-general',
-        },
+        'tier_badge'   => ($newTier === 'vip_spa' ? 'badge-tier-vip' : ($newTier === 'therapist_partner' ? 'badge-tier-partner' : ($newTier === 'oem_export' ? 'badge-tier-oem' : 'badge-tier-general'))),
         'm_stamp_points' => (int)$user['m_stamp_points'],
         'line_sent'    => $lineSent,
     ]);

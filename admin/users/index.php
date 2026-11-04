@@ -129,27 +129,33 @@ ob_start();
                                 $showAvatar = $hasImage || !empty($u['line_picture_url']);
 
                                 $addr_count = count_user_addresses($userId);
-                                $tierClass = match($u['member_tier'] ?? 'general') {
+                                $tierCode = $u['member_tier'] ?? 'general';
+                                $tierClasses = [
                                     'vip_spa'           => 'badge-tier-vip',
                                     'therapist_partner' => 'badge-tier-partner',
                                     'oem_export'        => 'badge-tier-oem',
-                                    default             => 'badge-tier-general',
-                                };
-                                $tierLabel = match($u['member_tier'] ?? 'general') {
+                                    'general'           => 'badge-tier-general',
+                                ];
+                                $tierClass = $tierClasses[$tierCode] ?? 'badge-tier-general';
+
+                                $tierLabels = [
                                     'vip_spa'           => '👑 VIP Spa',
                                     'therapist_partner' => '⭐ Partner',
                                     'oem_export'        => '💎 OEM',
-                                    default             => '🌿 General',
-                                };
+                                    'general'           => '🌿 General',
+                                ];
+                                $tierLabel = $tierLabels[$tierCode] ?? '🌿 General';
                                 $userPoints = (int)($u['m_stamp_points'] ?? 0);
 
                                 $role_clean = trim($u['role'] ?? '', "'\"");
-                                $roleBadge = match ($role_clean) {
-                                    'owner', 'admin'  => 'bg-danger',
-                                    'manager'         => 'bg-warning text-dark',
-                                    'editor', 'staff' => 'bg-info text-dark',
-                                    default           => 'bg-secondary',
-                                };
+                                $roleBadges = [
+                                    'owner'   => 'bg-danger',
+                                    'admin'   => 'bg-danger',
+                                    'manager' => 'bg-warning text-dark',
+                                    'editor'  => 'bg-info text-dark',
+                                    'staff'   => 'bg-info text-dark',
+                                ];
+                                $roleBadge = $roleBadges[$role_clean] ?? 'bg-secondary';
                                 $canChangeRole = in_array($_SESSION['admin_role'], ['admin', 'owner']);
                                 $role_hierarchy = ['owner' => 1, 'admin' => 2, 'manager' => 3, 'editor' => 4, 'staff' => 5];
                                 $current_level = $role_hierarchy[$_SESSION['admin_role']] ?? 999;

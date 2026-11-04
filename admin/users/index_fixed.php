@@ -116,12 +116,8 @@ ob_start();
                                     </td>
                                     <td>
                                         <?php
-                                        $roleBadge = match ($u['role']) {
-                                            'owner', 'admin' => 'bg-danger',
-                                            'manager' => 'bg-warning text-dark',
-                                            'editor', 'staff' => 'bg-info text-dark',
-                                            default => 'bg-secondary',
-                                        };
+                                        $rbMap = ['owner' => 'bg-danger', 'admin' => 'bg-danger', 'manager' => 'bg-warning text-dark', 'editor' => 'bg-info text-dark', 'staff' => 'bg-info text-dark'];
+                                        $roleBadge = $rbMap[$u['role'] ?? ''] ?? 'bg-secondary';
                                         
                                         // Check if current admin has permission to change role (Admin or Owner only)
                                         $canChangeRole = in_array($_SESSION['admin_role'], ['admin', 'owner']);

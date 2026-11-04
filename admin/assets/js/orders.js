@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
 /**
  * Load order table via AJAX
  */
-function loadOrderTable(page = 1, search = '', userId = null) {
+function loadOrderTable(page = 1, search = null, userId = null) {
     currentPage = page;
     const tableContainer = document.getElementById('tableContainer');
     const pagination = document.getElementById('paginationContainer');
@@ -53,9 +53,15 @@ function loadOrderTable(page = 1, search = '', userId = null) {
     tableContainer.style.opacity = '1';
     tableContainer.style.pointerEvents = 'none';
 
-    // Handle Search Input Display
+    // Handle Search Input Display & Persistence
     const searchInput = document.getElementById('searchInput');
     const clearBtn = document.getElementById('clearSearch');
+
+    // Retain active search if not explicitly passed
+    if (search === null || typeof search === 'undefined') {
+        search = (searchInput ? searchInput.value.trim() : '') || currentSearchQuery || '';
+    }
+    currentSearchQuery = search;
 
     if (currentUserIdFilter) {
         if (searchInput) searchInput.value = `Customer ID: ${currentUserIdFilter}`;
@@ -66,15 +72,22 @@ function loadOrderTable(page = 1, search = '', userId = null) {
         // If filtering by user, ignore the search text (which is just the label)
         search = '';
     } else {
-        // If not filtering by user, ensure UI reflects that
-        if (clearBtn && !search) {
-            clearBtn.classList.remove('d-flex');
-            clearBtn.classList.add('d-none');
+        // Keep search input value synchronized with active search
+        if (searchInput && search && searchInput.value !== search) {
+            searchInput.value = search;
+        }
+        if (clearBtn) {
+            if (search) {
+                clearBtn.classList.remove('d-none');
+                clearBtn.classList.add('d-flex');
+            } else {
+                clearBtn.classList.remove('d-flex');
+                clearBtn.classList.add('d-none');
+            }
         }
     }
 
-    currentSearchQuery = search;
-    let url = `${ADMIN_URL}/api/get_orders_table.php?page=${page}&search=${search}&status=${currentStatusFilter}`;
+    let url = `${ADMIN_URL}/api/get_orders_table.php?page=${page}&search=${encodeURIComponent(search)}&status=${currentStatusFilter}`;
     if (currentUserIdFilter) {
         url += `&user_id=${currentUserIdFilter}`;
     }

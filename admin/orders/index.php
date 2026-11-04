@@ -679,10 +679,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('clearSearch').classList.add('d-none');
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.value = '';
+    const clearBtn = document.getElementById('clearSearch');
+    if (clearBtn) {
+        clearBtn.classList.remove('d-flex');
+        clearBtn.classList.add('d-none');
+    }
     currentUserIdFilter = 0; // Clear customer filter
-    loadOrderTable(1);
+    if (typeof currentSearchQuery !== 'undefined') currentSearchQuery = '';
+    loadOrderTable(1, '');
 }
 </script>
 

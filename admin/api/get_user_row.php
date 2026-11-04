@@ -27,12 +27,14 @@ try {
     $img_url  = ROOT_URL . "/uploads/profile/{$u['user_id']}/{$u['user_picture']}";
     
     $role_clean = trim($u['role'] ?? '', "'\"");
-    $roleBadge = match ($role_clean) {
-        'owner', 'admin' => 'bg-danger',
+    $roleBadges = [
+        'owner'   => 'bg-danger',
+        'admin'   => 'bg-danger',
         'manager' => 'bg-warning text-dark',
-        'editor', 'staff' => 'bg-info text-dark',
-        default => 'bg-secondary',
-    };
+        'editor'  => 'bg-info text-dark',
+        'staff'   => 'bg-info text-dark',
+    ];
+    $roleBadge = $roleBadges[$role_clean] ?? 'bg-secondary';
     
     $canChangeRole = in_array($_SESSION['admin_role'], ['admin', 'owner']);
     $role_hierarchy = ['owner' => 1, 'admin' => 2, 'manager' => 3, 'editor' => 4, 'staff' => 5];
