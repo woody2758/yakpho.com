@@ -294,9 +294,12 @@ try {
     ");
 
     $itemsHtmlList = [];
+    $itemsTextLines = [];
+    $totalOrderQty = 0;
     foreach ($cart['items'] as $item) {
         $pid = (int)$item['product_id'];
         $qty = (int)$item['qty'];
+        $totalOrderQty += $qty;
         $uPrice = (float)$item['unit_price'];
         $lineSub = (float)$item['line_total'];
         // Keep ordetail_memo empty for customer web orders (reserved strictly for Admin production notes e.g. ใส่กระปุก, ไม่ผสมสีเขียว)
@@ -310,7 +313,8 @@ try {
             $orderId, $pid, $userId, $qty, $uPrice, $uPrice, $lineSub, $itemCost, $memo
         ]);
 
-        $itemsHtmlList[] = "<tr><td>" . htmlspecialchars($item['product_name']) . "</td><td style='text-align:right;'>{$qty}</td><td style='text-align:right;'>" . number_format($lineSub, 2) . " บาท</td></tr>";
+        $itemsHtmlList[] = "<tr><td style='padding:8px;border-bottom:1px solid #eee;'>" . htmlspecialchars($item['product_name']) . "</td><td style='text-align:right;padding:8px;border-bottom:1px solid #eee;'>{$qty}</td><td style='text-align:right;padding:8px;border-bottom:1px solid #eee;'>" . number_format($lineSub, 2) . " บาท</td></tr>";
+        $itemsTextLines[] = "• " . $item['product_name'] . " x{$qty} (฿" . number_format($lineSub, 0) . ")";
     }
 
     // 6. Deduct redeemed M-Stamp if any
@@ -334,9 +338,10 @@ try {
     // Clear session cart
     $_SESSION['yakpho_cart'] = [];
 
-    // Fetch user's latest point balance
+    // Fetch user's latest point balance, email, and LINE ID from `user` table
     $newBalance = 0;
     $lineUserId = '';
+    $uRow = [];
     try {
         $newBalance = get_m_stamp_balance($db, $userId);
         $uStmt = $db->prepare("SELECT * FROM user WHERE user_id = ? LIMIT 1");
@@ -345,32 +350,152 @@ try {
         $lineUserId = (string)($uRow['line_user_id'] ?? '');
     } catch (Throwable $e) {}
 
-    // 9. Send Resend Email Confirmation if email is available
-    $sendToEmail = $customerEmail ?: ($userRow['user_email'] ?? '');
-    if (!empty($sendToEmail) && filter_var($sendToEmail, FILTER_VALIDATE_EMAIL)) {
-        $paymentName = ($paycatId === 2) ? 'เก็บเงินปลายทาง (COD)' : 'โอนเงินผ่าน PromptPay QR / ธนาคาร';
-        send_templated_email($db, $sendToEmail, 'order_confirmation', [
-            'customer_name'    => $customerName,
-            'order_no'         => $ordersNo,
-            'order_date'       => date('d/m/Y H:i'),
-            'order_items_html' => implode('', $itemsHtmlList),
-            'subtotal'         => number_format($subtotal, 2),
-            'discount_amount'  => number_format($discount, 2),
-            'delivery_cost'    => number_format($shippingCost, 2),
-            'grand_total'      => number_format($grandTotal, 2),
-            'payment_method'   => $paymentName,
-            'shipping_address' => htmlspecialchars($customerName . ' ' . $customerPhone . ' ' . $addressDetail . ' ' . $postcode),
-            'm_stamp_earned'   => (string)$earnedStamps,
-            'm_stamp_balance'  => (string)$newBalance,
-            'tracking_url'     => ROOT_URL . '/track/' . $trackToken,
-        ]);
+    // Lookup province name for full address formatting
+    $provinceNameTh = '';
+    if ($destination === 'domestic' && $provinceFinalId > 0) {
+        try {
+            $stProv = $db->prepare("SELECT name_in_thai FROM provinces WHERE id = ? LIMIT 1");
+            $stProv->execute([$provinceFinalId]);
+            $provinceNameTh = (string)($stProv->fetchColumn() ?: '');
+        } catch (Throwable $e) {}
+    }
+    $formattedAddress = trim($addressDetail . ($addressDetail2 !== '' ? ' ' . $addressDetail2 : '') . ($provinceNameTh !== '' ? ' จ.' . $provinceNameTh : '') . ' ' . $postcode);
+    if ($destination === 'international') {
+        $formattedAddress = trim($addressDetail . ' ' . $addressDetail2 . ' ' . $postcode . ' (' . $countryNameDisplay . ')');
     }
 
-    // 10. Send LINE Push Message if user linked LINE
-    if (!empty($lineUserId)) {
-        $lineMsg = "📦 ขอบพระคุณสำหรับคำสั่งซื้อ Yak Pho Aroma!\nเลขที่คำสั่งซื้อ: #{$ordersNo}\nยอดชำระสุทธิ: ฿" . number_format($grandTotal, 2) . " บาท\nแต้ม M-Stamp ที่ได้รับ: +{$earnedStamps} แต้ม (ยอดรวม: {$newBalance} แต้ม)\nตรวจสอบสถานะพัสดุ: " . ROOT_URL . "/track/{$trackToken}";
-        send_line_push_message($db, $lineUserId, $lineMsg);
+    $paymentName = ($paycatId === 2) ? 'เก็บเงินปลายทาง (COD +3%)' : 'โอนเงินผ่าน PromptPay QR / บัญชีธนาคาร';
+    $statusTextTh = ($paycatId === 2) ? 'เตรียมสินค้า-COD (ข้ามขั้นตอนชำระเงิน)' : ($grandTotal > 0 ? 'รอชำระเงิน / รอแนบสลิป' : 'ชำระแล้ว / เตรียมสินค้า');
+    $customerActionUrl = ($paycatId === 1 && $grandTotal > 0)
+        ? (ROOT_URL . '/pay/' . $trackToken)
+        : (ROOT_URL . '/track/' . $trackToken);
+
+    // 9.1 Send Email to Customer (if customer has an email in form or in `user` profile)
+    $sendToEmail = trim((string)($customerEmail ?: ($uRow['user_email'] ?? ($userRow['user_email'] ?? ''))));
+    if ($sendToEmail !== '' && filter_var($sendToEmail, FILTER_VALIDATE_EMAIL)) {
+        try {
+            send_templated_email($db, $sendToEmail, 'order_confirmation', [
+                'customer_name'    => $customerName,
+                'order_no'         => $ordersNo,
+                'order_date'       => date('d/m/Y H:i'),
+                'order_items_html' => implode('', $itemsHtmlList),
+                'subtotal'         => number_format($subtotal, 2),
+                'discount_amount'  => number_format($discount, 2),
+                'delivery_cost'    => number_format($shippingCost, 2),
+                'grand_total'      => number_format($grandTotal, 2),
+                'payment_method'   => $paymentName,
+                'shipping_address' => htmlspecialchars($customerName . ' (' . $customerPhone . ') ' . $formattedAddress),
+                'm_stamp_earned'   => (string)$earnedStamps,
+                'm_stamp_balance'  => (string)$newBalance,
+                'tracking_url'     => $customerActionUrl,
+            ]);
+        } catch (Throwable $e) {}
     }
+
+    // 9.2 Send Order Notification Email to Admin (thaiherbfc@gmail.com)
+    try {
+        $otherDiscVal = max(0.0, $discount - (float)$appliedStamps);
+        send_admin_order_email($db, [
+            'orders_no'        => $ordersNo,
+            'order_date'       => date('d/m/Y H:i'),
+            'customer_name'    => $customerName,
+            'customer_code'    => $userId > 0 ? ('C' . $userId) : 'Guest',
+            'customer_phone'   => $customerPhone,
+            'customer_email'   => $sendToEmail ?: '-',
+            'customer_line'    => $lineId ?: ($uRow['line_display_name'] ?? '-'),
+            'shipping_address' => $formattedAddress,
+            'payment_method'   => $paymentName,
+            'status_text'      => $statusTextTh,
+            'order_items_html' => implode('', $itemsHtmlList),
+            'total_qty'        => $totalOrderQty,
+            'total_weight_g'   => (int)($cart['total_weight_grams'] ?? 0),
+            'subtotal'         => number_format($subtotal, 2),
+            'delivery_cost'    => number_format($shippingCost, 2),
+            'cod_fee'          => number_format($codFee, 2),
+            'stamp_discount'   => (string)$appliedStamps,
+            'other_discount'   => number_format($otherDiscVal, 2),
+            'grand_total'      => number_format($grandTotal, 2),
+            'order_note'       => $fullNote ?: '-',
+            'tracking_url'     => ROOT_URL . '/track/' . $trackToken,
+            'admin_url'        => ROOT_URL . '/admin/orders/?search=' . urlencode($ordersNo),
+        ]);
+    } catch (Throwable $e) {}
+
+    // 10.1 Send LINE Push Notification to Customer (if customer linked LINE)
+    if (!empty($lineUserId)) {
+        try {
+            $custItemsSummary = implode("\n", array_slice($itemsTextLines, 0, 8));
+            if (count($itemsTextLines) > 8) {
+                $custItemsSummary .= "\n...และอื่นๆ อีก " . (count($itemsTextLines) - 8) . " รายการ";
+            }
+            $discountLineText = '';
+            if ($appliedStamps > 0) {
+                $discountLineText .= "\n🪙 ส่วนลด E-Stamp: -฿" . number_format($appliedStamps, 2) . " ({$appliedStamps} แต้ม)";
+            }
+            if (($discount - $appliedStamps) > 0) {
+                $discountLineText .= "\n🏷️ ส่วนลดคูปอง/โปรโมชั่น: -฿" . number_format($discount - $appliedStamps, 2);
+            }
+            $actionLineHint = ($paycatId === 1 && $grandTotal > 0)
+                ? "📲 สแกน QR พร้อมเพย์ / แนบสลิปโอนเงิน:\n" . ROOT_URL . "/pay/{$trackToken}"
+                : "🚚 ติดตามสถานะการจัดส่ง:\n" . ROOT_URL . "/track/{$trackToken}";
+
+            $lineMsg = "🌿 ขอบพระคุณสำหรับคำสั่งซื้อ Yak Pho Aroma!\n"
+                     . "━━━━━━━━━━━━━━\n"
+                     . "🧾 เลขที่คำสั่งซื้อ: #{$ordersNo}\n"
+                     . "💳 ช่องทางชำระ: {$paymentName}\n"
+                     . "📌 สถานะ: {$statusTextTh}\n"
+                     . "━━━━━━━━━━━━━━\n"
+                     . "🛒 รายการสินค้า ({$totalOrderQty} ชิ้น):\n{$custItemsSummary}\n"
+                     . "━━━━━━━━━━━━━━\n"
+                     . "📦 ค่าจัดส่ง: ฿" . number_format($shippingCost, 2)
+                     . ($codFee > 0 ? "\n💵 ค่าธรรมเนียม COD: ฿" . number_format($codFee, 2) : "")
+                     . $discountLineText . "\n"
+                     . "💰 ยอดชำระสุทธิ: ฿" . number_format($grandTotal, 2) . " บาท\n"
+                     . "✨ ได้รับสะสม: +{$earnedStamps} E-Stamp (คงเหลือ {$newBalance} แต้ม)\n"
+                     . "━━━━━━━━━━━━━━\n"
+                     . $actionLineHint;
+            send_line_push_message($db, $lineUserId, $lineMsg);
+        } catch (Throwable $e) {}
+    }
+
+    // 10.2 Send LINE Push Notification Report to Admin
+    try {
+        $adminItemsSummary = implode("\n", array_slice($itemsTextLines, 0, 12));
+        if (count($itemsTextLines) > 12) {
+            $adminItemsSummary .= "\n...และอื่นๆ อีก " . (count($itemsTextLines) - 12) . " รายการ";
+        }
+        $adminDiscountInfo = '';
+        if ($appliedStamps > 0) {
+            $adminDiscountInfo .= "\n• ใช้แต้ม E-Stamp: {$appliedStamps} แต้ม (-฿" . number_format($appliedStamps, 2) . ")";
+        }
+        if (($discount - $appliedStamps) > 0) {
+            $adminDiscountInfo .= "\n• ส่วนลดคูปอง/เรทส่ง: -฿" . number_format($discount - $appliedStamps, 2);
+        }
+
+        $adminLineMsg = "🔔 [มีคำสั่งซื้อใหม่เข้าสู่ระบบ!]\n"
+                      . "เลขที่: #{$ordersNo}\n"
+                      . "เวลา: " . date('d/m/Y H:i') . " น.\n"
+                      . "━━━━━━━━━━━━━━\n"
+                      . "👤 ลูกค้า: {$customerName}" . ($userId > 0 ? " (C{$userId})" : "") . "\n"
+                      . "📞 โทร: {$customerPhone}\n"
+                      . ($sendToEmail !== '' ? "✉️ อีเมล: {$sendToEmail}\n" : "")
+                      . "📍 ที่อยู่: {$formattedAddress}\n"
+                      . "━━━━━━━━━━━━━━\n"
+                      . "🛒 รายการสินค้า ({$totalOrderQty} ชิ้น | " . number_format((int)($cart['total_weight_grams'] ?? 0)) . "g):\n"
+                      . $adminItemsSummary . "\n"
+                      . "━━━━━━━━━━━━━━\n"
+                      . "• ยอดรวมสินค้า: ฿" . number_format($subtotal, 2) . "\n"
+                      . "• ค่าจัดส่ง: ฿" . number_format($shippingCost, 2)
+                      . ($codFee > 0 ? "\n• ค่าธรรมเนียม COD: ฿" . number_format($codFee, 2) : "")
+                      . $adminDiscountInfo . "\n"
+                      . "💰 ยอดสุทธิ: ฿" . number_format($grandTotal, 2) . " บาท\n"
+                      . "💳 ชำระโดย: {$paymentName}\n"
+                      . "📌 สถานะ: {$statusTextTh}\n"
+                      . ($fullNote !== '' ? "📝 หมายเหตุ: {$fullNote}\n" : "")
+                      . "━━━━━━━━━━━━━━\n"
+                      . "🔗 จัดการออเดอร์:\n" . ROOT_URL . "/admin/orders/?search={$ordersNo}";
+        send_admin_line_notification($db, $adminLineMsg);
+    } catch (Throwable $e) {}
 
     $urlBase = defined('URL_PATH') ? URL_PATH : '';
 

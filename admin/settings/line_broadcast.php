@@ -18,7 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     $keys = [
         'resend_api_key'             => trim((string)($_POST['resend_api_key'] ?? '')),
         'resend_from_email'          => trim((string)($_POST['resend_from_email'] ?? '')),
+        'admin_notify_email'         => trim((string)($_POST['admin_notify_email'] ?? 'thaiherbfc@gmail.com')),
         'line_channel_access_token'  => trim((string)($_POST['line_channel_access_token'] ?? '')),
+        'admin_line_user_id'         => trim((string)($_POST['admin_line_user_id'] ?? '')),
         'line_login_channel_id'      => trim((string)($_POST['line_login_channel_id'] ?? '')),
         'line_login_channel_secret'  => trim((string)($_POST['line_login_channel_secret'] ?? '')),
     ];
@@ -37,10 +39,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
                 $ins->execute([$k, $v]);
             }
         }
-        $alert = ['type' => 'success', 'msg' => 'บันทึกการตั้งค่า API สำเร็จเรียบร้อยแล้ว'];
+        $alert = ['type' => 'success', 'msg' => 'บันทึกการตั้งค่า API และการแจ้งเตือนสำเร็จเรียบร้อยแล้ว'];
     } catch (Exception $e) {
         $alert = ['type' => 'danger', 'msg' => 'เกิดข้อผิดพลาดในการบันทึก: ' . $e->getMessage()];
     }
+}
+
+// Handle Test Admin Notifications (Email + LINE)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'test_admin_notify') {
+    $testOrderData = [
+        'orders_no'        => 'TEST-' . date('Hi'),
+        'order_date'       => date('d/m/Y H:i'),
+        'customer_name'    => 'คุณสมชาย ทดสอบระบบแจ้งเตือน',
+        'customer_code'    => 'C1',
+        'customer_phone'   => '080-061-7073',
+        'customer_email'   => 'thaiherbfc@gmail.com',
+        'customer_line'    => '@yakpho',
+        'shipping_address' => '32/4 ถ.พระยาสุเรนทร์ แขวงสามวาตะวันตก เขตคลองสามวา กรุงเทพฯ 10510',
+        'payment_method'   => 'โอนเงินผ่าน PromptPay QR / บัญชีธนาคาร',
+        'status_text'      => 'รอชำระเงิน / รอแนบสลิป',
+        'order_items_html' => '<tr><td style="padding:8px;border-bottom:1px solid #eee;">H001 สูตรร้อน ยักษ์โพธิ์ อโรม่า สีขาวต้นตำรับ 1 กิโล</td><td style="text-align:right;padding:8px;border-bottom:1px solid #eee;">2</td><td style="text-align:right;padding:8px;border-bottom:1px solid #eee;">1,180.00 บาท</td></tr>',
+        'total_qty'        => 2,
+        'total_weight_g'   => 2000,
+        'subtotal'         => '1,180.00',
+        'delivery_cost'    => '50.00',
+        'cod_fee'          => '0.00',
+        'stamp_discount'   => '30',
+        'other_discount'   => '0.00',
+        'grand_total'      => '1,200.00',
+        'order_note'       => 'ทดสอบระบบส่งอีเมลและแจ้งเตือน LINE สำหรับ Admin',
+        'tracking_url'     => ROOT_URL . '/th/orders',
+        'admin_url'        => ROOT_URL . '/admin/orders/',
+    ];
+
+    $emailRes = send_admin_order_email($db, $testOrderData);
+    $lineTestMsg = "🔔 [ทดสอบแจ้งเตือนคำสั่งซื้อใหม่เข้า Admin]\n"
+                 . "เลขที่: #{$testOrderData['orders_no']}\n"
+                 . "เวลา: {$testOrderData['order_date']} น.\n"
+                 . "━━━━━━━━━━━━━━\n"
+                 . "👤 ลูกค้า: {$testOrderData['customer_name']} (C1)\n"
+                 . "📞 โทร: {$testOrderData['customer_phone']}\n"
+                 . "📍 ที่อยู่: {$testOrderData['shipping_address']}\n"
+                 . "━━━━━━━━━━━━━━\n"
+                 . "🛒 รายการสินค้า (2 ชิ้น | 2,000g):\n"
+                 . "• H001 สูตรร้อน ยักษ์โพธิ์ อโรม่า 1 กิโล x2 (฿1,180)\n"
+                 . "━━━━━━━━━━━━━━\n"
+                 . "• ยอดรวมสินค้า: ฿1,180.00\n"
+                 . "• ค่าจัดส่ง: ฿50.00\n"
+                 . "• ใช้แต้ม E-Stamp: 30 แต้ม (-฿30.00)\n"
+                 . "💰 ยอดสุทธิ: ฿1,200.00 บาท\n"
+                 . "💳 ชำระโดย: โอนเงินผ่าน PromptPay QR\n"
+                 . "📌 สถานะ: รอชำระเงิน\n"
+                 . "━━━━━━━━━━━━━━\n"
+                 . "🔗 จัดการออเดอร์:\n" . ROOT_URL . "/admin/orders/";
+    $lineRes = send_admin_line_notification($db, $lineTestMsg);
+
+    $msgParts = [];
+    $msgParts[] = $emailRes['success'] ? 'ส่งอีเมลเข้า Admin สำเร็จ' : ('อีเมล: ' . ($emailRes['message'] ?? 'ไม่สำเร็จ'));
+    $msgParts[] = $lineRes['success'] ? ('ส่ง LINE เข้า Admin สำเร็จ (' . ($lineRes['sent_count'] ?? 1) . ' บัญชี)') : ('LINE: ' . ($lineRes['message'] ?? 'ยังไม่ได้ตั้งค่า Token/ผูก LINE Admin'));
+    $alert = [
+        'type' => ($emailRes['success'] || $lineRes['success']) ? 'success' : 'danger',
+        'msg'  => implode(' | ', $msgParts),
+    ];
 }
 
 // Handle LINE Broadcast Send
@@ -67,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'send_
 }
 
 // Load Current Settings
-$stmt = $db->query("SELECT setting_name, setting_value FROM sitesettings WHERE setting_name IN ('resend_api_key', 'resend_from_email', 'line_channel_access_token', 'line_login_channel_id', 'line_login_channel_secret')");
+$stmt = $db->query("SELECT setting_name, setting_value FROM sitesettings WHERE setting_name IN ('resend_api_key', 'resend_from_email', 'admin_notify_email', 'line_channel_access_token', 'admin_line_user_id', 'line_login_channel_id', 'line_login_channel_secret')");
 $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
 // Count LINE connected users per tier
@@ -228,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="card-body">
                 <form method="POST" id="apiSettingsForm">
-                    <input type="hidden" name="action" value="save_settings">
+                    <input type="hidden" name="action" id="apiFormAction" value="save_settings">
 
                     <!-- Resend Section -->
                     <div class="admin-section-tag admin-tag-resend">
@@ -240,11 +300,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                value="<?= htmlspecialchars($settings['resend_api_key'] ?? '') ?>" placeholder="re_xxxxxxxxxxxx">
                         <div class="form-text text-fs-11">รับ API Key ได้จาก <a href="https://resend.com/api-keys" target="_blank" rel="noopener">resend.com</a></div>
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label small fw-bold">อีเมลผู้ส่ง (From Email):</label>
                         <input type="text" name="resend_from_email" class="form-control form-control-sm" 
-                               value="<?= htmlspecialchars($settings['resend_from_email'] ?? 'Yak Pho Aroma <orders@yakpho.com>') ?>">
-                        <div class="form-text text-fs-11">ต้องเป็นโดเมนที่ Verify ผ่าน Resend แล้ว (เช่น @yakpho.com)</div>
+                               value="<?= htmlspecialchars($settings['resend_from_email'] ?? 'Yak Pho Aroma <orders@thaispa.app>') ?>">
+                        <div class="form-text text-fs-11">ระบบใช้โดเมนที่ Verify แล้วอัตโนมัติ (เช่น <code>orders@thaispa.app</code>) และตั้ง Reply-To ไปที่อีเมลแอดมิน</div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-success"><i data-lucide="bell-ring" class="me-1 icon-xs"></i>อีเมล Admin สำหรับรับแจ้งเตือนคำสั่งซื้อใหม่:</label>
+                        <input type="text" name="admin_notify_email" class="form-control form-control-sm" 
+                               value="<?= htmlspecialchars($settings['admin_notify_email'] ?? 'thaiherbfc@gmail.com') ?>" placeholder="thaiherbfc@gmail.com">
+                        <div class="form-text text-fs-11">ส่งรายงานคำสั่งซื้อใหม่และสลิปโอนเงินเข้า <strong>thaiherbfc@gmail.com</strong> อัตโนมัติ (ใส่หลายอีเมลคั่นด้วยเครื่องหมายจุลภาค <code>,</code> ได้)</div>
                     </div>
 
                     <hr>
@@ -257,6 +323,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         <label class="form-label small fw-bold">Channel Access Token (Long-Lived):</label>
                         <input type="password" name="line_channel_access_token" class="form-control form-control-sm font-monospace" 
                                value="<?= htmlspecialchars($settings['line_channel_access_token'] ?? '') ?>" placeholder="ใส่ Channel Access Token จาก LINE Developers Console">
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label small fw-bold text-success mb-0"><i data-lucide="bell" class="me-1 icon-xs"></i>LINE User ID ของ Admin (รับแจ้งเตือนออเดอร์เข้า):</label>
+                            <a href="<?= ROOT_URL ?>/api/line_auth.php?action=login&amp;redirect=<?= urlencode(ADMIN_URL . '/settings/line_broadcast.php') ?>" class="btn btn-xs btn-success py-0 px-2" style="font-size: 0.72rem;">
+                                🔗 คลิกผูกบัญชี LINE ของฉันเป็น Admin
+                            </a>
+                        </div>
+                        <input type="text" name="admin_line_user_id" class="form-control form-control-sm font-monospace" 
+                               value="<?= htmlspecialchars($settings['admin_line_user_id'] ?? '') ?>" placeholder="เช่น U1234567890abcdef... (ผูกอัตโนมัติเมื่อกดปุ่มด้านบน)">
+                        <div class="form-text text-fs-11">นอกจาก ID ในช่องนี้แล้ว ระบบยังส่งแจ้งเตือนไปยังบัญชีผู้ใช้ที่มีสิทธิ์ <code>owner / admin / staff</code> ที่ผูก LINE แล้วทุกบัญชีโดยอัตโนมัติ</div>
                     </div>
 
                     <hr>
@@ -287,8 +364,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         <code class="callback-url-text"><?= ROOT_URL ?>/api/line_auth.php?action=callback</code>
                     </div>
 
-                    <div class="text-end mt-4">
-                        <button type="submit" class="btn btn-gold-save px-4 btn-sm" id="btnSaveApiSettings">
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-2 border-top">
+                        <button type="submit" class="btn btn-outline-success btn-sm" onclick="document.getElementById('apiFormAction').value='test_admin_notify'">
+                            <i data-lucide="send" class="me-1 icon-sm"></i>ทดสอบส่งเมล &amp; LINE แจ้งเตือน Admin
+                        </button>
+                        <button type="submit" class="btn btn-gold-save px-4 btn-sm" id="btnSaveApiSettings" onclick="document.getElementById('apiFormAction').value='save_settings'">
                             <span class="spinner-snake d-none me-1" id="saveApiSpinner"></span>
                             <span id="saveApiBtnText"><i data-lucide="save" class="me-1 icon-sm"></i>บันทึกการตั้งค่า API</span>
                         </button>

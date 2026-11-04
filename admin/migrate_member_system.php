@@ -219,6 +219,49 @@ try {
     $db->exec("UPDATE `ordetail` SET `ordetail_memo` = '' WHERE `ordetail_memo` LIKE 'Rate % THB/kg'");
     echo " [OK] ตาราง shop_info (PromptPay) และ order_slips พร้อมใช้งาน\n\n";
 
+    echo "--- 9. ตรวจสอบตาราง resend_email_templates, line_broadcast_logs และ sitesettings ---\n";
+    $db->exec("
+    CREATE TABLE IF NOT EXISTS `resend_email_templates` (
+        `template_id` INT AUTO_INCREMENT PRIMARY KEY,
+        `template_code` VARCHAR(100) NOT NULL UNIQUE,
+        `template_name` VARCHAR(255) NOT NULL,
+        `email_subject` VARCHAR(255) NOT NULL,
+        `email_body_html` LONGTEXT NOT NULL,
+        `available_merge_tags` TEXT DEFAULT NULL,
+        `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+        `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
+    $db->exec("
+    CREATE TABLE IF NOT EXISTS `line_broadcast_logs` (
+        `broadcast_id` INT AUTO_INCREMENT PRIMARY KEY,
+        `target_tier` VARCHAR(50) NOT NULL DEFAULT 'all',
+        `message_text` TEXT NOT NULL,
+        `recipient_count` INT NOT NULL DEFAULT 0,
+        `sent_by_user_id` INT DEFAULT 0,
+        `sent_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
+
+    // Ensure default notification settings exist in sitesettings (secrets configured via Admin UI)
+    $defaultSiteSettings = [
+        'resend_from_email'  => 'Yak Pho Aroma <orders@thaispa.app>',
+        'admin_notify_email' => 'thaiherbfc@gmail.com',
+    ];
+    foreach ($defaultSiteSettings as $sKey => $sVal) {
+        $chkS = $db->prepare("SELECT setting_id, setting_value FROM sitesettings WHERE setting_name = ? LIMIT 1");
+        $chkS->execute([$sKey]);
+        $rowS = $chkS->fetch(PDO::FETCH_ASSOC);
+        if (!$rowS) {
+            $insS = $db->prepare("INSERT INTO sitesettings (setting_name, setting_value, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+            $insS->execute([$sKey, $sVal]);
+        } elseif ($sKey === 'resend_from_email' && stripos((string)$rowS['setting_value'], '@gmail.com') !== false) {
+            $updS = $db->prepare("UPDATE sitesettings SET setting_value = ?, updated_at = NOW() WHERE setting_id = ?");
+            $updS->execute([$sVal, $rowS['setting_id']]);
+        }
+    }
+    echo " [OK] ตั้งค่าระบบส่งอีเมล (thaiherbfc@gmail.com) และ LINE แจ้งเตือนเรียบร้อย\n\n";
+
     echo "🎉 การอัปเดตโครงสร้างฐานข้อมูลเสร็จสมบูรณ์ 100% เรียบร้อยแล้ว!\n";
 
 } catch (Throwable $e) {

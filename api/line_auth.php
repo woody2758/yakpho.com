@@ -194,7 +194,7 @@ switch ($action) {
                     $pStmt = $db->prepare("SELECT user_picture FROM user WHERE user_id = ?");
                     $pStmt->execute([$userId]);
                     $currentPic = (string)$pStmt->fetchColumn();
-                    if (empty($currentPic) || str_contains($currentPic, '_line.')) {
+                    if (empty($currentPic) || strpos($currentPic, '_line.') !== false) {
                         $upPic = $db->prepare("UPDATE user SET user_picture = ? WHERE user_id = ?");
                         $upPic->execute([$avatarFile, $userId]);
                     }
@@ -202,6 +202,31 @@ switch ($action) {
             } catch (Throwable $e) {
                 error_log("Failed to download LINE avatar: " . $e->getMessage());
             }
+        }
+
+        // If Admin logged in and clicked "Connect Admin LINE", also store this lineUserId in sitesettings.admin_line_user_id
+        if (!empty($_SESSION['admin_logged']) && $_SESSION['admin_logged'] === true && strpos($lineUserId, 'U') === 0) {
+            try {
+                $admId = (int)($_SESSION['admin_id'] ?? 0);
+                if ($admId > 0) {
+                    $db->prepare("UPDATE user SET line_user_id = ?, line_display_name = ?, line_picture_url = ? WHERE user_id = ?")
+                       ->execute([$lineUserId, $displayName, $pictureUrl, $admId]);
+                }
+                $currAdminLines = trim(get_site_setting($db, 'admin_line_user_id', ''));
+                $lineArr = array_filter(array_map('trim', preg_split('/[\s,;]+/', $currAdminLines)));
+                if (!in_array($lineUserId, $lineArr, true)) {
+                    $lineArr[] = $lineUserId;
+                }
+                $newAdminLines = implode(', ', $lineArr);
+                $chkSt = $db->prepare("SELECT setting_id FROM sitesettings WHERE setting_name = 'admin_line_user_id' LIMIT 1");
+                $chkSt->execute();
+                $stId = $chkSt->fetchColumn();
+                if ($stId) {
+                    $db->prepare("UPDATE sitesettings SET setting_value = ?, updated_at = NOW() WHERE setting_id = ?")->execute([$newAdminLines, $stId]);
+                } else {
+                    $db->prepare("INSERT INTO sitesettings (setting_name, setting_value, created_at, updated_at) VALUES ('admin_line_user_id', ?, NOW(), NOW())")->execute([$newAdminLines]);
+                }
+            } catch (Throwable $e) {}
         }
 
         // Store into session

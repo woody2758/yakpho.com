@@ -160,6 +160,31 @@ DROP PROCEDURE IF EXISTS `AddColIfNotExist`;
 UPDATE `user` SET `m_stamp_points` = `user_stars` WHERE `user_stars` > 0 AND (`m_stamp_points` = 0 OR `m_stamp_points` IS NULL);
 UPDATE `user` SET `role` = 'customer' WHERE `role` = '' OR `role` IS NULL;
 
+-- ------------------------------------------------------------------------------
+-- 8. Tables: resend_email_templates & line_broadcast_logs + Default Notification Settings
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `resend_email_templates` (
+    `template_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `template_code` VARCHAR(100) NOT NULL UNIQUE,
+    `template_name` VARCHAR(255) NOT NULL,
+    `email_subject` VARCHAR(255) NOT NULL,
+    `email_body_html` LONGTEXT NOT NULL,
+    `available_merge_tags` TEXT DEFAULT NULL,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `line_broadcast_logs` (
+    `broadcast_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `target_tier` VARCHAR(50) NOT NULL DEFAULT 'all',
+    `message_text` TEXT NOT NULL,
+    `recipient_count` INT NOT NULL DEFAULT 0,
+    `sent_by_user_id` INT DEFAULT 0,
+    `sent_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+UPDATE `sitesettings` SET `setting_value` = 'Yak Pho Aroma <orders@thaispa.app>' WHERE `setting_name` = 'resend_from_email' AND `setting_value` LIKE '%@gmail.com%';
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ==============================================================================

@@ -135,18 +135,14 @@ try {
         $stmt_info->execute([$orderId]);
         $info = $stmt_info->fetch(PDO::FETCH_ASSOC);
 
-        if ($info && !empty($info['user_email'])) {
-            $to = $info['user_email'];
-            $subject = "อัปเดตสถานะคำสั่งซื้อ #" . $info['orders_no'];
-            $message = "เรียนคุณ " . $info['user_name'] . ",\n\n";
-            $message .= "คำสั่งซื้อของคุณ #" . $info['orders_no'] . " ได้เปลี่ยนสถานะเป็น: " . $info['orsts_detail'] . "\n\n";
-            $message .= "ขอบคุณที่ใช้บริการ\n";
-            $message .= "Yakpho.com";
-
-            $headers = "From: no-reply@yakpho.com\r\n";
-            $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-
-            @mail($to, $subject, $message, $headers);
+        if ($info) {
+            require_once __DIR__ . '/../../includes/resend_helper.php';
+            require_once __DIR__ . '/../../includes/line_helper.php';
+            if (!empty($info['user_email']) && filter_var($info['user_email'], FILTER_VALIDATE_EMAIL)) {
+                $subject = "อัปเดตสถานะคำสั่งซื้อ #" . $info['orders_no'] . " (" . $info['orsts_detail'] . ") - Yak Pho Aroma";
+                $htmlBody = "<div style=\"font-family:Prompt,Arial,sans-serif;padding:20px;color:#1e293b;\"><h3>เรียนคุณ " . htmlspecialchars($info['user_name']) . ",</h3><p>คำสั่งซื้อของคุณหมายเลข <strong>#" . htmlspecialchars($info['orders_no']) . "</strong> ได้เปลี่ยนสถานะเป็น: <strong style=\"color:#0B3B35;\">" . htmlspecialchars($info['orsts_detail']) . "</strong></p><p><a href=\"" . ROOT_URL . "/track/" . urlencode($info['orders_no']) . "\" style=\"display:inline-block;background:#0B3B35;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;\">ดูสถานะคำสั่งซื้อ</a></p></div>";
+                send_resend_email($db, $info['user_email'], $subject, $htmlBody);
+            }
         }
     }
 

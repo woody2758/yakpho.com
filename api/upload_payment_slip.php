@@ -15,6 +15,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/functions/image.php';
 require_once __DIR__ . '/../includes/member_helper.php';
+require_once __DIR__ . '/../includes/resend_helper.php';
+require_once __DIR__ . '/../includes/line_helper.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -145,6 +147,79 @@ try {
     ");
     $stmtUpd->execute([$targetFilename, $paidAmount, $newStatus, $orderId]);
 
+    // 3. Notify Customer & Admin via LINE & Email when slip is uploaded
+    try {
+        $stmtCust = $db->prepare("
+            SELECT u.user_id, u.user_name, u.user_mobile, u.user_tel, u.user_email, u.line_user_id,
+                   a.addr_name, a.addr_mobile
+            FROM orders o
+            LEFT JOIN user u ON o.user_id = u.user_id
+            LEFT JOIN addr a ON o.addr_id = a.addr_id
+            WHERE o.orders_id = ?
+            LIMIT 1
+        ");
+        $stmtCust->execute([$orderId]);
+        $custRow = $stmtCust->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        $custName  = $custRow['addr_name'] ?: ($custRow['user_name'] ?: 'ลูกค้า');
+        $custPhone = $custRow['addr_mobile'] ?: ($custRow['user_mobile'] ?: ($custRow['user_tel'] ?: '-'));
+        $custEmail = trim((string)($custRow['user_email'] ?? ''));
+        $custLine  = trim((string)($custRow['line_user_id'] ?? ''));
+        $slipUrl   = ROOT_URL . '/uploads/slips/' . $targetFilename;
+        $fullTrackUrl = ROOT_URL . '/track/' . $trackKey;
+        $adminOrderUrl = ROOT_URL . '/admin/orders/?search=' . urlencode($ordersNo);
+
+        // 3.1 LINE Push to Customer
+        if ($custLine !== '') {
+            $custSlipMsg = "✅ ได้รับสลิปแจ้งโอนเงินเรียบร้อยแล้ว!\n"
+                         . "━━━━━━━━━━━━━━\n"
+                         . "🧾 คำสั่งซื้อ: #{$ordersNo}\n"
+                         . "💰 ยอดชำระ: ฿" . number_format($paidAmount, 2) . " บาท\n"
+                         . "📌 สถานะ: ชำระเงินแล้ว / กำลังจัดเตรียมสินค้า\n"
+                         . "━━━━━━━━━━━━━━\n"
+                         . "🚚 ติดตามสถานะพัสดุและดูใบเสร็จ:\n{$fullTrackUrl}";
+            send_line_push_message($db, $custLine, $custSlipMsg);
+        }
+
+        // 3.2 LINE Push to Admin
+        $adminSlipLine = "💸 [ลูกค้าแนบสลิปโอนเงินแล้ว!]\n"
+                       . "เลขที่: #{$ordersNo}\n"
+                       . "ลูกค้า: {$custName}" . (!empty($custRow['user_id']) ? " (C{$custRow['user_id']})" : "") . "\n"
+                       . "โทร: {$custPhone}\n"
+                       . "💰 ยอดชำระ: ฿" . number_format($paidAmount, 2) . " บาท\n"
+                       . "📌 สถานะปรับเป็น: เตรียมสินค้า (ชำระแล้ว)\n"
+                       . "━━━━━━━━━━━━━━\n"
+                       . "🖼️ ดูรูปสลิป:\n{$slipUrl}\n"
+                       . "🔗 จัดการออเดอร์:\n{$adminOrderUrl}";
+        send_admin_line_notification($db, $adminSlipLine);
+
+        // 3.3 Email Alert to Admin (thaiherbfc@gmail.com)
+        $adminEmailsRaw = trim(get_site_setting($db, 'admin_notify_email', 'thaiherbfc@gmail.com'));
+        $emailList = array_filter(array_map('trim', preg_split('/[,;]+/', $adminEmailsRaw)));
+        if (!in_array('thaiherbfc@gmail.com', $emailList, true)) {
+            $emailList[] = 'thaiherbfc@gmail.com';
+        }
+        $slipSubj = "💸 [แจ้งโอนเงิน/แนบสลิป #{$ordersNo}] ยอด ฿" . number_format($paidAmount, 2) . " จากคุณ {$custName}";
+        $slipHtml = '<div style="font-family:Prompt,Tahoma,sans-serif;max-width:580px;margin:0 auto;background:#fff;border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;">'
+                  . '<div style="background:#0B3B35;color:#fff;padding:18px 22px;"><h3 style="margin:0;">💸 ลูกค้าแนบสลิปโอนเงินแล้ว #' . htmlspecialchars($ordersNo) . '</h3></div>'
+                  . '<div style="padding:20px 22px;font-size:14px;line-height:1.7;">'
+                  . '<strong>ชื่อลูกค้า:</strong> ' . htmlspecialchars($custName) . '<br>'
+                  . '<strong>เบอร์โทรศัพท์:</strong> ' . htmlspecialchars($custPhone) . '<br>'
+                  . '<strong>ยอดโอนชำระ:</strong> <span style="color:#16a34a;font-weight:bold;font-size:16px;">฿' . number_format($paidAmount, 2) . ' บาท</span><br>'
+                  . '<strong>สถานะปัจจุบัน:</strong> ชำระเงินแล้ว / เตรียมสินค้า (Status C)<br>'
+                  . '<div style="margin:16px 0;text-align:center;">'
+                  . '<a href="' . htmlspecialchars($slipUrl) . '" target="_blank"><img src="' . htmlspecialchars($slipUrl) . '" alt="Payment Slip" style="max-width:280px;border-radius:10px;border:1px solid #cbd5e1;"></a>'
+                  . '</div>'
+                  . '<div style="text-align:center;margin-top:16px;">'
+                  . '<a href="' . htmlspecialchars($adminOrderUrl) . '" style="display:inline-block;background:#0B3B35;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">เปิดดูออเดอร์ใน Admin</a>'
+                  . '</div></div></div>';
+        foreach (array_unique($emailList) as $admMail) {
+            if (filter_var($admMail, FILTER_VALIDATE_EMAIL)) {
+                send_resend_email($db, $admMail, $slipSubj, $slipHtml);
+            }
+        }
+    } catch (Throwable $e) {}
+
     $urlBase = defined('URL_PATH') ? URL_PATH : '';
     $trackUrl = $urlBase . '/track/' . urlencode($trackKey) . '?paid=1';
 
@@ -166,3 +241,4 @@ try {
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
+

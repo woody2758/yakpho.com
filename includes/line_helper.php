@@ -237,7 +237,107 @@ function broadcast_to_member_tier(PDO $db, string $tier, string $messageText, in
     return [
         'success'    => $sendRes['success'],
         'sent_count' => $sendRes['sent_count'] ?? 0,
+        'recipients' => $sendRes['sent_count'] ?? 0,
         'message'    => "ส่งข้อความสำเร็จไปยัง {$sendRes['sent_count']} บัญชี LINE",
     ];
 }
+
+/**
+ * Alias for broadcast_to_member_tier (used by admin/settings/line_broadcast.php)
+ */
+if (!function_exists('broadcast_line_message')) {
+    function broadcast_line_message(PDO $db, string $tier, string $messageText, int $adminUserId = 0): array {
+        return broadcast_to_member_tier($db, $tier, $messageText, $adminUserId);
+    }
+}
+
+/**
+ * Send LINE Push Notification to all configured Admin / Staff LINE accounts
+ * Collects recipients from:
+ *  1) sitesettings: `admin_line_user_id` (comma-separated LINE User IDs or Group IDs)
+ *  2) `user` table where `role IN ('owner', 'admin', 'manager', 'staff')` and `line_user_id` is linked
+ *  3) `user` table where `user_email = 'thaiherbfc@gmail.com'` and `line_user_id` is linked
+ */
+function send_admin_line_notification(PDO $db, string $textMessage): array {
+    $recipientIds = [];
+
+    // 1. Check sitesettings for explicit admin_line_user_id (can be U... user IDs or C... group IDs)
+    $configuredIds = trim(get_site_setting($db, 'admin_line_user_id', ''));
+    if ($configuredIds !== '') {
+        $parts = preg_split('/[\s,;]+/', $configuredIds);
+        foreach ($parts as $p) {
+            $p = trim($p);
+            if ($p !== '') {
+                $recipientIds[] = $p;
+            }
+        }
+    }
+
+    // 2. Also fetch any admin/owner/staff user accounts in `user` table that have linked their LINE account
+    try {
+        $stmt = $db->query("
+            SELECT DISTINCT line_user_id
+            FROM user
+            WHERE line_user_id IS NOT NULL
+              AND line_user_id != ''
+              AND user_del = 0
+              AND (
+                  role IN ('owner', 'admin', 'manager', 'staff')
+                  OR user_email = 'thaiherbfc@gmail.com'
+              )
+        ");
+        if ($stmt) {
+            while ($lid = $stmt->fetchColumn()) {
+                $lid = trim((string)$lid);
+                if ($lid !== '') {
+                    $recipientIds[] = $lid;
+                }
+            }
+        }
+    } catch (Throwable $e) {}
+
+    $recipientIds = array_values(array_unique($recipientIds));
+    if (empty($recipientIds)) {
+        return [
+            'success' => false,
+            'message' => 'ยังไม่มีบัญชี LINE ของ Admin ที่ผูกไว้ในระบบ',
+        ];
+    }
+
+    // Separate Group/Room IDs (start with C or R) from User IDs (start with U)
+    $userIds = [];
+    $groupIds = [];
+    foreach ($recipientIds as $id) {
+        if (strpos($id, 'U') === 0 && strlen($id) > 15 && strpos($id, 'U_local_') !== 0) {
+            $userIds[] = $id;
+        } elseif ((strpos($id, 'C') === 0 || strpos($id, 'R') === 0) && strlen($id) > 15) {
+            $groupIds[] = $id;
+        }
+    }
+
+    $sentCount = 0;
+    if (count($userIds) === 1) {
+        $r = send_line_push_message($db, $userIds[0], $textMessage);
+        if (!empty($r['success'])) {
+            $sentCount++;
+        }
+    } elseif (count($userIds) > 1) {
+        $r = send_line_multicast($db, $userIds, $textMessage);
+        $sentCount += (int)($r['sent_count'] ?? 0);
+    }
+
+    foreach ($groupIds as $gid) {
+        $r = send_line_push_message($db, $gid, $textMessage);
+        if (!empty($r['success'])) {
+            $sentCount++;
+        }
+    }
+
+    return [
+        'success'    => ($sentCount > 0),
+        'sent_count' => $sentCount,
+        'recipients' => $recipientIds,
+    ];
+}
+
 
