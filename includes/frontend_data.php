@@ -1312,6 +1312,14 @@ function get_checkout_page_data(PDO $db, string $lang = 'th'): array
         $provinces = [];
     }
 
+    $countries = [];
+    try {
+        $stmt = $db->query("SELECT country_id, country_name, country_code FROM countries ORDER BY country_name ASC");
+        $countries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $countries = [];
+    }
+
     $banks = [];
     try {
         $stmt = $db->query("SELECT bank_id, bank_name, bank_account, bank_number, bank_branch FROM bank WHERE bank_status = 1 AND bank_del = 0 ORDER BY bank_id ASC");
@@ -1327,17 +1335,34 @@ function get_checkout_page_data(PDO $db, string $lang = 'th'): array
     $userId = (int)($_SESSION['user_id'] ?? 0);
     if ($userId > 0) {
         try {
-            $stmt = $db->prepare("SELECT user_id, user_name, user_mobile, user_email, m_stamp_points, member_tier, user_address, user_postcode, user_province FROM user WHERE user_id = ?");
+            $stmt = $db->prepare("SELECT user_id, user_name, user_lastname, user_nickname, user_mobile, user_email, m_stamp_points, user_stars, member_tier, user_address, user_postcode, user_province FROM user WHERE user_id = ?");
             $stmt->execute([$userId]);
             $loggedUser = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($loggedUser) {
-                $memberPoints = (int)$loggedUser['m_stamp_points'];
+                $memberPoints = max((int)($loggedUser['m_stamp_points'] ?? 0), (int)($loggedUser['user_stars'] ?? 0));
+                
+                // Fetch latest saved shipping address from addr
+                $stA = $db->prepare("SELECT addr_detail, addr_detail2, addr_postcode, provinces_id, country_id FROM addr WHERE user_id = ? AND addr_del = 0 ORDER BY addr_id DESC LIMIT 1");
+                $stA->execute([$userId]);
+                $savedAddr = $stA->fetch(PDO::FETCH_ASSOC);
+                if ($savedAddr) {
+                    $loggedUser['user_address'] = $savedAddr['addr_detail'] ?: $loggedUser['user_address'];
+                    $loggedUser['user_address_detail2'] = $savedAddr['addr_detail2'] ?: '';
+                    $loggedUser['user_postcode'] = $savedAddr['addr_postcode'] ?: $loggedUser['user_postcode'];
+                    if (!empty($savedAddr['provinces_id'])) {
+                        $loggedUser['user_province'] = $savedAddr['provinces_id'];
+                    }
+                    if (!empty($savedAddr['country_id'])) {
+                        $loggedUser['country_id'] = $savedAddr['country_id'];
+                    }
+                }
             }
         } catch (Exception $e) {}
     }
 
     return [
         'provinces'        => $provinces,
+        'countries'        => $countries,
         'banks'            => $banks,
         'cart'             => get_cart_summary($db, $lang),
         'member_points'    => $memberPoints,

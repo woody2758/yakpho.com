@@ -68,7 +68,39 @@ try {
 
     $db->beginTransaction();
 
-    // 1. Find or create customer in `user`
+    // 1. Determine Country & Province IDs (Domestic vs International)
+    $countryId = 171; // Default Thailand
+    $provinceFinalId = $provinceId > 0 ? $provinceId : 1;
+    $countryNameDisplay = 'Thailand';
+    $addressDetail2 = trim((string)($payload['address_detail2'] ?? ''));
+
+    if ($destination === 'international') {
+        $countryInput = trim((string)($payload['destination_country'] ?? ''));
+        $countryInputId = (int)($payload['destination_country_id'] ?? 0);
+        
+        if ($countryInputId > 0) {
+            $stC = $db->prepare("SELECT country_id, country_name FROM countries WHERE country_id = ? LIMIT 1");
+            $stC->execute([$countryInputId]);
+            $cRow = $stC->fetch(PDO::FETCH_ASSOC);
+            if ($cRow) {
+                $countryId = (int)$cRow['country_id'];
+                $countryNameDisplay = $cRow['country_name'];
+            }
+        } elseif ($countryInput !== '') {
+            $stC = $db->prepare("SELECT country_id, country_name FROM countries WHERE LOWER(country_name) = LOWER(?) OR LOWER(country_code) = LOWER(?) LIMIT 1");
+            $stC->execute([$countryInput, $countryInput]);
+            $cRow = $stC->fetch(PDO::FETCH_ASSOC);
+            if ($cRow) {
+                $countryId = (int)$cRow['country_id'];
+                $countryNameDisplay = $cRow['country_name'];
+            } else {
+                $countryNameDisplay = $countryInput;
+            }
+        }
+        $provinceFinalId = 79; // 'ต่างประเทศ (Foreign Country)'
+    }
+
+    // 2. Find or create customer in `user` (Smart CRM Match)
     $userId = (int)($_SESSION['user_id'] ?? 0);
     $userRow = null;
 
@@ -79,56 +111,89 @@ try {
     }
 
     if (!$userRow) {
-        $stmtUser = $db->prepare("SELECT * FROM user WHERE (user_mobile = ? OR user_tel = ?) AND user_del = 0 LIMIT 1");
-        $stmtUser->execute([$customerPhone, $customerPhone]);
+        // Match by phone number or email in existing customer database
+        $stmtUser = $db->prepare("
+            SELECT * FROM user 
+            WHERE (user_mobile = ? OR user_tel = ? OR user_username = ? OR (user_email != '' AND user_email = ?)) 
+              AND user_del = 0 
+            ORDER BY user_id DESC 
+            LIMIT 1
+        ");
+        $stmtUser->execute([$customerPhone, $customerPhone, $customerPhone, $customerEmail]);
         $userRow = $stmtUser->fetch(PDO::FETCH_ASSOC);
     }
+
+    $fullCombinedAddr = trim($addressDetail . ($addressDetail2 !== '' ? (' ' . $addressDetail2) : ''));
 
     if ($userRow) {
         $userId = (int)$userRow['user_id'];
         $stmtUpdUser = $db->prepare("
             UPDATE user
-            SET user_name = ?, user_email = COALESCE(NULLIF(?, ''), user_email),
-                user_address = ?, user_postcode = ?, user_last_active = NOW(), user_update = NOW()
+            SET user_name = COALESCE(NULLIF(?, ''), user_name),
+                user_email = COALESCE(NULLIF(?, ''), user_email),
+                user_address = ?, user_postcode = ?, user_province = ?, user_country = ?,
+                user_last_active = NOW(), user_update = NOW()
             WHERE user_id = ?
         ");
-        $stmtUpdUser->execute([$customerName, $customerEmail, $addressDetail, $postcode, $userId]);
+        $stmtUpdUser->execute([$customerName, $customerEmail, $fullCombinedAddr, $postcode, (string)$provinceFinalId, $countryNameDisplay, $userId]);
     } else {
         $stmtInsUser = $db->prepare("
             INSERT INTO user (
                 user_username, user_password, user_email, user_mobile, user_tel,
-                user_name, user_address, user_province, user_postcode,
+                user_name, user_address, user_province, user_postcode, user_country,
                 user_date, user_update, user_last_active, user_status, user_del, role,
-                member_tier, m_stamp_points
+                member_tier, m_stamp_points, user_stars
             ) VALUES (
                 ?, '', ?, ?, ?,
-                ?, ?, ?, ?,
+                ?, ?, ?, ?, ?,
                 NOW(), NOW(), NOW(), 1, 0, 'customer',
-                'general', 0
+                'general', 0, 0
             )
         ");
         $stmtInsUser->execute([
             $customerPhone, $customerEmail, $customerPhone, $customerPhone,
-            $customerName, $addressDetail, (string)$provinceId, $postcode
+            $customerName, $fullCombinedAddr, (string)$provinceFinalId, $postcode, $countryNameDisplay
         ]);
         $userId = (int)$db->lastInsertId();
     }
 
-    // 2. Insert delivery address in `addr`
-    $stmtAddr = $db->prepare("
-        INSERT INTO addr (
-            addr_name, addr_mobile, addr_detail, addr_postcode,
-            country_id, provinces_id, addr_status, addr_del, addr_type, user_id, addr_date, addr_update
-        ) VALUES (
-            ?, ?, ?, ?,
-            171, ?, 1, 0, 1, ?, NOW(), NOW()
-        )
+    // Auto set session so user is logged in
+    $_SESSION['user_id'] = $userId;
+    $_SESSION['user_name'] = $customerName;
+    $_SESSION['user_mobile'] = $customerPhone;
+
+    // 3. Match or Insert delivery address in `addr` (Domestic & International)
+    $stmtFindAddr = $db->prepare("
+        SELECT addr_id FROM addr 
+        WHERE user_id = ? AND addr_detail = ? AND addr_postcode = ? AND country_id = ? AND addr_del = 0 
+        LIMIT 1
     ");
-    $stmtAddr->execute([
-        $customerName, $customerPhone, $addressDetail, $postcode,
-        $provinceId > 0 ? $provinceId : 1, $userId
-    ]);
-    $addrId = (int)$db->lastInsertId();
+    $stmtFindAddr->execute([$userId, $addressDetail, $postcode, $countryId]);
+    $existingAddrId = (int)$stmtFindAddr->fetchColumn();
+
+    if ($existingAddrId > 0) {
+        $addrId = $existingAddrId;
+        $db->prepare("
+            UPDATE addr 
+            SET addr_name = ?, addr_mobile = ?, addr_detail2 = COALESCE(NULLIF(?, ''), addr_detail2), provinces_id = ?, addr_update = NOW() 
+            WHERE addr_id = ?
+        ")->execute([$customerName, $customerPhone, $addressDetail2, $provinceFinalId, $addrId]);
+    } else {
+        $stmtAddr = $db->prepare("
+            INSERT INTO addr (
+                addr_name, addr_mobile, addr_detail, addr_detail2, addr_postcode,
+                country_id, provinces_id, addr_status, addr_del, addr_type, user_id, addr_date, addr_update
+            ) VALUES (
+                ?, ?, ?, ?, ?,
+                ?, ?, 1, 0, 1, ?, NOW(), NOW()
+            )
+        ");
+        $stmtAddr->execute([
+            $customerName, $customerPhone, $addressDetail, $addressDetail2, $postcode,
+            $countryId, $provinceFinalId, $userId
+        ]);
+        $addrId = (int)$db->lastInsertId();
+    }
 
     // 3. Calculate order totals & M-Stamp redemption
     $subtotal = (float)$cart['subtotal'];
@@ -195,7 +260,7 @@ try {
             ?, ?, ?, NOW(),
             ?, ?, ?, ?, ?,
             1, ?, ?, 0, ?,
-            'Website', 171, ?, ?
+            'Website', {$countryId}, ?, ?
         )
     ");
     $isWholesale = ($cart['total_1kg_qty'] >= 6) ? 1 : 0;
