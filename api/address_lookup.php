@@ -164,7 +164,7 @@ switch ($action) {
 
         $st = $db->prepare("
             SELECT user_id, user_name, user_lastname, user_nickname, user_mobile, user_tel, user_email,
-                   user_address, user_province, user_postcode, user_country, m_stamp_points, user_stars
+                   user_address, user_province, user_postcode, user_country, user_stars
             FROM user
             WHERE (user_mobile = ? OR user_tel = ? OR user_username = ?) AND user_del = 0
             LIMIT 1
@@ -178,7 +178,8 @@ switch ($action) {
         }
 
         $userId = (int)$user['user_id'];
-        $points = max((int)$user['m_stamp_points'], (int)$user['user_stars']);
+        $points = (int)($user['user_stars'] ?? 0);
+        if (!empty($user['m_stamp_points'])) $points = max($points, (int)$user['m_stamp_points']);
 
         // Check latest address in addr
         $stA = $db->prepare("
@@ -237,3 +238,4 @@ switch ($action) {
         echo json_encode(['status' => 'error', 'message' => 'Unknown action']);
         exit;
 }
+

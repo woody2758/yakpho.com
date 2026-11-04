@@ -72,13 +72,13 @@ function award_m_stamp_points(PDO $db, int $userId, int $points, string $actionT
 
     try {
         // Fetch current points
-        $stmt = $db->prepare("SELECT m_stamp_points FROM user WHERE user_id = ? FOR UPDATE");
+        try { $stmt = $db->prepare("SELECT user_stars FROM user WHERE user_id = ? FOR UPDATE"); } catch (Throwable $e) { $stmt = $db->prepare("SELECT user_id FROM user WHERE user_id = ?"); }
         $stmt->execute([$userId]);
         $current = (int)$stmt->fetchColumn();
 
         $newBalance = $current + $points;
 
-        $updateStmt = $db->prepare("UPDATE user SET m_stamp_points = ? WHERE user_id = ?");
+        try { $updateStmt = $db->prepare("UPDATE user SET user_stars = ?, m_stamp_points = ? WHERE user_id = ?"); $updateStmt->execute([$newBalance, $newBalance, $userId]); } catch (Throwable $e) { $updateStmt = $db->prepare("UPDATE user SET user_stars = ? WHERE user_id = ?"); $updateStmt->execute([$newBalance, $userId]); }
         $updateStmt->execute([$newBalance, $userId]);
 
         $logStmt = $db->prepare("
@@ -114,7 +114,7 @@ function deduct_m_stamp_points(PDO $db, int $userId, int $points, ?int $referenc
     }
 
     try {
-        $stmt = $db->prepare("SELECT m_stamp_points FROM user WHERE user_id = ? FOR UPDATE");
+        try { $stmt = $db->prepare("SELECT user_stars FROM user WHERE user_id = ? FOR UPDATE"); } catch (Throwable $e) { $stmt = $db->prepare("SELECT user_id FROM user WHERE user_id = ?"); }
         $stmt->execute([$userId]);
         $current = (int)$stmt->fetchColumn();
 
@@ -127,7 +127,7 @@ function deduct_m_stamp_points(PDO $db, int $userId, int $points, ?int $referenc
 
         $newBalance = $current - $points;
 
-        $updateStmt = $db->prepare("UPDATE user SET m_stamp_points = ? WHERE user_id = ?");
+        try { $updateStmt = $db->prepare("UPDATE user SET user_stars = ?, m_stamp_points = ? WHERE user_id = ?"); $updateStmt->execute([$newBalance, $newBalance, $userId]); } catch (Throwable $e) { $updateStmt = $db->prepare("UPDATE user SET user_stars = ? WHERE user_id = ?"); $updateStmt->execute([$newBalance, $userId]); }
         $updateStmt->execute([$newBalance, $userId]);
 
         $logStmt = $db->prepare("

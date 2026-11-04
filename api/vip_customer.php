@@ -31,7 +31,7 @@ switch ($action) {
             }
 
             // Fetch user info
-            $stmtUser = $db->prepare("SELECT user_id, user_name, user_lastname, user_nickname, user_birthdate, user_mobile, user_email, user_address, user_province, user_postcode, user_country, user_stars, m_stamp_points, user_note, line_display_name, user_start, role FROM user WHERE user_id = ? AND user_del = 0");
+            $stmtUser = $db->prepare("SELECT user_id, user_name, user_lastname, user_nickname, user_birthdate, user_mobile, user_email, user_address, user_province, user_postcode, user_country, user_stars, user_note, line_display_name, user_start, role FROM user WHERE user_id = ? AND user_del = 0");
             $stmtUser->execute([$userId]);
             $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
@@ -65,9 +65,9 @@ switch ($action) {
                 $totalSpent += (float)$o['orders_grandtotal'];
             }
 
-            // Priority: m_stamp_points > user_stars > totalSpent / 100
-            $points = (int)$user['user_stars'];
-            if ($points <= 0 && (int)$user['m_stamp_points'] > 0) {
+            // Priority: user_stars > m_stamp_points > totalSpent / 100
+            $points = (int)($user['user_stars'] ?? 0);
+            if (!empty($user['m_stamp_points']) && (int)$user['m_stamp_points'] > $points) {
                 $points = (int)$user['m_stamp_points'];
             }
             if ($points <= 0 && $totalSpent > 0) {
@@ -177,14 +177,23 @@ switch ($action) {
                 $crmData['vip_bonus_amount'] = 50;
                 $awardedBonus = true;
 
-                // Award +50 points to both m_stamp_points and user_stars
-                $stmtAddPts = $db->prepare("
-                    UPDATE user 
-                    SET m_stamp_points = m_stamp_points + 50,
-                        user_stars = user_stars + 50
-                    WHERE user_id = ?
-                ");
-                $stmtAddPts->execute([$userId]);
+                // Award +50 points safely to user_stars (and m_stamp_points if exists)
+                try {
+                    $stmtAddPts = $db->prepare("
+                        UPDATE user 
+                        SET user_stars = user_stars + 50,
+                            m_stamp_points = m_stamp_points + 50
+                        WHERE user_id = ?
+                    ");
+                    $stmtAddPts->execute([$userId]);
+                } catch (Throwable $e) {
+                    $stmtAddPts = $db->prepare("
+                        UPDATE user 
+                        SET user_stars = user_stars + 50
+                        WHERE user_id = ?
+                    ");
+                    $stmtAddPts->execute([$userId]);
+                }
             }
 
             // Save user profile

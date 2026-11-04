@@ -73,7 +73,7 @@ try {
             $uid = (int)($_GET['uid'] ?? 0);
 
             if (!empty($token) && $uid > 0) {
-                $stmt = $db->prepare("SELECT user_id, email_verified, m_stamp_points FROM user WHERE user_id = ? AND user_key = ?");
+                $stmt = $db->prepare("SELECT user_id, email_verified, user_stars FROM user WHERE user_id = ? AND user_key = ?");
                 $stmt->execute([$uid, $token]);
                 $u = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -127,7 +127,7 @@ try {
             }
 
             $stmt = $db->prepare("
-                SELECT user_id, user_name, user_email, email_verified, member_tier, m_stamp_points, line_user_id, line_display_name, line_picture_url, affiliate_code 
+                SELECT user_id, user_name, user_email, email_verified, member_tier, user_stars, line_user_id, line_display_name, line_picture_url, affiliate_code 
                 FROM user WHERE user_id = ?
             ");
             $stmt->execute([$userId]);
@@ -294,7 +294,8 @@ try {
             $_SESSION['user_email']        = $u['user_email'];
             $_SESSION['user_mobile']       = $u['user_mobile'] ?: $u['user_tel'];
             $_SESSION['member_tier']       = $u['member_tier'] ?: 'general';
-            $_SESSION['m_stamp_points']    = (int)$u['m_stamp_points'];
+            $_SESSION['m_stamp_points']    = (int)($u['m_stamp_points'] ?? $u['user_stars'] ?? 0);
+            $_SESSION['user_stars']        = $_SESSION['m_stamp_points'];
             $_SESSION['line_user_id']      = $u['line_user_id'];
             $_SESSION['line_display_name'] = $u['line_display_name'];
             $_SESSION['line_picture_url']  = $u['line_picture_url'];

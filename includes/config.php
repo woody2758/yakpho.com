@@ -49,6 +49,40 @@ try {
     die('DB Error: '.$e->getMessage());
 }
 
+// Auto self-healing schema migration (Ensures missing columns exist on production DB)
+static $schemaChecked = false;
+if (!$schemaChecked && isset($db)) {
+    try {
+        $db->query("SELECT m_stamp_points FROM user LIMIT 1");
+    } catch (Throwable $e) {
+        try {
+            $db->exec("ALTER TABLE user ADD COLUMN m_stamp_points INT DEFAULT 0 AFTER user_stars");
+            $db->exec("UPDATE user SET m_stamp_points = user_stars WHERE user_stars > 0");
+        } catch (Throwable $e2) {}
+    }
+    try {
+        $db->query("SELECT id FROM member_points_log LIMIT 1");
+    } catch (Throwable $e) {
+        try {
+            $db->exec("
+                CREATE TABLE IF NOT EXISTS member_points_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    points_change INT NOT NULL,
+                    balance_after INT NOT NULL DEFAULT 0,
+                    action_type VARCHAR(50) NOT NULL DEFAULT 'order_reward',
+                    reference_id INT DEFAULT NULL,
+                    note TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_user_id (user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            ");
+        } catch (Throwable $e3) {}
+    }
+    $schemaChecked = true;
+}
+
+
 // Multilang base with URL prefix support (10 languages)
 $allowed_langs = ['th', 'en', 'zh', 'de', 'fr', 'ja', 'ko', 'ru', 'ar', 'he'];
 if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed_langs, true)) {

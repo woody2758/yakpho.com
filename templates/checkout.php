@@ -191,18 +191,30 @@ $affiliateCookie = (string)($CHECKOUT_DATA['affiliate_cookie'] ?? '');
                         <label class="checkout-label">ประเทศปลายทาง (Destination Country) *</label>
                         <select name="destination_country_id" id="destCountrySelect" class="checkout-select" onchange="handleCountrySelect(this)">
                             <option value="">-- เลือกประเทศปลายทาง (Select Country) --</option>
-                            <optgroup label="🌟 ประเทศยอดนิยม (Popular Destinations)">
-                                <option value="184">United States (สหรัฐอเมริกา)</option>
-                                <option value="87">Japan (ญี่ปุ่น)</option>
-                                <option value="9">Australia (ออสเตรเลีย)</option>
-                                <option value="183">United Kingdom (สหราชอาณาจักร)</option>
-                                <option value="65">Germany (เยอรมนี)</option>
-                                <option value="153">Singapore (สิงคโปร์)</option>
-                                <option value="107">Malaysia (มาเลเซีย)</option>
-                                <option value="37">China (จีน)</option>
-                                <option value="73">Hong Kong (ฮ่องกง)</option>
-                                <option value="173">Taiwan (ไต้หวัน)</option>
-                                <option value="92">South Korea (เกาหลีใต้)</option>
+                            <optgroup label="🌟 ประเทศยอดนิยมที่มีการสั่งซื้อจริง (Popular Destinations)">
+                                <option value="64" data-country-name="Germany">🇩🇪 Germany (เยอรมนี)</option>
+                                <option value="9" data-country-name="Australia">🇦🇺 Australia (ออสเตรเลีย)</option>
+                                <option value="183" data-country-name="United Kingdom">🇬🇧 United Kingdom (สหราชอาณาจักร)</option>
+                                <option value="184" data-country-name="United States">🇺🇸 United States (สหรัฐอเมริกา)</option>
+                                <option value="124" data-country-name="New Zealand">🇳🇿 New Zealand (นิวซีแลนด์)</option>
+                                <option value="123" data-country-name="Netherlands">🇳🇱 Netherlands (เนเธอร์แลนด์)</option>
+                                <option value="36" data-country-name="China">🇨🇳 China (จีน)</option>
+                                <option value="13" data-country-name="Bahrain">🇧🇭 Bahrain (บาห์เรน)</option>
+                                <option value="84" data-country-name="Japan">🇯🇵 Japan (ญี่ปุ่น)</option>
+                                <option value="60" data-country-name="France">🇫🇷 France (ฝรั่งเศส)</option>
+                                <option value="138" data-country-name="Portugal">🇵🇹 Portugal (โปรตุเกส)</option>
+                                <option value="82" data-country-name="Italy">🇮🇹 Italy (อิตาลี)</option>
+                                <option value="74" data-country-name="Hungary">🇭🇺 Hungary (ฮังการี)</option>
+                                <option value="159" data-country-name="South Africa">🇿🇦 South Africa (แอฟริกาใต้)</option>
+                                <option value="46" data-country-name="Denmark">🇩🇰 Denmark (เดนมาร์ก)</option>
+                                <option value="32" data-country-name="Canada">🇨🇦 Canada (แคนาดา)</option>
+                                <option value="45" data-country-name="Czech Republic">🇨🇿 Czech Republic (เช็ก)</option>
+                                <option value="10" data-country-name="Austria">🇦🇹 Austria (ออสเตรีย)</option>
+                                <option value="90" data-country-name="Korea (South)">🇰🇷 South Korea (เกาหลีใต้)</option>
+                                <option value="165" data-country-name="Sweden">🇸🇪 Sweden (สวีเดน)</option>
+                                <option value="128" data-country-name="Norway">🇳🇴 Norway (นอร์เวย์)</option>
+                                <option value="153" data-country-name="Singapore">🇸🇬 Singapore (สิงคโปร์)</option>
+                                <option value="104" data-country-name="Malaysia">🇲🇾 Malaysia (มาเลเซีย)</option>
                             </optgroup>
                             <optgroup label="🌐 ทุกประเทศทั่วโลก (All Countries)">
                                 <?php foreach ($countries as $c): ?>
@@ -1035,65 +1047,91 @@ function recalcOrderTotal() {
 // -------------------------------------------------------------
 // Quick Login Modal for Checkout
 // -------------------------------------------------------------
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    btn.innerHTML = isPass
+        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`
+        : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+}
+
 async function openCheckoutLoginModal() {
-    const { value: formValues } = await Swal.fire({
-        title: 'เข้าสู่ระบบสมาชิก VIP',
+    const { value: loginResult } = await Swal.fire({
+        title: `<div class="member-login-header"><span class="member-login-header-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span>เข้าสู่ระบบสมาชิก</span></div>`,
         html: `
-            <div style="text-align:left; font-size:0.88rem; color:#F8FAFC;">
-                <p class="mb-3 text-muted">กรอกเบอร์โทรศัพท์ หรือชื่อผู้ใช้เพื่อดึงแต้มสะสมทันที</p>
-                <div class="mb-3">
-                    <label class="form-label text-light small fw-bold">เบอร์โทรศัพท์ / รหัสสมาชิก / อีเมล</label>
-                    <input id="swalUser" class="swal2-input m-0 w-100 fs-6 text-dark" placeholder="เช่น 08x-xxx-xxxx หรือ C10896">
+            <div class="member-login-form">
+                <div class="member-login-field">
+                    <label for="swalLoginUser" class="member-login-label">ชื่อผู้ใช้ / เบอร์โทรศัพท์ / อีเมล <span class="member-login-required">*</span></label>
+                    <div class="member-login-input-wrap">
+                        <input id="swalLoginUser" class="member-login-input" placeholder="กรอกชื่อผู้ใช้ หรือเบอร์โทร" autocomplete="username">
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <label class="form-label text-light small fw-bold">รหัสผ่าน (หรือปล่อยว่างหากสั่งซื้อทั่วไป)</label>
-                    <input id="swalPass" type="password" class="swal2-input m-0 w-100 fs-6 text-dark" placeholder="กรอกรหัสผ่าน">
+                <div class="member-login-field">
+                    <label for="swalLoginPass" class="member-login-label">รหัสผ่าน <span class="member-login-required">*</span></label>
+                    <div class="member-login-input-wrap">
+                        <input id="swalLoginPass" type="password" class="member-login-input member-login-input-has-btn" placeholder="กรอกรหัสผ่านของคุณ" autocomplete="current-password">
+                        <button type="button" class="member-login-toggle-btn" onclick="togglePasswordVisibility('swalLoginPass', this)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
                 </div>
+                <label class="member-login-remember-row" for="swalRememberMe">
+                    <input type="checkbox" id="swalRememberMe" class="member-login-checkbox" checked>
+                    <span class="member-login-remember-text">จดจำการเข้าสู่ระบบ 1 ปี</span>
+                </label>
             </div>
         `,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'เข้าสู่ระบบ',
         cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#F59E0B',
-        background: '#0B3B35',
-        customClass: { popup: 'checkout-swal-modal' },
-        preConfirm: () => {
-            const u = document.getElementById('swalUser').value.trim();
-            const p = document.getElementById('swalPass').value.trim();
-            if (!u) {
-                Swal.showValidationMessage('กรุณากรอกเบอร์โทรหรือชื่อผู้ใช้');
+        buttonsStyling: false,
+        customClass: {
+            popup: 'member-login-popup',
+            actions: 'member-login-actions',
+            confirmButton: 'member-login-btn-submit',
+            cancelButton: 'member-login-btn-cancel',
+            validationMessage: 'member-login-val-msg'
+        },
+        showLoaderOnConfirm: true,
+        didOpen: () => {
+            const uInput = document.getElementById('swalLoginUser');
+            if (uInput) uInput.focus();
+        },
+        preConfirm: async () => {
+            const u = document.getElementById('swalLoginUser')?.value.trim();
+            const p = document.getElementById('swalLoginPass')?.value.trim();
+            const rem = document.getElementById('swalRememberMe')?.checked;
+
+            if (!u || !p) {
+                Swal.showValidationMessage('กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วน');
                 return false;
             }
-            return { username: u, password: p };
-        }
+
+            try {
+                const res = await fetch('<?= URL_PATH ?>/api/member.php?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p, remember_me: rem })
+                });
+                const json = await res.json();
+                if (!json.status) {
+                    Swal.showValidationMessage(json.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+                    return false;
+                }
+                return json;
+            } catch (err) {
+                Swal.showValidationMessage('ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง');
+                return false;
+            }
+        },
+        allowOutsideClick: () => !Swal.isLoading()
     });
 
-    if (formValues) {
-        try {
-            // First try member login API
-            const res = await fetch('<?= URL_PATH ?>/api/member.php?action=login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formValues)
-            });
-            const data = await res.json();
-            if (data.status) {
-                window.location.reload();
-            } else {
-                // Fallback check by phone
-                const phoneRes = await fetch(`<?= URL_PATH ?>/api/address_lookup.php?action=check_customer&phone=${encodeURIComponent(formValues.username)}`);
-                const phoneData = await phoneRes.json();
-                if (phoneData.status === 'success' && phoneData.found) {
-                    matchedCustomer = phoneData;
-                    applyMatchedCustomer();
-                } else {
-                    Swal.fire({ icon: 'error', title: 'ไม่พบบัญชีผู้ใช้', text: data.message || 'กรุณาตรวจสอบข้อมูลหรือสั่งซื้อครั้งแรกได้เลยครับ' });
-                }
-            }
-        } catch (e) {
-            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่' });
-        }
+    if (loginResult && loginResult.status) {
+        window.location.reload();
     }
 }
 

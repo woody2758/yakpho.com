@@ -1335,7 +1335,7 @@ function get_checkout_page_data(PDO $db, string $lang = 'th'): array
     $userId = (int)($_SESSION['user_id'] ?? 0);
     if ($userId > 0) {
         try {
-            $stmt = $db->prepare("SELECT user_id, user_name, user_lastname, user_nickname, user_mobile, user_email, m_stamp_points, user_stars, member_tier, user_address, user_postcode, user_province FROM user WHERE user_id = ?");
+            $stmt = $db->prepare("SELECT user_id, user_name, user_lastname, user_nickname, user_mobile, user_email, user_stars, member_tier, user_address, user_postcode, user_province FROM user WHERE user_id = ?");
             $stmt->execute([$userId]);
             $loggedUser = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($loggedUser) {
