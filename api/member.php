@@ -126,10 +126,7 @@ try {
                 exit;
             }
 
-            $stmt = $db->prepare("
-                SELECT user_id, user_name, user_email, email_verified, member_tier, user_stars, line_user_id, line_display_name, line_picture_url, affiliate_code 
-                FROM user WHERE user_id = ?
-            ");
+            $stmt = $db->prepare("SELECT * FROM user WHERE user_id = ? LIMIT 1");
             $stmt->execute([$userId]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -139,11 +136,22 @@ try {
                 exit;
             }
 
+            $user['member_tier']       = $user['member_tier'] ?? 'general';
+            $user['user_stars']        = (int)($user['user_stars'] ?? $user['m_stamp_points'] ?? 0);
+            $user['m_stamp_points']    = $user['user_stars'];
+            $user['line_user_id']      = $user['line_user_id'] ?? '';
+            $user['line_display_name'] = $user['line_display_name'] ?? '';
+            $user['line_picture_url']  = $user['line_picture_url'] ?? '';
+            $user['affiliate_code']    = $user['affiliate_code'] ?? '';
+            $user['email_verified']    = (int)($user['email_verified'] ?? 0);
+
             $affiliateStats = null;
             if ($user['member_tier'] === 'therapist_partner' && !empty($user['affiliate_code'])) {
-                $affStmt = $db->prepare("SELECT total_shops, total_commission FROM affiliates WHERE affiliate_code = ?");
-                $affStmt->execute([$user['affiliate_code']]);
-                $affiliateStats = $affStmt->fetch(PDO::FETCH_ASSOC);
+                try {
+                    $affStmt = $db->prepare("SELECT total_shops, total_commission FROM affiliates WHERE affiliate_code = ?");
+                    $affStmt->execute([$user['affiliate_code']]);
+                    $affiliateStats = $affStmt->fetch(PDO::FETCH_ASSOC);
+                } catch (Throwable $e) {}
             }
 
             http_response_code(200);
@@ -251,8 +259,7 @@ try {
             }
 
             $stmt = $db->prepare("
-                SELECT user_id, user_username, user_password, user_name, user_email, email_verified,
-                       user_mobile, user_tel, m_stamp_points, member_tier, line_user_id, line_display_name, line_picture_url, affiliate_code
+                SELECT *
                 FROM user
                 WHERE (user_username = ? OR user_mobile = ? OR user_tel = ? OR user_email = ?) AND user_del = 0
                 LIMIT 1
@@ -285,21 +292,25 @@ try {
                 exit;
             }
 
-            // Regenerate session ID for security per md/AGENT.md
-            session_regenerate_id(true);
+            // Regenerate session ID for security
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                @session_regenerate_id(true);
+            }
+
+            $uName = !empty($u['user_name']) ? $u['user_name'] : (!empty($u['user_username']) ? $u['user_username'] : 'คุณลูกค้า');
 
             $_SESSION['user_id']           = (int)$u['user_id'];
-            $_SESSION['user_name']         = $u['user_name'] ?: $u['user_username'];
-            $_SESSION['user_username']     = $u['user_username'];
-            $_SESSION['user_email']        = $u['user_email'];
-            $_SESSION['user_mobile']       = $u['user_mobile'] ?: $u['user_tel'];
-            $_SESSION['member_tier']       = $u['member_tier'] ?: 'general';
-            $_SESSION['m_stamp_points']    = (int)($u['m_stamp_points'] ?? $u['user_stars'] ?? 0);
+            $_SESSION['user_name']         = $uName;
+            $_SESSION['user_username']     = $u['user_username'] ?? '';
+            $_SESSION['user_email']        = $u['user_email'] ?? '';
+            $_SESSION['user_mobile']       = !empty($u['user_mobile']) ? $u['user_mobile'] : ($u['user_tel'] ?? '');
+            $_SESSION['member_tier']       = $u['member_tier'] ?? 'general';
+            $_SESSION['m_stamp_points']    = (int)($u['user_stars'] ?? ($u['m_stamp_points'] ?? 0));
             $_SESSION['user_stars']        = $_SESSION['m_stamp_points'];
-            $_SESSION['line_user_id']      = $u['line_user_id'];
-            $_SESSION['line_display_name'] = $u['line_display_name'];
-            $_SESSION['line_picture_url']  = $u['line_picture_url'];
-            $_SESSION['affiliate_code']    = $u['affiliate_code'];
+            $_SESSION['line_user_id']      = $u['line_user_id'] ?? '';
+            $_SESSION['line_display_name'] = $u['line_display_name'] ?? '';
+            $_SESSION['line_picture_url']  = $u['line_picture_url'] ?? '';
+            $_SESSION['affiliate_code']    = $u['affiliate_code'] ?? '';
 
             // Remember Me 1 year
             $rememberMe = !empty($payload['remember_me']);
@@ -334,7 +345,7 @@ try {
     echo json_encode([
         'status'  => false,
         'data'    => null,
-        'message' => 'เกิดข้อผิดพลาดภายในระบบ กรุณาลองใหม่อีกครั้ง'
+        'message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()
     ]);
     exit;
 }

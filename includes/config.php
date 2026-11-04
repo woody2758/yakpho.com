@@ -52,14 +52,30 @@ try {
 // Auto self-healing schema migration (Ensures missing columns exist on production DB)
 static $schemaChecked = false;
 if (!$schemaChecked && isset($db)) {
-    try {
-        $db->query("SELECT m_stamp_points FROM user LIMIT 1");
-    } catch (Throwable $e) {
+    $columnsToEnsure = [
+        'user_stars'        => "ALTER TABLE user ADD COLUMN user_stars INT DEFAULT 0",
+        'm_stamp_points'    => "ALTER TABLE user ADD COLUMN m_stamp_points INT DEFAULT 0",
+        'user_nickname'     => "ALTER TABLE user ADD COLUMN user_nickname VARCHAR(100) DEFAULT NULL",
+        'user_birthdate'    => "ALTER TABLE user ADD COLUMN user_birthdate VARCHAR(50) DEFAULT NULL",
+        'line_display_name' => "ALTER TABLE user ADD COLUMN line_display_name VARCHAR(150) DEFAULT NULL",
+        'line_user_id'      => "ALTER TABLE user ADD COLUMN line_user_id VARCHAR(100) DEFAULT NULL",
+        'line_picture_url'  => "ALTER TABLE user ADD COLUMN line_picture_url VARCHAR(500) DEFAULT NULL",
+        'member_tier'       => "ALTER TABLE user ADD COLUMN member_tier VARCHAR(50) DEFAULT 'general'",
+        'affiliate_code'    => "ALTER TABLE user ADD COLUMN affiliate_code VARCHAR(50) DEFAULT NULL",
+        'email_verified'    => "ALTER TABLE user ADD COLUMN email_verified TINYINT DEFAULT 0",
+        'user_key'          => "ALTER TABLE user ADD COLUMN user_key VARCHAR(100) DEFAULT NULL"
+    ];
+
+    foreach ($columnsToEnsure as $col => $sql) {
         try {
-            $db->exec("ALTER TABLE user ADD COLUMN m_stamp_points INT DEFAULT 0 AFTER user_stars");
-            $db->exec("UPDATE user SET m_stamp_points = user_stars WHERE user_stars > 0");
-        } catch (Throwable $e2) {}
+            $db->query("SELECT {$col} FROM user LIMIT 1");
+        } catch (Throwable $e) {
+            try {
+                $db->exec($sql);
+            } catch (Throwable $e2) {}
+        }
     }
+
     try {
         $db->query("SELECT id FROM member_points_log LIMIT 1");
     } catch (Throwable $e) {
