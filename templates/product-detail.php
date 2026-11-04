@@ -121,7 +121,7 @@ if (typeof gtag === 'function') {
                         <span style="font-size:0.9rem; color:var(--yp-text-muted); text-decoration:line-through;">฿<?= number_format($nprice, 2) ?></span>
                     <?php endif; ?>
                     <?php if ($isWholesale1kg): ?>
-                        <span class="detail-wholesale-pill">
+                        <span class="detail-wholesale-pill" style="display:inline-flex; align-items:center; background:rgba(217,119,6,0.18); color:#F59E0B; border:1px solid rgba(245,158,11,0.4); font-size:0.8rem; font-weight:700; padding:4px 10px; border-radius:999px;">
                             <?= $currentLang === 'th' ? 'เรท 6 กก. ขึ้นไป ฿590/กก.' : 'Wholesale 6+ kg at ฿590/kg' ?>
                         </span>
                     <?php endif; ?>
@@ -160,7 +160,16 @@ if (typeof gtag === 'function') {
             }
             ?>
 
-            <div class="detail-tabs-wrap">
+            <style>
+/* High-Contrast Tab Buttons */
+.detail-tab-btn { color: #94A3B8 !important; font-weight: 500 !important; }
+.detail-tab-btn:hover { color: #F8FAFC !important; }
+.detail-tab-btn.active { color: #F59E0B !important; font-weight: 700 !important; }
+.detail-tab-btn.active::after { background: #F59E0B !important; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5) !important; }
+.product-rich-detail { color: #CBD5E1 !important; }
+.product-rich-detail strong { color: #F8FAFC !important; }
+</style>
+<div class="detail-tabs-wrap">
                 <?php if (count($contentTabs) > 1): ?>
                     <div class="detail-tabs-nav" role="tablist">
                         <?php $tIdx = 0; foreach ($contentTabs as $tabTitle => $tabBody): ?>
