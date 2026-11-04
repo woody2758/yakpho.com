@@ -159,9 +159,20 @@ ob_start();
                                     <td class="ps-4">
                                         <div class="fw-bold text-dark">C<?= $userId ?></div>
                                         <?php
-                                        $order_count_stmt = $db->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ? AND orders_del = 0");
-                                        $order_count_stmt->execute([$userId]);
-                                        $order_count = (int)$order_count_stmt->fetchColumn();
+                                        $order_count = 0;
+                                        try {
+                                            $order_count_stmt = $db->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ? AND orders_del = 0");
+                                            $order_count_stmt->execute([$userId]);
+                                            $order_count = (int)$order_count_stmt->fetchColumn();
+                                        } catch (Throwable $e) {
+                                            try {
+                                                $order_count_stmt = $db->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ?");
+                                                $order_count_stmt->execute([$userId]);
+                                                $order_count = (int)$order_count_stmt->fetchColumn();
+                                            } catch (Throwable $e2) {
+                                                $order_count = 0;
+                                            }
+                                        }
                                         if ($order_count > 0):
                                         ?>
                                         <div class="text-danger mt-1 cursor-pointer" style="font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;" title="จำนวนการสั่งซื้อทั้งหมด คลิกเพื่อดู" onclick="window.location.href='<?= ADMIN_URL ?>/orders/?search=<?= urlencode('C'.$userId) ?>&status=all'">

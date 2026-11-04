@@ -61,12 +61,14 @@ function get_address_by_id($addr_id) {
  */
 function count_user_addresses($user_id) {
     global $db;
-    
-    $sql = "SELECT COUNT(*) as total FROM addr WHERE user_id = ? AND addr_del = 0";
-    $stmt = $db->prepare($sql);
-    $stmt->execute([$user_id]);
-    
-    return (int)$stmt->fetchColumn();
+    try {
+        $sql = "SELECT COUNT(*) as total FROM addr WHERE user_id = ? AND addr_del = 0";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$user_id]);
+        return (int)$stmt->fetchColumn();
+    } catch (Throwable $e) {
+        return 0;
+    }
 }
 
 /**
