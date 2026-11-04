@@ -31,7 +31,7 @@ switch ($action) {
             }
 
             // Fetch user info
-            $stmtUser = $db->prepare("SELECT user_id, user_name, user_lastname, user_nickname, user_birthdate, user_mobile, user_email, user_address, user_province, user_postcode, user_country, user_stars, user_note, line_display_name, user_start, role FROM user WHERE user_id = ? AND user_del = 0");
+            $stmtUser = $db->prepare("SELECT * FROM user WHERE user_id = ? AND user_del = 0 LIMIT 1");
             $stmtUser->execute([$userId]);
             $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
@@ -148,7 +148,7 @@ switch ($action) {
             $db->beginTransaction();
 
             // Fetch current user note and points
-            $stCheck = $db->prepare("SELECT user_note, m_stamp_points, user_stars FROM user WHERE user_id = ?");
+            $stCheck = $db->prepare("SELECT * FROM user WHERE user_id = ? LIMIT 1");
             $stCheck->execute([$userId]);
             $uRow = $stCheck->fetch(PDO::FETCH_ASSOC);
 
@@ -200,26 +200,31 @@ switch ($action) {
             $jsonNote = json_encode($crmData, JSON_UNESCAPED_UNICODE);
             $parsedBirthdate = !empty($birthdate) ? date('Y-m-d', strtotime($birthdate)) : null;
 
+            // Update core guaranteed columns
             $stmtUpd = $db->prepare("
                 UPDATE user 
                 SET user_name = ?,
                     user_lastname = ?,
-                    user_nickname = ?,
-                    user_birthdate = ?,
-                    line_display_name = ?,
-                    user_note = ?,
-                    updated_at = NOW()
+                    user_note = ?
                 WHERE user_id = ?
             ");
             $stmtUpd->execute([
                 $name,
                 $lastname,
-                $nickname,
-                $parsedBirthdate,
-                $lineId,
                 $jsonNote,
                 $userId
             ]);
+
+            // Safely update optional columns if they exist in schema
+            if (!empty($nickname)) {
+                try { $db->prepare("UPDATE user SET user_nickname = ? WHERE user_id = ?")->execute([$nickname, $userId]); } catch (Throwable $e) {}
+            }
+            if (!empty($parsedBirthdate)) {
+                try { $db->prepare("UPDATE user SET user_birthdate = ? WHERE user_id = ?")->execute([$parsedBirthdate, $userId]); } catch (Throwable $e) {}
+            }
+            if (!empty($lineId)) {
+                try { $db->prepare("UPDATE user SET line_display_name = ? WHERE user_id = ?")->execute([$lineId, $userId]); } catch (Throwable $e) {}
+            }
 
             // Set login session
             $_SESSION['user_id'] = $userId;
@@ -227,7 +232,7 @@ switch ($action) {
             $_SESSION['c_code'] = 'C' . $userId;
 
             // Fetch new total points
-            $stNewPts = $db->prepare("SELECT user_stars, m_stamp_points FROM user WHERE user_id = ?");
+            $stNewPts = $db->prepare("SELECT user_stars FROM user WHERE user_id = ? LIMIT 1");
             $stNewPts->execute([$userId]);
             $nPts = $stNewPts->fetch(PDO::FETCH_ASSOC);
             $finalPoints = (int)$nPts['user_stars'];

@@ -864,3 +864,18 @@
     });
 
 })();
+
+    // Prevent double-click & display spinner on Drawer Checkout click
+    function handleDrawerCheckoutClick(e, btn) {
+        if (!btn) return;
+        if (btn.classList.contains('is-loading')) {
+            e.preventDefault();
+            return false;
+        }
+        btn.classList.add('is-loading');
+        const text = document.getElementById('drawerCheckoutText');
+        if (text) {
+            text.textContent = 'กำลังไปหน้าชำระเงิน...';
+        }
+    }
+    window.handleDrawerCheckoutClick = handleDrawerCheckoutClick;

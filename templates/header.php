@@ -476,11 +476,11 @@ $savedTheme = $_COOKIE['yakpho_theme'] ?? 'dark';
 
                 </div>
 
-                <a href="<?= URL_PATH ?>/<?= $currentLang ?>/checkout" class="btn-checkout-primary">
+                <a href="<?= URL_PATH ?>/<?= $currentLang ?>/checkout" class="btn-checkout-primary" id="btnDrawerCheckout" onclick="handleDrawerCheckoutClick(event, this)">
 
-                    <span>ดำเนินการสั่งซื้อ (Checkout)</span>
-
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <span class="spinner-snake btn-checkout-spinner" aria-hidden="true"></span>
+                    <span id="drawerCheckoutText">ดำเนินการสั่งซื้อ (Checkout)</span>
+                    <svg class="btn-checkout-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
 
                 </a>
 

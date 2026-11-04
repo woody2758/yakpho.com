@@ -160,15 +160,7 @@ if (typeof gtag === 'function') {
             }
             ?>
 
-            <style>
-/* High-Contrast Tab Buttons */
-.detail-tab-btn { color: #94A3B8 !important; font-weight: 500 !important; }
-.detail-tab-btn:hover { color: #F8FAFC !important; }
-.detail-tab-btn.active { color: #F59E0B !important; font-weight: 700 !important; }
-.detail-tab-btn.active::after { background: #F59E0B !important; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5) !important; }
-.product-rich-detail { color: #CBD5E1 !important; }
-.product-rich-detail strong { color: #F8FAFC !important; }
-</style>
+            
 <div class="detail-tabs-wrap">
                 <?php if (count($contentTabs) > 1): ?>
                     <div class="detail-tabs-nav" role="tablist">
