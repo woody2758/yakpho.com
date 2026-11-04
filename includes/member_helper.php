@@ -57,7 +57,40 @@ function get_member_tier_info(string $tier): array {
 }
 
 /**
- * Get or Award M-Stamp Points (Safe for nested DB transactions)
+ * Get current E-Stamp balance (single source of truth).
+ * Legacy rows may hold points in either user_stars or m_stamp_points, so the larger value wins.
+ */
+function get_m_stamp_balance(PDO $db, int $userId, bool $forUpdate = false): int {
+    if ($userId <= 0) {
+        return 0;
+    }
+    $sql = "SELECT GREATEST(COALESCE(user_stars, 0), COALESCE(m_stamp_points, 0)) FROM user WHERE user_id = ?" . ($forUpdate ? " FOR UPDATE" : "");
+    try {
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$userId]);
+    } catch (Throwable $e) {
+        // Fallback for databases without m_stamp_points column
+        $stmt = $db->prepare("SELECT COALESCE(user_stars, 0) FROM user WHERE user_id = ?" . ($forUpdate ? " FOR UPDATE" : ""));
+        $stmt->execute([$userId]);
+    }
+    return (int)$stmt->fetchColumn();
+}
+
+/**
+ * Persist E-Stamp balance into both legacy columns (keeps them in sync).
+ */
+function set_m_stamp_balance(PDO $db, int $userId, int $balance): void {
+    try {
+        $stmt = $db->prepare("UPDATE user SET user_stars = ?, m_stamp_points = ? WHERE user_id = ?");
+        $stmt->execute([$balance, $balance, $userId]);
+    } catch (Throwable $e) {
+        $stmt = $db->prepare("UPDATE user SET user_stars = ? WHERE user_id = ?");
+        $stmt->execute([$balance, $userId]);
+    }
+}
+
+/**
+ * Award M-Stamp Points (Safe for nested DB transactions)
  */
 function award_m_stamp_points(PDO $db, int $userId, int $points, string $actionType, ?int $referenceId = null, string $note = ''): int {
     if ($points <= 0 || $userId <= 0) {
@@ -71,15 +104,9 @@ function award_m_stamp_points(PDO $db, int $userId, int $points, string $actionT
     }
 
     try {
-        // Fetch current points
-        try { $stmt = $db->prepare("SELECT user_stars FROM user WHERE user_id = ? FOR UPDATE"); } catch (Throwable $e) { $stmt = $db->prepare("SELECT user_id FROM user WHERE user_id = ?"); }
-        $stmt->execute([$userId]);
-        $current = (int)$stmt->fetchColumn();
-
+        $current    = get_m_stamp_balance($db, $userId, true);
         $newBalance = $current + $points;
-
-        try { $updateStmt = $db->prepare("UPDATE user SET user_stars = ?, m_stamp_points = ? WHERE user_id = ?"); $updateStmt->execute([$newBalance, $newBalance, $userId]); } catch (Throwable $e) { $updateStmt = $db->prepare("UPDATE user SET user_stars = ? WHERE user_id = ?"); $updateStmt->execute([$newBalance, $userId]); }
-        $updateStmt->execute([$newBalance, $userId]);
+        set_m_stamp_balance($db, $userId, $newBalance);
 
         $logStmt = $db->prepare("
             INSERT INTO member_points_log (user_id, points_change, balance_after, action_type, reference_id, note, created_at)
@@ -91,8 +118,8 @@ function award_m_stamp_points(PDO $db, int $userId, int $points, string $actionT
             $db->commit();
         }
         return $newBalance;
-    } catch (Exception $e) {
-        if ($isOwner) {
+    } catch (Throwable $e) {
+        if ($isOwner && $db->inTransaction()) {
             $db->rollBack();
         }
         throw $e;
@@ -114,10 +141,7 @@ function deduct_m_stamp_points(PDO $db, int $userId, int $points, ?int $referenc
     }
 
     try {
-        try { $stmt = $db->prepare("SELECT user_stars FROM user WHERE user_id = ? FOR UPDATE"); } catch (Throwable $e) { $stmt = $db->prepare("SELECT user_id FROM user WHERE user_id = ?"); }
-        $stmt->execute([$userId]);
-        $current = (int)$stmt->fetchColumn();
-
+        $current = get_m_stamp_balance($db, $userId, true);
         if ($current < $points) {
             if ($isOwner) {
                 $db->rollBack();
@@ -126,9 +150,7 @@ function deduct_m_stamp_points(PDO $db, int $userId, int $points, ?int $referenc
         }
 
         $newBalance = $current - $points;
-
-        try { $updateStmt = $db->prepare("UPDATE user SET user_stars = ?, m_stamp_points = ? WHERE user_id = ?"); $updateStmt->execute([$newBalance, $newBalance, $userId]); } catch (Throwable $e) { $updateStmt = $db->prepare("UPDATE user SET user_stars = ? WHERE user_id = ?"); $updateStmt->execute([$newBalance, $userId]); }
-        $updateStmt->execute([$newBalance, $userId]);
+        set_m_stamp_balance($db, $userId, $newBalance);
 
         $logStmt = $db->prepare("
             INSERT INTO member_points_log (user_id, points_change, balance_after, action_type, reference_id, note, created_at)
@@ -140,8 +162,8 @@ function deduct_m_stamp_points(PDO $db, int $userId, int $points, ?int $referenc
             $db->commit();
         }
         return true;
-    } catch (Exception $e) {
-        if ($isOwner) {
+    } catch (Throwable $e) {
+        if ($isOwner && $db->inTransaction()) {
             $db->rollBack();
         }
         throw $e;

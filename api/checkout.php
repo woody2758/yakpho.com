@@ -226,9 +226,7 @@ try {
     // Check M-Stamp points
     $appliedStamps = 0;
     if ($redeemStamps > 0 && $userId > 0) {
-        $stmtPts = $db->prepare("SELECT m_stamp_points FROM user WHERE user_id = ?");
-        $stmtPts->execute([$userId]);
-        $currPoints = (int)$stmtPts->fetchColumn();
+        $currPoints = get_m_stamp_balance($db, $userId);
 
         $maxRedeem = min($redeemStamps, $currPoints, (int)floor($subtotal - $discount));
         if ($maxRedeem > 0) {
@@ -325,12 +323,12 @@ try {
     $newBalance = 0;
     $lineUserId = '';
     try {
-        $uStmt = $db->prepare("SELECT m_stamp_points, line_user_id FROM user WHERE user_id = ?");
+        $newBalance = get_m_stamp_balance($db, $userId);
+        $uStmt = $db->prepare("SELECT * FROM user WHERE user_id = ? LIMIT 1");
         $uStmt->execute([$userId]);
-        $uRow = $uStmt->fetch(PDO::FETCH_ASSOC);
-        $newBalance = (int)($uRow['m_stamp_points'] ?? 0);
-        $lineUserId = $uRow['line_user_id'] ?? '';
-    } catch (Exception $e) {}
+        $uRow = $uStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        $lineUserId = (string)($uRow['line_user_id'] ?? '');
+    } catch (Throwable $e) {}
 
     // 9. Send Resend Email Confirmation if email is available
     $sendToEmail = $customerEmail ?: ($userRow['user_email'] ?? '');

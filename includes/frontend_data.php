@@ -1335,10 +1335,15 @@ function get_checkout_page_data(PDO $db, string $lang = 'th'): array
     $userId = (int)($_SESSION['user_id'] ?? 0);
     if ($userId > 0) {
         try {
-            $stmt = $db->prepare("SELECT user_id, user_name, user_lastname, user_nickname, user_mobile, user_email, user_stars, member_tier, user_address, user_postcode, user_province FROM user WHERE user_id = ?");
+            $stmt = $db->prepare("SELECT * FROM user WHERE user_id = ? AND user_del = 0 LIMIT 1");
             $stmt->execute([$userId]);
-            $loggedUser = $stmt->fetch(PDO::FETCH_ASSOC);
+            $loggedUser = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
             if ($loggedUser) {
+                unset($loggedUser['user_password'], $loggedUser['user_key']);
+                $loggedUser['user_name']     = (string)($loggedUser['user_name'] ?? '');
+                $loggedUser['user_mobile']   = (string)(!empty($loggedUser['user_mobile']) ? $loggedUser['user_mobile'] : ($loggedUser['user_tel'] ?? ''));
+                $loggedUser['user_address']  = (string)($loggedUser['user_address'] ?? '');
+                $loggedUser['user_postcode'] = (string)($loggedUser['user_postcode'] ?? '');
                 $memberPoints = max((int)($loggedUser['m_stamp_points'] ?? 0), (int)($loggedUser['user_stars'] ?? 0));
                 
                 // Fetch latest saved shipping address from addr
@@ -1357,7 +1362,9 @@ function get_checkout_page_data(PDO $db, string $lang = 'th'): array
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {
+            error_log('[get_checkout_page_data] ' . $e->getMessage());
+        }
     }
 
     return [

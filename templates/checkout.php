@@ -354,6 +354,8 @@ $affiliateCookie = (string)($CHECKOUT_DATA['affiliate_cookie'] ?? '');
                                 <div class="estamp-desc" id="estampBalanceNotice">
                                     <?php if ($memberPoints > 0): ?>
                                         ท่านมีแต้มสะสม: <strong class="text-gold" id="estampAvailablePoints"><?= number_format($memberPoints) ?></strong> แต้ม (1 แต้ม = ฿1)
+                                    <?php elseif (!empty($loggedUser)): ?>
+                                        <span id="estampAvailablePointsText">ท่านมีแต้มสะสม: <strong class="text-gold">0</strong> แต้ม — สั่งซื้อครั้งนี้รับแต้มเพื่อใช้เป็นส่วนลดครั้งถัดไป (1 แต้ม = ฿1)</span>
                                     <?php else: ?>
                                         <span id="estampAvailablePointsText">มีแต้มสะสม? <a href="javascript:void(0)" onclick="openCheckoutLoginModal()" class="text-gold underline">ล็อกอิน</a> หรือกรอกเบอร์โทรเพื่อใช้แต้ม</span>
                                     <?php endif; ?>
