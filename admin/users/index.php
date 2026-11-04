@@ -15,10 +15,17 @@ $role   = trim($_GET['role'] ?? '');
 $tier   = trim($_GET['tier'] ?? '');
 $sort   = trim($_GET['sort'] ?? 'desc'); // desc = newest first, asc = oldest first
 
-// Query
-$users      = get_all_users($limit, $offset, $search, $role, $sort, '', $tier);
-$totalUsers = count_all_users($search, $role, '', $tier);
-$totalPages = ceil($totalUsers / $limit);
+// Query with safe error handling
+try {
+    $users      = get_all_users($limit, $offset, $search, $role, $sort, '', $tier);
+    $totalUsers = count_all_users($search, $role, '', $tier);
+    $totalPages = max(1, (int)ceil($totalUsers / $limit));
+} catch (Throwable $e) {
+    error_log("[admin/users/index.php] Query Error: " . $e->getMessage());
+    $users = [];
+    $totalUsers = 0;
+    $totalPages = 1;
+}
 $ver = "?v=" . time();
 
 ob_start();
