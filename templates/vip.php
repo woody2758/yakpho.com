@@ -25,10 +25,16 @@ $token = htmlspecialchars($_GET['token'] ?? '');
                     ? 'ลิงก์สิทธิพิเศษนี้อาจหมดอายุแล้ว (เกิน 30 วัน) หรือรหัสไม่ถูกต้อง ท่านสามารถติดต่อแอดมินทาง LINE เพื่อขอรับลิงก์ใหม่ได้ทันทีค่ะ'
                     : 'This VIP invitation link may have expired or is invalid. Please contact support via LINE to receive a new link.' ?>
             </p>
-            <a href="https://line.me/ti/p/~@yakpho" target="_blank" rel="noopener" class="vip-btn-primary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                <span><?= $currentLang === 'th' ? 'ติดต่อแอดมินเพื่อขอรับลิงก์ใหม่' : 'Contact Support via LINE' ?></span>
-            </a>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <a href="https://lin.ee/vyUtLZ6" target="_blank" rel="noopener" class="vip-btn-primary" style="background:#06C755; border-color:#06C755; display:inline-flex; align-items:center; gap:8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.085.495.234l2.468 3.348V8.108c0-.345.28-.63.629-.63.347 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"></path></svg>
+                    <span><?= $currentLang === 'th' ? 'ติดต่อแอดมิน LINE' : 'Contact via LINE' ?></span>
+                </a>
+                <a href="https://m.me/YakPho.Aroma" target="_blank" rel="noopener" class="vip-btn-primary" style="background:#0084FF; border-color:#0084FF; display:inline-flex; align-items:center; gap:8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.093.304 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.056-3.259-5.963 3.259 6.559-6.963 3.13 3.259 5.89-3.259-6.56 6.963z"></path></svg>
+                    <span><?= $currentLang === 'th' ? 'ติดต่อ Messenger' : 'Contact via Messenger' ?></span>
+                </a>
+            </div>
         </div>
 
         <!-- Active VIP Member Portal Card -->

@@ -63,7 +63,7 @@ $allFaqs = $STORES_DATA['faqs'] ?? [];
             <p class="content-page-desc"><?= $currentLang === 'th' ? 'ติดต่อทีมงานแอดมินและฝ่ายบริการลูกค้าได้โดยตรง' : 'Contact our dedicated spa wholesale support team.' ?></p>
         </div>
         <div>
-            <a href="https://line.me/ti/p/@thaiherb.online" target="_blank" rel="noopener" class="profile-btn-sm-primary">
+            <a href="https://lin.ee/vyUtLZ6" target="_blank" rel="noopener" class="profile-btn-sm-primary">
                 <?= $currentLang === 'th' ? 'ติดต่อแอดมินผ่าน LINE' : 'Chat via LINE' ?>
             </a>
         </div>
