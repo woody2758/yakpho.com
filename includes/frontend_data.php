@@ -56,6 +56,7 @@ function resolve_product_image(?string $filename, string $size = 'large', int $f
 {
     $baseDir = dirname(__DIR__);
     $urlBase = defined('URL_PATH') ? URL_PATH : '';
+    $baseDir = dirname(__DIR__);
 
     if (!empty($filename)) {
         $clean = basename(trim($filename));
@@ -476,6 +477,7 @@ function get_site_context(PDO $db, string $lang = 'th'): array
 function get_home_page_data(PDO $db, string $lang = 'th'): array
 {
     $urlBase = defined('URL_PATH') ? URL_PATH : '';
+    $baseDir = dirname(__DIR__);
 
     // 1. Hero Slides from yakpho_hero_slides
     $heroSlides = [];
@@ -619,12 +621,93 @@ function get_home_page_data(PDO $db, string $lang = 'th'): array
         $scents = [];
     }
 
-    // 4. Featured Products (40g Retail Jars & 1kg Professional Balms & Herbal Oils)
-    $featuredProducts = [];
+    // 4.1 Real Best Sellers: Top 20 1kg Balms from Completed Orders (Status 5, 6, 11) with 1-hr file cache
+    $bestSellers = [];
+    $cacheDir = $baseDir . '/uploads/cache';
+    if (!is_dir($cacheDir)) {
+        @mkdir($cacheDir, 0777, true);
+    }
+    $cacheFile = $cacheDir . '/bestsellers_' . $lang . '.json';
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < 3600)) {
+        $cachedData = @json_decode(file_get_contents($cacheFile), true);
+        if (is_array($cachedData) && !empty($cachedData)) {
+            $bestSellers = $cachedData;
+        }
+    }
+
+    if (empty($bestSellers)) {
+        try {
+            $stmt = $db->prepare("
+                SELECT p.product_id, p.product_code, p.productcat_id, p.product_price, p.product_nprice,
+                       p.product_picture, p.scent_id, p.formula_id,
+                       pc.prod_size, pc.prod_formula,
+                       COALESCE(NULLIF(pt.product_name, ''), NULLIF(pt_en.product_name, ''), NULLIF(pt_th.product_name, ''), p.product_name) AS product_name,
+                       COALESCE(NULLIF(pt.product_excerpt, ''), NULLIF(pt_en.product_excerpt, ''), NULLIF(pt_th.product_excerpt, ''), p.product_excerpt) AS product_excerpt,
+                       SUM(od.ordetail_qty) AS total_sold
+                FROM ordetail od
+                JOIN orders o ON od.orders_id = o.orders_id
+                JOIN product p ON od.product_id = p.product_id
+                LEFT JOIN productcat pc ON p.productcat_id = pc.productcat_id
+                LEFT JOIN product_translations pt ON p.product_id = pt.product_id AND pt.lang_code = ?
+                LEFT JOIN product_translations pt_en ON p.product_id = pt_en.product_id AND pt_en.lang_code = 'en'
+                LEFT JOIN product_translations pt_th ON p.product_id = pt_th.product_id AND pt_th.lang_code = 'th'
+                WHERE o.orders_del = 0 
+                  AND o.orders_status IN (5, 6, 11)
+                  AND p.product_del = 0 
+                  AND p.product_status = 1
+                  AND p.productcat_id IN (32, 38, 40)
+                GROUP BY p.product_id
+                ORDER BY total_sold DESC
+                LIMIT 20
+            ");
+            $stmt->execute([$lang]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $i => $r) {
+                $rank = $i + 1;
+                $sold = (int)$r['total_sold'];
+                $r['rank'] = $rank;
+                $r['total_sold_num'] = $sold;
+                $r['total_sold_formatted'] = number_format($sold);
+                $r['image_url'] = resolve_product_image($r['product_picture'], 'small', $i + 1);
+                $r['price_formatted'] = number_format((float)$r['product_price'], 0);
+                $r['nprice_formatted'] = (float)$r['product_nprice'] > (float)$r['product_price']
+                    ? number_format((float)$r['product_nprice'], 0)
+                    : '';
+                $r['is_1kg_wholesale'] = true;
+
+                if ($rank === 1) {
+                    $r['badge_text'] = $lang === 'th' ? 'อันดับ 1 ขายดีสุด' : 'No.1 Best Seller';
+                    $r['badge_class'] = 'badge-rank-1';
+                } elseif ($rank === 2) {
+                    $r['badge_text'] = $lang === 'th' ? 'อันดับ 2 ยอดนิยม' : 'No.2 Best Seller';
+                    $r['badge_class'] = 'badge-rank-2';
+                } elseif ($rank === 3) {
+                    $r['badge_text'] = $lang === 'th' ? 'อันดับ 3 ยอดนิยม' : 'No.3 Best Seller';
+                    $r['badge_class'] = 'badge-rank-3';
+                } elseif ($rank <= 10) {
+                    $r['badge_text'] = $lang === 'th' ? "อันดับ {$rank}" : "Top {$rank}";
+                    $r['badge_class'] = 'badge-wholesale';
+                } else {
+                    $r['badge_text'] = $lang === 'th' ? 'เรทส่ง ฿590' : 'Wholesale ฿590';
+                    $r['badge_class'] = 'badge-wholesale';
+                }
+                $bestSellers[] = $r;
+            }
+            if (!empty($bestSellers)) {
+                @file_put_contents($cacheFile, json_encode($bestSellers, JSON_UNESCAPED_UNICODE));
+            }
+        } catch (Exception $e) {
+            $bestSellers = [];
+        }
+    }
+
+    // 4.2 Recommended Products: 12 Random from Top 30 Most-Viewed Yak Pho Products
+    $recommendedProducts = [];
     try {
-        $stmt = $db->prepare("
+        $yakphoCats = '32, 38, 40, 34, 37, 43, 49, 50, 51, 23, 39, 55, 56, 57, 36, 13';
+        $stmtRec = $db->prepare("
             SELECT p.product_id, p.product_code, p.productcat_id, p.product_price, p.product_nprice,
-                   p.product_picture, p.scent_id, p.formula_id,
+                   p.product_picture, p.scent_id, p.formula_id, p.product_view,
                    pc.prod_size, pc.prod_formula,
                    COALESCE(NULLIF(pt.product_name, ''), NULLIF(pt_en.product_name, ''), NULLIF(pt_th.product_name, ''), p.product_name) AS product_name,
                    COALESCE(NULLIF(pt.product_excerpt, ''), NULLIF(pt_en.product_excerpt, ''), NULLIF(pt_th.product_excerpt, ''), p.product_excerpt) AS product_excerpt
@@ -633,24 +716,34 @@ function get_home_page_data(PDO $db, string $lang = 'th'): array
             LEFT JOIN product_translations pt ON p.product_id = pt.product_id AND pt.lang_code = ?
             LEFT JOIN product_translations pt_en ON p.product_id = pt_en.product_id AND pt_en.lang_code = 'en'
             LEFT JOIN product_translations pt_th ON p.product_id = pt_th.product_id AND pt_th.lang_code = 'th'
-            WHERE p.product_del = 0 AND p.product_status = 1
-              AND p.productcat_id IN (49, 50, 51, 32, 38, 40, 52, 54, 56, 57)
-            ORDER BY FIELD(p.productcat_id, 49, 50, 51, 32, 52, 54, 56, 57), p.product_id ASC
-            LIMIT 12
+            WHERE p.product_del = 0 
+              AND p.product_status = 1
+              AND p.productcat_id IN ($yakphoCats)
+            ORDER BY p.product_view DESC
+            LIMIT 30
         ");
-        $stmt->execute([$lang]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($rows as $i => $r) {
-            $r['image_url'] = resolve_product_image($r['product_picture'], 'small', $i + 1);
-            $r['price_formatted'] = number_format((float)$r['product_price'], 0);
-            $r['nprice_formatted'] = (float)$r['product_nprice'] > (float)$r['product_price']
-                ? number_format((float)$r['product_nprice'], 0)
-                : '';
-            $featuredProducts[] = $r;
+        $stmtRec->execute([$lang]);
+        $recPool = $stmtRec->fetchAll(PDO::FETCH_ASSOC);
+        if (!empty($recPool)) {
+            shuffle($recPool);
+            $selectedPool = array_slice($recPool, 0, 12);
+            foreach ($selectedPool as $i => $r) {
+                $r['image_url'] = resolve_product_image($r['product_picture'], 'small', $i + 1);
+                $r['price_formatted'] = number_format((float)$r['product_price'], 0);
+                $r['nprice_formatted'] = (float)$r['product_nprice'] > (float)$r['product_price']
+                    ? number_format((float)$r['product_nprice'], 0)
+                    : '';
+                $r['is_1kg_wholesale'] = in_array((int)$r['productcat_id'], [32, 38, 40], true);
+                $r['badge_text'] = $lang === 'th' ? 'แนะนำ' : 'Featured';
+                $r['badge_class'] = 'badge-rec';
+                $recommendedProducts[] = $r;
+            }
         }
     } catch (Exception $e) {
-        $featuredProducts = [];
+        $recommendedProducts = [];
     }
+
+    $featuredProducts = !empty($bestSellers) ? $bestSellers : $recommendedProducts;
 
     // 5. Brand Story Intro
     $brandStory = [
@@ -751,6 +844,8 @@ function get_home_page_data(PDO $db, string $lang = 'th'): array
         'scent_intro' => $scentIntro,
         'scents' => $scents,
         'featured_products' => $featuredProducts,
+        'best_sellers' => $bestSellers,
+        'recommended_products' => $recommendedProducts,
         'brand_story' => $brandStory,
         'pricing_intro' => $pricingIntro,
         'pricing_tiers' => $pricingTiers,

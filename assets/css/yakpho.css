@@ -2453,9 +2453,38 @@ input, select, textarea {
 
 
 .product-badge-tag.badge-wholesale {
-
     background: var(--yp-gold-dark);
-
+}
+.product-badge-tag.badge-rank-1 {
+    background: linear-gradient(135deg, #F59E0B, #B45309);
+    color: #FFFFFF;
+    box-shadow: 0 2px 6px rgba(180, 83, 9, 0.4);
+    font-weight: 700;
+}
+.product-badge-tag.badge-rank-2 {
+    background: linear-gradient(135deg, #94A3B8, #475569);
+    color: #FFFFFF;
+    box-shadow: 0 2px 6px rgba(71, 85, 105, 0.4);
+    font-weight: 700;
+}
+.product-badge-tag.badge-rank-3 {
+    background: linear-gradient(135deg, #D97706, #78350F);
+    color: #FFFFFF;
+    box-shadow: 0 2px 6px rgba(120, 53, 15, 0.4);
+    font-weight: 700;
+}
+.product-badge-tag.badge-rec {
+    background: linear-gradient(135deg, #10B981, #047857);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+.product-sales-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: #D97706;
+    font-weight: 600;
 }
 
 

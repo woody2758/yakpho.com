@@ -22,6 +22,8 @@ if (empty($heroSlides)) {
     ];
 }
 $featuredProducts = $HOME_DATA['featured_products'] ?? [];
+$bestSellers = !empty($HOME_DATA['best_sellers']) ? $HOME_DATA['best_sellers'] : $featuredProducts;
+$recommendedProducts = $HOME_DATA['recommended_products'] ?? [];
 $formulas = $HOME_DATA['formulas'] ?? [];
 $pricingTiers = $HOME_DATA['pricing_tiers'] ?? [];
 ?>
@@ -118,37 +120,35 @@ $pricingTiers = $HOME_DATA['pricing_tiers'] ?? [];
     </div>
 
     <!-- ============================================================
-         6. PRODUCT CATALOG FEED (2 Columns Mobile, 4 Columns Desktop)
+         6. REAL BEST SELLERS: 20 อันดับขายดี ยาหม่องกิโล (Calculated from Orders)
          ============================================================ -->
     <div class="section-headline">
         <h2 class="section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-accent-gold"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            <span>สินค้าแนะนำ &amp; ขายดี</span>
+            <span><?= $currentLang === 'th' ? 'ยาหม่องกิโล 20 อันดับขายดีสุด' : 'Top 20 Best Selling 1kg Balms' ?></span>
         </h2>
-        <a href="<?= URL_PATH ?>/<?= $currentLang ?>/products" class="section-more-link">
-            <span>ดูทั้งหมด (<?= count($featuredProducts) ?>+)</span>
+        <a href="<?= URL_PATH ?>/<?= $currentLang ?>/products?cat_id=32" class="section-more-link">
+            <span><?= $currentLang === 'th' ? 'ดูทั้งหมด (20)' : 'View All (20)' ?></span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </a>
     </div>
 
     <div class="products-grid-2col">
-        <?php foreach ($featuredProducts as $idx => $prod): ?>
+        <?php foreach ($bestSellers as $idx => $prod): ?>
             <?php
             $prodId = (int)$prod['product_id'];
             $price = (float)($prod['product_price'] ?? 0) > 0 ? (float)$prod['product_price'] : 690.0;
             $nprice = (float)($prod['product_nprice'] ?? 0);
-            $prodName = $prod['product_name'] ?? ('ผลิตภัณฑ์ ยักษ์โพธิ์ อโรม่า #' . $prodId);
-            $isWholesale1kg = in_array((int)($prod['productcat_id'] ?? 0), [32, 38, 40], true);
+            $prodName = $prod['product_name'] ?? ('ผลิตภัณฑ์ ยักษ์โพธิ์ #' . $prodId);
             $img = !empty($prod['image_url']) ? $prod['image_url'] : (URL_PATH . '/catalog/assets/img/best_h00' . (($idx % 6) + 1) . '.webp');
+            $badgeText = $prod['badge_text'] ?? ($idx < 3 ? 'อันดับ ' . ($idx + 1) : 'เรทส่ง ฿590');
+            $badgeClass = $prod['badge_class'] ?? 'badge-wholesale';
+            $soldFormatted = !empty($prod['total_sold_formatted']) ? $prod['total_sold_formatted'] : '';
             ?>
             <article class="product-item-card" data-product-id="<?= $prodId ?>">
                 <a href="<?= URL_PATH ?>/<?= $currentLang ?>/product/<?= $prodId ?>" class="product-thumb-wrap" aria-label="<?= htmlspecialchars($prodName) ?>">
                     <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($prodName) ?>" class="product-thumb-img" width="250" height="250" loading="lazy">
-                    <?php if ($isWholesale1kg): ?>
-                        <span class="product-badge-tag badge-wholesale">เรทส่ง ฿590</span>
-                    <?php elseif ($idx === 0): ?>
-                        <span class="product-badge-tag">ยอดนิยม</span>
-                    <?php endif; ?>
+                    <span class="product-badge-tag <?= htmlspecialchars($badgeClass) ?>"><?= htmlspecialchars($badgeText) ?></span>
                 </a>
 
                 <div class="product-card-body">
@@ -157,11 +157,18 @@ $pricingTiers = $HOME_DATA['pricing_tiers'] ?? [];
                     </a>
 
                     <div class="product-card-meta">
-                        <span class="product-size-pill"><?= !empty($prod['prod_size']) ? htmlspecialchars($prod['prod_size']) : ($isWholesale1kg ? '1 กก.' : 'มาตรฐาน') ?></span>
-                        <span class="product-rating-pill">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                            <span>4.9</span>
-                        </span>
+                        <span class="product-size-pill">1 กก.</span>
+                        <?php if (!empty($soldFormatted)): ?>
+                            <span class="product-sales-counter" title="ยอดขายจริงจากออเดอร์จัดส่งสำเร็จ">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                                <span>ขายแล้ว <?= $soldFormatted ?> กก.</span>
+                            </span>
+                        <?php else: ?>
+                            <span class="product-rating-pill">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                <span>4.9</span>
+                            </span>
+                        <?php endif; ?>
                     </div>
 
                     <div class="product-card-footer">
@@ -183,7 +190,70 @@ $pricingTiers = $HOME_DATA['pricing_tiers'] ?? [];
     </div>
 
     <!-- ============================================================
-         7. WHOLESALE RATE BANNER (CLEAN & MINIMAL CTA)
+         7. RECOMMENDED PRODUCTS: 12 รายการยอดนิยม สุ่มหมุนเวียน (Most Viewed Random)
+         ============================================================ -->
+    <?php if (!empty($recommendedProducts)): ?>
+        <div class="section-headline" style="margin-top: 36px;">
+            <h2 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-accent-red"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                <span><?= $currentLang === 'th' ? 'สินค้าแนะนำ &amp; ยอดนิยม' : 'Recommended &amp; Trending' ?></span>
+            </h2>
+            <a href="<?= URL_PATH ?>/<?= $currentLang ?>/products" class="section-more-link">
+                <span><?= $currentLang === 'th' ? 'ดูสินค้าทั้งหมด' : 'View All' ?></span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+        </div>
+
+        <div class="products-grid-2col">
+            <?php foreach ($recommendedProducts as $idx => $prod): ?>
+                <?php
+                $prodId = (int)$prod['product_id'];
+                $price = (float)($prod['product_price'] ?? 0) > 0 ? (float)$prod['product_price'] : 690.0;
+                $nprice = (float)($prod['product_nprice'] ?? 0);
+                $prodName = $prod['product_name'] ?? ('ผลิตภัณฑ์ ยักษ์โพธิ์ #' . $prodId);
+                $isWholesale1kg = in_array((int)($prod['productcat_id'] ?? 0), [32, 38, 40], true);
+                $img = !empty($prod['image_url']) ? $prod['image_url'] : (URL_PATH . '/catalog/assets/img/best_h00' . (($idx % 6) + 1) . '.webp');
+                ?>
+                <article class="product-item-card" data-product-id="<?= $prodId ?>">
+                    <a href="<?= URL_PATH ?>/<?= $currentLang ?>/product/<?= $prodId ?>" class="product-thumb-wrap" aria-label="<?= htmlspecialchars($prodName) ?>">
+                        <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($prodName) ?>" class="product-thumb-img" width="250" height="250" loading="lazy">
+                        <span class="product-badge-tag badge-rec"><?= $currentLang === 'th' ? 'แนะนำ' : 'Featured' ?></span>
+                    </a>
+
+                    <div class="product-card-body">
+                        <a href="<?= URL_PATH ?>/<?= $currentLang ?>/product/<?= $prodId ?>" class="product-card-title">
+                            <?= htmlspecialchars($prodName) ?>
+                        </a>
+
+                        <div class="product-card-meta">
+                            <span class="product-size-pill"><?= !empty($prod['prod_size']) ? htmlspecialchars($prod['prod_size']) : ($isWholesale1kg ? '1 กก.' : 'มาตรฐาน') ?></span>
+                            <span class="product-rating-pill">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                <span>4.9</span>
+                            </span>
+                        </div>
+
+                        <div class="product-card-footer">
+                            <div class="product-price-block">
+                                <span class="product-price-curr">฿</span>
+                                <span class="product-price-main"><?= number_format($price, 0) ?></span>
+                                <?php if ($nprice > $price): ?>
+                                    <span class="product-price-old">฿<?= number_format($nprice, 0) ?></span>
+                                <?php endif; ?>
+                            </div>
+
+                            <button type="button" class="product-add-cart-btn" data-action="add-to-cart" data-product-id="<?= $prodId ?>" data-qty="1" title="หยิบใส่ตะกร้า" aria-label="Add to cart">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- ============================================================
+         8. WHOLESALE RATE BANNER (CLEAN & MINIMAL CTA)
          ============================================================ -->
     <section style="background:var(--yp-card-bg); border-radius:var(--radius); padding:16px 18px; margin-top:20px; border:1px solid var(--yp-border-light); box-shadow:var(--yp-shadow-sm); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <div>
