@@ -302,6 +302,21 @@ $affiliateCookie = (string)($CHECKOUT_DATA['affiliate_cookie'] ?? '');
                         </p>
                     </div>
                 </label>
+
+                <?php /* ============================================================
+                   TODO: ช่องทางชำระด้วยบัตรเครดิต/เดบิต (Credit / Debit Card Gateway)
+                   เตรียมไว้สำหรับเชื่อมต่อ Payment Gateway (Omise / Stripe / 2C2P) ในอนาคต
+                   ============================================================
+                <label class="checkout-pay-option" id="payOptionCard">
+                    <input type="radio" name="paycat_id" value="3" class="checkout-pay-radio" onchange="handlePaymentChange(this)">
+                    <div class="checkout-pay-info">
+                        <strong class="checkout-pay-title">ชำระด้วยบัตรเครดิต / เดบิต (Visa / Mastercard / JCB)</strong>
+                        <p class="checkout-pay-desc">
+                            ชำระเงินออนไลน์ปลอดภัยสูงสุด ยืนยันยอดอัตโนมัติทันที
+                        </p>
+                    </div>
+                </label>
+                */ ?>
             </div>
 
             <!-- 3. Order Summary & Confirm -->
@@ -315,7 +330,7 @@ $affiliateCookie = (string)($CHECKOUT_DATA['affiliate_cookie'] ?? '');
                         <div class="checkout-cart-item">
                             <div class="checkout-cart-item-left">
                                 <img src="<?= htmlspecialchars($cItem['image']) ?>" alt="thumb" class="checkout-cart-thumb">
-                                <div>
+                                <div class="checkout-cart-item-text">
                                     <div class="checkout-cart-item-name"><?= htmlspecialchars($cItem['product_name']) ?></div>
                                     <div class="checkout-cart-item-sub"><?= (int)$cItem['qty'] ?> ชิ้น × ฿<?= number_format((float)$cItem['unit_price'], 0) ?> (<?= (int)($cItem['weight_each'] ?? 0) ?>g/ชิ้น)</div>
                                 </div>
@@ -941,14 +956,20 @@ document.getElementById('checkoutOrderForm')?.addEventListener('submit', async f
                     shipping: Number(data.data.delicost || 0)
                 });
             }
+            const isCod = Number(data.data.paycat_id || payload['paycat_id'] || 1) === 2;
+            const needPay = !isCod && Number(data.data.grand_total || 0) > 0 && data.data.pay_url;
             await Swal.fire({
                 icon: 'success',
                 title: 'สั่งซื้อสำเร็จ!',
-                text: 'บันทึกคำสั่งซื้อเรียบร้อยแล้ว กำลังนำท่านไปยังหน้ารายละเอียด...',
-                timer: 1600,
+                text: needPay
+                    ? 'บันทึกคำสั่งซื้อเรียบร้อยแล้ว กำลังนำท่านไปยังหน้าชำระเงิน QR พร้อมเพย์...'
+                    : 'บันทึกคำสั่งซื้อเรียบร้อยแล้ว กำลังนำท่านไปยังหน้าติดตามสถานะคำสั่งซื้อ...',
+                timer: 1400,
                 showConfirmButton: false
             });
-            window.location.href = data.data.track_url || ('<?= URL_PATH ?>/<?= $currentLang ?>/orders');
+            window.location.href = needPay
+                ? data.data.pay_url
+                : (data.data.track_url || ('<?= URL_PATH ?>/<?= $currentLang ?>/orders'));
         } else {
             Swal.fire({
                 icon: 'error',

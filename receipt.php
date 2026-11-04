@@ -277,7 +277,20 @@ $docCode = ['receipt'=>'RE'][$mode];
             <div style="width: 80mm;">
                 <div class="total-row"><span><?= $L['subtotal'] ?>:</span><span><?= number_format($order['orders_total'], 2) ?></span></div>
                 <div class="total-row"><span><?= $L['shipping'] ?>:</span><span><?= number_format($order['orders_delicost'], 2) ?></span></div>
-                <?php if ($order['orders_discount'] > 0): ?><div class="total-row" style="color: #dc3545;"><span><?= $L['discount'] ?>:</span><span>-<?= number_format($order['orders_discount'], 2) ?></span></div><?php endif; ?>
+                <?php
+                $redeemedStampsBill = 0;
+                try {
+                    $stBill = $db->prepare("SELECT SUM(ABS(points_change)) FROM member_points_log WHERE reference_id = ? AND action_type = 'order_discount' AND points_change < 0");
+                    $stBill->execute([(int)$order['orders_id']]);
+                    $redeemedStampsBill = (int)$stBill->fetchColumn();
+                } catch (Throwable $e) {}
+                if ($redeemedStampsBill === 0 && !empty($order['orders_msg']) && preg_match('/E-Stamp:\s*(\d+)\s*แต้ม/u', (string)$order['orders_msg'], $mB)) {
+                    $redeemedStampsBill = (int)$mB[1];
+                }
+                $otherDiscBill = max(0.0, (float)$order['orders_discount'] - (float)$redeemedStampsBill);
+                ?>
+                <?php if ($redeemedStampsBill > 0): ?><div class="total-row" style="color: #dc3545;"><span><?= $useLang == 'en' ? "E-Stamp Discount ({$redeemedStampsBill} pts)" : "ส่วนลดแต้มสะสม E-Stamp ({$redeemedStampsBill} แต้ม)" ?>:</span><span>-<?= number_format($redeemedStampsBill, 2) ?></span></div><?php endif; ?>
+                <?php if ($otherDiscBill > 0): ?><div class="total-row" style="color: #dc3545;"><span><?= $L['discount'] ?>:</span><span>-<?= number_format($otherDiscBill, 2) ?></span></div><?php endif; ?>
                 <?php if ($order['orders_cod'] > 0): ?><div class="total-row fw-bold"><span><?= $L['cod_fee'] ?>:</span><span><?= number_format($order['orders_cod'], 2) ?></span></div><?php endif; ?>
                 <div class="total-row grand-total"><span><?= $L['grand_total'] ?>:</span><span><?= number_format($order['orders_grandtotal'], 2) ?></span></div>
                 <?php if ($order['orders_paid_amount'] > 0): ?><div class="total-row fw-bold" style="color: #000;"><span><?= $L['paid'] ?>:</span><span><?= number_format($order['orders_paid_amount'], 2) ?></span></div><?php endif; ?>

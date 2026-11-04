@@ -246,6 +246,20 @@ try {
     if ($lineId !== '') {
         $fullNote = trim("LINE: {$lineId} | " . $fullNote, " |");
     }
+    if ($appliedStamps > 0) {
+        $fullNote = trim("ใช้แต้ม E-Stamp: {$appliedStamps} แต้ม (-฿{$appliedStamps}) | " . $fullNote, " |");
+    }
+
+    // Determine initial order status:
+    // - paycat_id == 2 (COD): status 4 (D - เตรียมสินค้า-COD) so payment step is bypassed
+    // - paycat_id == 1 (Bank Transfer / PromptPay): status 2 (B - ที่ต้องชำระ) if grandTotal > 0, else 3 (C - เตรียมสินค้า)
+    // /* TODO: paycat_id == 3 (Credit Card Gateway - not connected yet) */
+    $initialOrderStatus = 2;
+    if ($paycatId === 2) {
+        $initialOrderStatus = 4;
+    } elseif ($grandTotal <= 0) {
+        $initialOrderStatus = 3;
+    }
 
     // 4. Insert into `orders`
     $stmtOrder = $db->prepare("
@@ -257,7 +271,7 @@ try {
         ) VALUES (
             ?, ?, ?, NOW(),
             ?, ?, ?, ?, ?,
-            1, ?, ?, 0, ?,
+            ?, ?, ?, 0, ?,
             'Website', {$countryId}, ?, ?
         )
     ");
@@ -265,7 +279,7 @@ try {
     $stmtOrder->execute([
         $userId, $ordersNo, $trackToken,
         $subtotal, $shippingCost, $discount, $codFee, $grandTotal,
-        $fullNote, $addrId, $paycatId,
+        $initialOrderStatus, $fullNote, $addrId, $paycatId,
         $isWholesale, $affiliateCode ?: null
     ]);
     $orderId = (int)$db->lastInsertId();
@@ -285,7 +299,8 @@ try {
         $qty = (int)$item['qty'];
         $uPrice = (float)$item['unit_price'];
         $lineSub = (float)$item['line_total'];
-        $memo = $item['is_wholesale_1kg'] ? ("Rate {$uPrice} THB/kg") : '';
+        // Keep ordetail_memo empty for customer web orders (reserved strictly for Admin production notes e.g. ใส่กระปุก, ไม่ผสมสีเขียว)
+        $memo = '';
 
         $stmtCost = $db->prepare("SELECT product_cprice FROM product WHERE product_id = ?");
         $stmtCost->execute([$pid]);
@@ -365,11 +380,14 @@ try {
             'order_id'              => $orderId,
             'orders_no'             => $ordersNo,
             'track_token'           => $trackToken,
+            'paycat_id'             => $paycatId,
             'grand_total'           => $grandTotal,
             'grand_total_formatted' => number_format($grandTotal, 2),
             'discount'              => $discount,
+            'applied_stamps'        => $appliedStamps,
             'earned_stamps'         => $earnedStamps,
             'stamp_balance'         => $newBalance,
+            'pay_url'               => $urlBase . '/pay/' . $trackToken,
             'track_url'             => $urlBase . '/track/' . $trackToken,
             'receipt_url'           => $urlBase . '/receipt/' . $trackToken,
         ],

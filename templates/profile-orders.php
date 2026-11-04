@@ -347,7 +347,17 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
 
                             <!-- 4. Action Buttons -->
                             <div class="order-card-actions-bar">
-                                <?php $trackKey = !empty($ord['track_token']) ? $ord['track_token'] : (string)$ord['orders_no']; ?>
+                                <?php
+                                $trackKey = !empty($ord['track_token']) ? $ord['track_token'] : (string)$ord['orders_no'];
+                                $ordIsCod = ((int)($ord['paycat_id'] ?? 1) === 2) || ((float)($ord['orders_cod'] ?? 0) > 0) || ($stVal === 4);
+                                $ordHasSlip = !empty($ord['orders_slip']) && strtoupper((string)$ord['orders_slip']) !== 'NULL';
+                                if (!$ordIsCod && in_array($stVal, [1, 2], true) && !$ordHasSlip && (float)($ord['orders_grandtotal'] ?? 0) > 0):
+                                ?>
+                                <a href="<?= URL_PATH ?>/pay/<?= urlencode($trackKey) ?>" class="profile-btn-sm-primary">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+                                    สแกน QR ชำระเงิน / แนบสลิป
+                                </a>
+                                <?php endif; ?>
                                 <a href="<?= URL_PATH ?>/receipt/<?= urlencode($trackKey) ?>" target="_blank" rel="noopener" class="profile-btn-sm-outline">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                                     ใบเสร็จรับเงิน
@@ -443,12 +453,12 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                         </div>
                         <div>
-                            <div class="profile-service-title">เข้าสู่ระบบ / ผูกบัญชี LINE</div>
-                            <div class="profile-service-desc">คลิกเดียว รับทันที 20 M-Stamp ต้อนรับ</div>
+                            <div class="profile-service-title">ผูกบัญชี LINE เพื่อรับแจ้งเตือนสถานะพัสดุ (+20 M-Stamp)</div>
+                            <div class="profile-service-desc">รับแจ้งเตือนเลขพัสดุและแต้ม M-Stamp เข้า LINE ทันที</div>
                         </div>
                     </div>
                     <a href="<?= URL_PATH ?>/api/line_auth.php?action=login" class="profile-btn-line">
-                        LINE Login
+                        ผูกบัญชี LINE
                     </a>
                 </div>
                 <?php endif; ?>

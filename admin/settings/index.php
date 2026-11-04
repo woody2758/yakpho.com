@@ -50,6 +50,11 @@ ob_start();
                             <label class="form-label fw-semibold"><i data-lucide="hash" class="me-1" style="width:14px;"></i>เลขประจำตัวผู้เสียภาษี</label>
                             <input type="text" class="form-control" name="shop_tax_id" id="shop_tax_id" placeholder="x-xxxx-xxxxx-xx-x">
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold"><i data-lucide="qr-code" class="me-1" style="width:14px;"></i>พร้อมเพย์ (PromptPay ID — เบอร์โทร / เลขบัตรประชาชน)</label>
+                            <input type="text" class="form-control" name="promptpay_id" id="promptpay_id" placeholder="เช่น 0800617073 หรือเลขบัตร 13 หลัก">
+                            <small class="text-muted" style="font-size: 0.78rem;">ใช้สร้าง QR Code พร้อมเพย์อัตโนมัติในหน้าชำระเงินของลูกค้า</small>
+                        </div>
                     </div>
                 </div>
             </div>

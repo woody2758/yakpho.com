@@ -63,6 +63,16 @@ if ($base === 'track' || $base === 'order-status') {
     exit;
 }
 
+if ($base === 'pay' || $base === 'payment') {
+    $token = $page_id ?: trim($_GET['v'] ?? $_GET['no'] ?? '');
+    if (!empty($token)) {
+        $_GET['v'] = $token;
+        $_GET['no'] = $token;
+    }
+    require_once __DIR__ . '/../pay.php';
+    exit;
+}
+
 if ($base === 'receipt') {
     $token = $page_id ?: trim($_GET['v'] ?? $_GET['no'] ?? '');
     if (!empty($token)) {

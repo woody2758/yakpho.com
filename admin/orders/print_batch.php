@@ -343,10 +343,31 @@ function renderBill($order, $items, $address, $order_count, $current_admin_name,
                             <span><?= number_format($order['orders_cod'], 2) ?></span>
                         </div>
                     <?php endif; ?>
-                    <?php if (isset($order['orders_discount']) && $order['orders_discount'] > 0): ?>
+                    <?php
+                    global $db;
+                    $redeemedStampsBat = 0;
+                    try {
+                        if (isset($db)) {
+                            $stBat = $db->prepare("SELECT SUM(ABS(points_change)) FROM member_points_log WHERE reference_id = ? AND action_type = 'order_discount' AND points_change < 0");
+                            $stBat->execute([(int)$order['orders_id']]);
+                            $redeemedStampsBat = (int)$stBat->fetchColumn();
+                        }
+                    } catch (Throwable $e) {}
+                    if ($redeemedStampsBat === 0 && !empty($order['orders_msg']) && preg_match('/E-Stamp:\s*(\d+)\s*แต้ม/u', (string)$order['orders_msg'], $mBt)) {
+                        $redeemedStampsBat = (int)$mBt[1];
+                    }
+                    $otherDiscBat = max(0.0, (float)($order['orders_discount'] ?? 0) - (float)$redeemedStampsBat);
+                    ?>
+                    <?php if ($redeemedStampsBat > 0): ?>
+                        <div class="sum-line-v2 text-danger">
+                            <span>ส่วนลด E-Stamp (<?= $redeemedStampsBat ?> แต้ม):</span>
+                            <span>-<?= number_format($redeemedStampsBat, 2) ?></span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($otherDiscBat > 0): ?>
                         <div class="sum-line-v2 text-danger">
                             <span><?= $L['discount'] ?>:</span>
-                            <span>-<?= number_format($order['orders_discount'], 2) ?></span>
+                            <span>-<?= number_format($otherDiscBat, 2) ?></span>
                         </div>
                     <?php endif; ?>
                     <div class="sum-line-v2 grand-total-line-v2">

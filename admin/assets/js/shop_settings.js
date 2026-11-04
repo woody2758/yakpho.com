@@ -177,7 +177,9 @@ function loadShopInfo() {
                 // Set General Info
                 document.getElementById('shop_phone').value = shop.shop_phone;
                 document.getElementById('shop_email').value = shop.shop_email;
-                document.getElementById('shop_tax_id').value = shop.shop_tax_id;
+                document.getElementById('shop_tax_id').value = shop.shop_tax_id || '';
+                const ppEl = document.getElementById('promptpay_id');
+                if (ppEl) ppEl.value = shop.promptpay_id || shop.shop_phone || '';
                 if (shop.shop_logo) {
                     document.getElementById('logoPreview').src = `${ROOT_URL}/uploads/shop/${shop.shop_logo}`;
                 }

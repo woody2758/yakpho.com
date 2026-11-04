@@ -1,4 +1,4 @@
-<?php
+Replaced step5_discount_breakdown (CRLF) Replaced step4_pay_btn (CRLF) Replaced step3_home_btn (CRLF) Replaced step2_home_css (CRLF) Replaced step1_cod_and_stamps (CRLF) <?php
 require_once __DIR__ . "/admin/includes/config.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -157,38 +157,55 @@ $statusName = ($lang == 'en' && !empty($order['orsts_name_en'])) ? $order['orsts
 
 // เช็คสถานะยกเลิกหรือตีคืน
 $isCancelled = in_array($statusId, [7, 8, 9]);
+$isCodOrder = ((int)($order['paycat_id'] ?? 1) === 2) || ((float)($order['orders_cod'] ?? 0) > 0) || ($statusId === 4);
+
+// Query E-Stamp points redeemed and earned for this order (from member_points_log)
+$redeemedStamps = 0;
+$earnedStamps = 0;
+try {
+    $stmtPts = $db->prepare("SELECT action_type, points_change FROM member_points_log WHERE reference_id = ?");
+    $stmtPts->execute([(int)$order['orders_id']]);
+    while ($pRow = $stmtPts->fetch(PDO::FETCH_ASSOC)) {
+        if ($pRow['action_type'] === 'order_discount' && (int)$pRow['points_change'] < 0) {
+            $redeemedStamps += abs((int)$pRow['points_change']);
+        } elseif ($pRow['action_type'] === 'order_reward' && (int)$pRow['points_change'] > 0) {
+            $earnedStamps += (int)$pRow['points_change'];
+        }
+    }
+} catch (Throwable $e) {}
+if ($redeemedStamps === 0 && !empty($order['orders_msg']) && preg_match('/E-Stamp:\s*(\d+)\s*แต้ม/u', (string)$order['orders_msg'], $mSt)) {
+    $redeemedStamps = (int)$mSt[1];
+}
 
 // 4. แมปสถานะแอดมิน (10-11 สถานะ) สู่ 5 ขั้นตอนสำคัญสำหรับลูกค้า (Customer Milestones)
-// Step 1: สั่งซื้อสำเร็จ
-// Step 2: ยืนยันชำระเงิน / รับคำสั่งซื้อ
-// Step 3: กำลังแพ็คสินค้า
-// Step 4: อยู่ระหว่างจัดส่ง
-// Step 5: จัดส่งสำเร็จ
 $currentStep = 1;
 if ($statusId == 2) {
-    // รอชำระเงิน (Step 1 ผ่านแล้ว, อยู่ที่ Step 2 รอชำระเงิน)
-    $currentStep = 2;
+    $currentStep = $isCodOrder ? 3 : 2;
 } elseif ($statusId == 1) {
-    // ได้ซื้อแล้ว (COD หรือชำระแล้ว ยืนยันแล้ว)
-    $currentStep = 2;
+    $currentStep = $isCodOrder ? 3 : 2;
 } elseif (in_array($statusId, [3, 4, 10])) {
-    // กำลังเตรียมสินค้า / เตรียมสินค้า-COD
     $currentStep = 3;
 } elseif (in_array($statusId, [5, 11])) {
-    // อยู่ระหว่างนำส่ง / ที่ต้องได้รับ
     $currentStep = 4;
 } elseif ($statusId == 6) {
-    // ได้รับแล้ว
     $currentStep = 5;
 }
 
-// หากมี packing_image แล้ว และยังอยู่สเต็ปต่ำกว่า 3 ให้ถือว่าแพ็คแล้ว
+if (!empty($order['orders_slip']) && strtoupper((string)$order['orders_slip']) !== 'NULL' && $currentStep < 3 && !$isCancelled) {
+    $currentStep = 3;
+}
 if (!empty($order['packing_image']) && $currentStep < 3 && !$isCancelled) {
     $currentStep = 3;
 }
-// หากมีเลข tracking แล้ว และยังอยู่สเต็ปต่ำกว่า 4 ให้ขยับเป็นสเต็ป 4 (อยู่ระหว่างนำส่ง)
 if (!empty($order['orders_tracking']) && $currentStep < 4 && !$isCancelled) {
     $currentStep = 4;
+}
+
+$step2Title = ($statusId == 2 ? ($lang == 'en' ? 'Awaiting Pay' : 'รอชำระเงิน') : ($lang == 'en' ? 'Confirmed' : 'ยืนยันชำระเงิน'));
+$step2Desc  = ($statusId == 2 ? ($lang == 'en' ? 'Pending slip' : 'รอตรวจสลิป') : ($lang == 'en' ? 'Verified' : 'ชำระเงินแล้ว'));
+if ($isCodOrder) {
+    $step2Title = ($lang == 'en' ? 'COD' : 'เก็บปลายทาง (COD)');
+    $step2Desc  = ($lang == 'en' ? 'Pay on delivery' : 'ชำระเมื่อรับของ');
 }
 
 $milestones = [
@@ -198,9 +215,9 @@ $milestones = [
         'icon'  => 'clipboard-check'
     ],
     2 => [
-        'title' => ($statusId == 2 ? ($lang == 'en' ? 'Awaiting Pay' : 'รอชำระเงิน') : ($lang == 'en' ? 'Confirmed' : 'ยืนยันชำระเงิน')),
-        'desc'  => ($statusId == 2 ? ($lang == 'en' ? 'Pending slip' : 'รอตรวจสลิป') : ($lang == 'en' ? 'Verified' : 'ชำระเงินแล้ว')),
-        'icon'  => 'credit-card'
+        'title' => $step2Title,
+        'desc'  => $step2Desc,
+        'icon'  => $isCodOrder ? 'banknote' : 'credit-card'
     ],
     3 => [
         'title' => ($lang == 'en' ? 'Packing' : 'กำลังแพ็ค'),
@@ -298,6 +315,29 @@ $carrierName = !empty($order['transcat_nshort']) ? $order['transcat_nshort'] : (
             text-align: center;
             position: relative;
             box-shadow: 0 12px 30px rgba(11, 59, 53, 0.25);
+        }
+
+        .header-home-profile-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.26);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            z-index: 20;
+        }
+        .header-home-profile-btn:hover {
+            background: rgba(255, 255, 255, 0.28);
+            color: #ffffff;
+            transform: translateY(-1px);
         }
 
         .header-logo {
@@ -627,6 +667,9 @@ $carrierName = !empty($order['transcat_nshort']) ? $order['transcat_nshort'] : (
 
     <!-- Header Section (ชอบสไตล์นี้) -->
     <header class="header-card">
+        <a href="<?= ROOT_URL ?>/<?= htmlspecialchars($lang) ?>/profile" class="header-home-profile-btn" title="ไปหน้าโปรไฟล์สมาชิก">
+            <i data-lucide="home" style="width: 19px; height: 19px;"></i>
+        </a>
         <div>
             <img src="<?= ROOT_URL ?>/catalog/assets/img/YakPhoAromaLogo.webp" 
                  alt="Yak Pho Aroma" 
@@ -695,6 +738,19 @@ $carrierName = !empty($order['transcat_nshort']) ? $order['transcat_nshort'] : (
                         <?php endforeach; ?>
                     </div>
                 </div>
+
+                <?php
+                $trackKeyForPay = !empty($order['track_token']) ? $order['track_token'] : $order['orders_no'];
+                $hasSlipAlready = !empty($order['orders_slip']) && strtoupper((string)$order['orders_slip']) !== 'NULL';
+                if (!$isCodOrder && in_array($statusId, [1, 2]) && !$hasSlipAlready && (float)$order['orders_grandtotal'] > 0):
+                ?>
+                <div class="mt-3 pt-3 border-top text-center">
+                    <a href="<?= ROOT_URL ?>/pay/<?= urlencode((string)$trackKeyForPay) ?>" class="btn w-100 rounded-pill py-2 fw-bold d-inline-flex align-items-center justify-content-center gap-2" style="background: linear-gradient(135deg, #003D6B 0%, #0066B2 100%); color: #fff; box-shadow: 0 4px 14px rgba(0, 61, 107, 0.25);">
+                        <i data-lucide="qr-code" style="width: 18px; height: 18px;"></i>
+                        <span>สแกน QR พร้อมเพย์ / แนบสลิปโอนเงิน (฿<?= number_format((float)$order['orders_grandtotal'], 2) ?>)</span>
+                    </a>
+                </div>
+                <?php endif; ?>
             <?php endif; ?>
         </section>
 
@@ -866,10 +922,20 @@ $carrierName = !empty($order['transcat_nshort']) ? $order['transcat_nshort'] : (
                     <span>ค่าจัดส่ง (Shipping)</span>
                     <span><?= (float)$order['orders_delicost'] > 0 ? '฿' . number_format((float)$order['orders_delicost'], 2) : '<span class="text-success fw-bold">ฟรี</span>' ?></span>
                 </div>
-                <?php if ((float)$order['orders_discount'] > 0): ?>
+                <?php
+                $totalDiscountVal = (float)$order['orders_discount'];
+                $otherDiscountVal = max(0.0, $totalDiscountVal - (float)$redeemedStamps);
+                ?>
+                <?php if ($redeemedStamps > 0): ?>
                     <div class="total-row text-danger">
-                        <span>ส่วนลด (Discount)</span>
-                        <span>-฿<?= number_format((float)$order['orders_discount'], 2) ?></span>
+                        <span>🪙 ใช้แต้มสะสม E-Stamp (<?= number_format($redeemedStamps) ?> แต้ม)</span>
+                        <span>-฿<?= number_format((float)$redeemedStamps, 2) ?></span>
+                    </div>
+                <?php endif; ?>
+                <?php if ($otherDiscountVal > 0): ?>
+                    <div class="total-row text-danger">
+                        <span><?= $redeemedStamps > 0 ? 'ส่วนลดเพิ่มเติม / คูปอง (Discount)' : 'ส่วนลด (Discount)' ?></span>
+                        <span>-฿<?= number_format($otherDiscountVal, 2) ?></span>
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($order['orders_cod']) && (float)$order['orders_cod'] > 0): ?>
@@ -883,6 +949,11 @@ $carrierName = !empty($order['transcat_nshort']) ? $order['transcat_nshort'] : (
                     <span class="grandtotal-label">ยอดสุทธิ (Total Amount)</span>
                     <span class="grandtotal-val">฿<?= number_format((float)$order['orders_grandtotal'], 2) ?></span>
                 </div>
+                <?php if ($earnedStamps > 0): ?>
+                <div class="text-end mt-1" style="font-size: 0.78rem; color: #059669; font-weight: 600;">
+                    🌿 ได้รับแต้มสะสมจากออเดอร์นี้ +<?= number_format($earnedStamps) ?> E-Stamp
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- หลักฐานการชำระเงิน (ถ้ามี) -->

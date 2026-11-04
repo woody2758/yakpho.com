@@ -11254,6 +11254,17 @@ input, select, textarea {
 
 }
 
+.checkout-cart-item-left > div,
+.checkout-cart-item-text {
+
+    flex: 1;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+}
+
 
 
 .checkout-cart-thumb {

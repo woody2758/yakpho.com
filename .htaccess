@@ -52,10 +52,11 @@ RewriteRule ^ - [L]
 RewriteRule ^admin/scanner/?$ admin/pack_scanner.php [L,QSA]
 
 # ------------------------------------------------------------
-# 3) Track & Receipt Order & Dynamic XML Sitemap
+# 3) Track, Pay & Receipt Order & Dynamic XML Sitemap
 # ------------------------------------------------------------
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteRule ^track/([a-zA-Z0-9]+)/?$ track.php?v=$1 [L,QSA]
+RewriteRule ^pay/([a-zA-Z0-9]+)/?$ pay.php?v=$1 [L,QSA]
 RewriteRule ^receipt/([a-zA-Z0-9]+)/?$ receipt.php?v=$1 [L,QSA]
 
 # ------------------------------------------------------------

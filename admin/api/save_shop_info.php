@@ -5,16 +5,23 @@ require_once '../includes/auth.php';
 header('Content-Type: application/json');
 
 try {
+    // Auto-ensure promptpay_id column exists in shop_info (outside transaction as ALTER TABLE commits implicitly in MariaDB)
+    $chkCol = $db->query("SHOW COLUMNS FROM `shop_info` LIKE 'promptpay_id'");
+    if ($chkCol && $chkCol->rowCount() === 0) {
+        $db->exec("ALTER TABLE `shop_info` ADD COLUMN `promptpay_id` VARCHAR(30) DEFAULT '0800617073' AFTER `shop_tax_id`");
+    }
+
     $shop_id = 1; // Always use shop_id 1
     $shop_phone = isset($_POST['shop_phone']) ? trim($_POST['shop_phone']) : '';
     $shop_email = isset($_POST['shop_email']) ? trim($_POST['shop_email']) : '';
     $shop_tax_id = isset($_POST['shop_tax_id']) ? trim($_POST['shop_tax_id']) : '';
+    $promptpay_id = isset($_POST['promptpay_id']) ? preg_replace('/[^0-9]/', '', trim($_POST['promptpay_id'])) : '';
 
     $db->beginTransaction();
 
     // 1. Handle Logo Upload
     $logo_sql = "";
-    $params_main = [$shop_phone, $shop_email, $shop_tax_id];
+    $params_main = [$shop_phone, $shop_email, $shop_tax_id, $promptpay_id];
     
     if (isset($_FILES['shop_logo']) && $_FILES['shop_logo']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = '../../uploads/shop/';
@@ -52,7 +59,7 @@ try {
     $params_main[] = $shop_id;
     
     // Update main shop info
-    $stmt = $db->prepare("UPDATE shop_info SET shop_phone = ?, shop_email = ?, shop_tax_id = ? $logo_sql WHERE shop_id = ?");
+    $stmt = $db->prepare("UPDATE shop_info SET shop_phone = ?, shop_email = ?, shop_tax_id = ?, promptpay_id = ? $logo_sql WHERE shop_id = ?");
     $stmt->execute($params_main);
 
     // 2. Handle Translations (Loop through common languages)

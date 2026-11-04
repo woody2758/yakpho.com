@@ -144,6 +144,13 @@ CALL AddColIfNotExist('orders', 'orders_destination', 'VARCHAR(50) DEFAULT \'dom
 CALL AddColIfNotExist('orders', 'orders_tracking', 'VARCHAR(100) DEFAULT NULL');
 CALL AddColIfNotExist('orders', 'track_token', 'VARCHAR(64) DEFAULT NULL');
 
+-- Execute AddColIfNotExist for `shop_info` table (PromptPay ID)
+CALL AddColIfNotExist('shop_info', 'promptpay_id', 'VARCHAR(30) DEFAULT \'0800617073\'');
+UPDATE `shop_info` SET `promptpay_id` = `shop_phone` WHERE (`promptpay_id` IS NULL OR `promptpay_id` = '') AND `shop_phone` != '';
+
+-- Clean up auto-inserted Rate memo from ordetail_memo (reserved for Admin production notes)
+UPDATE `ordetail` SET `ordetail_memo` = '' WHERE `ordetail_memo` LIKE 'Rate % THB/kg';
+
 -- Clean up helper procedure
 DROP PROCEDURE IF EXISTS `AddColIfNotExist`;
 

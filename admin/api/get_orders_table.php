@@ -132,7 +132,7 @@ try {
         $inPlaceholders = str_repeat('?,', count($orderIds) - 1) . '?';
         
         $sql = "SELECT o.*, 
-                u.user_name, u.user_lastname, u.user_picture, u.user_mobile, u.user_stars,
+                u.user_name, u.user_lastname, u.user_picture, u.user_mobile, u.user_stars, u.user_vip, u.user_note, u.member_tier,
                 s.orsts_detail, s.orsts_color, s.orsts_code,
                 t.transcat_name, t.transcat_link,
                 c.country_name, c.country_code,
@@ -485,12 +485,24 @@ try {
                                     <i data-lucide="copy" style="width:10px; height:10px;"></i> คัดลอกข้อมูลลูกค้า
                                 </button>
 
-                                <!-- Copy VIP Invite Link Button -->
+                                <!-- Copy VIP Invite Link Button (Hides once customer completes VIP registration) -->
+                                <?php
+                                $isVipRegistered = !empty($order['user_vip']) || strpos((string)($order['user_note'] ?? ''), '"vip_bonus_50_awarded":true') !== false;
+                                if (!$isVipRegistered):
+                                ?>
                                 <button class="btn btn-xs fw-bold w-100 text-white" style="background-color: #0B3B35; border-color: #0B3B35;"
                                         onclick="copyVipInvite(<?= $order['user_id'] ?>, this)"
                                         title="คัดลอกลิงก์เชิญลูกค้าอัปเดตข้อมูลและสะสมแต้ม (VIP Link)">
                                     <i data-lucide="crown" style="width:10px; height:10px; color:#ffc107;"></i> ลิงก์เชิญ VIP (30 วัน)
                                 </button>
+                                <?php else: ?>
+                                <div class="d-flex align-items-center justify-content-between rounded px-2 py-1 w-100" style="background-color: #ecfdf5; border: 1px solid #10b981; color: #065f46; font-size: 0.72rem; font-weight: 700;">
+                                    <span><i data-lucide="crown" style="width:10px; height:10px; color:#d97706;"></i> เป็นสมาชิก VIP แล้ว</span>
+                                    <button type="button" class="btn btn-link p-0 m-0 text-success" style="font-size: 0.7rem;" onclick="copyVipInvite(<?= $order['user_id'] ?>, this)" title="คัดลอกลิงก์ VIP อีกครั้ง">
+                                        <i data-lucide="copy" style="width:10px; height:10px;"></i>
+                                    </button>
+                                </div>
+                                <?php endif; ?>
 
                                 <!-- Print Status -->
                                 <button class="btn btn-xs w-100 fw-bold <?= $order['orders_print'] == 1 ? 'btn-danger' : 'btn-success' ?>" 

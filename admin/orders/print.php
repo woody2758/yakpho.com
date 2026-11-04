@@ -535,7 +535,20 @@ logStaffAction($db, 'PRINT', 'orders', $id, "Generated {$mode} document in " . s
                     <div class="summary-right-v2">
                         <div class="sum-line-v2"><span><?= $L['subtotal'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_total'] / $currencyRate, 2) ?></span></div>
                         <div class="sum-line-v2"><span><?= $L['shipping'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_delicost'] / $currencyRate, 2) ?></span></div>
-                        <?php if ($order['orders_discount'] > 0): ?><div class="sum-line-v2" style="color: #dc3545;"><span><?= $L['discount'] ?>:</span><span>-<?= $currSym ?><?= number_format($order['orders_discount'] / $currencyRate, 2) ?></span></div><?php endif; ?>
+                        <?php
+                        $redeemedStampsPrn = 0;
+                        try {
+                            $stPrn = $db->prepare("SELECT SUM(ABS(points_change)) FROM member_points_log WHERE reference_id = ? AND action_type = 'order_discount' AND points_change < 0");
+                            $stPrn->execute([(int)$order['orders_id']]);
+                            $redeemedStampsPrn = (int)$stPrn->fetchColumn();
+                        } catch (Throwable $e) {}
+                        if ($redeemedStampsPrn === 0 && !empty($order['orders_msg']) && preg_match('/E-Stamp:\s*(\d+)\s*แต้ม/u', (string)$order['orders_msg'], $mP)) {
+                            $redeemedStampsPrn = (int)$mP[1];
+                        }
+                        $otherDiscPrn = max(0.0, (float)$order['orders_discount'] - (float)$redeemedStampsPrn);
+                        ?>
+                        <?php if ($redeemedStampsPrn > 0): ?><div class="sum-line-v2" style="color: #dc3545;"><span>ส่วนลด E-Stamp (<?= $redeemedStampsPrn ?> แต้ม):</span><span>-<?= $currSym ?><?= number_format($redeemedStampsPrn / $currencyRate, 2) ?></span></div><?php endif; ?>
+                        <?php if ($otherDiscPrn > 0): ?><div class="sum-line-v2" style="color: #dc3545;"><span><?= $L['discount'] ?>:</span><span>-<?= $currSym ?><?= number_format($otherDiscPrn / $currencyRate, 2) ?></span></div><?php endif; ?>
                         <?php if ($order['orders_cod'] > 0): ?><div class="sum-line-v2 fw-bold" style="color: #000;"><span><?= $L['cod_fee'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_cod'] / $currencyRate, 2) ?></span></div><?php endif; ?>
                         <div class="sum-line-v2 grand-total-line-v2" style="background: #eee; color: #000; border: 1px solid #000;"><span><?= $L['grand_total'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_grandtotal'] / $currencyRate, 2) ?></span></div>
                         <div class="sum-line-v2 balance-line-v2" style="color: #000; border-top: 1px solid #000;"><span><?= $L['balance'] ?>:</span><span><?= $currSym ?><?= number_format(($order['orders_grandtotal'] - $order['orders_paid_amount']) / $currencyRate, 2) ?></span></div>
@@ -614,7 +627,20 @@ logStaffAction($db, 'PRINT', 'orders', $id, "Generated {$mode} document in " . s
                 <div style="width: 80mm;">
                     <div class="total-row"><span><?= $L['subtotal'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_total'] / $currencyRate, 2) ?></span></div>
                     <div class="total-row"><span><?= $L['shipping'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_delicost'] / $currencyRate, 2) ?></span></div>
-                    <?php if ($order['orders_discount'] > 0): ?><div class="total-row" style="color: #dc3545;"><span><?= $L['discount'] ?>:</span><span>-<?= $currSym ?><?= number_format($order['orders_discount'] / $currencyRate, 2) ?></span></div><?php endif; ?>
+                    <?php
+                    $redeemedStampsPrnA4 = 0;
+                    try {
+                        $stPrnA4 = $db->prepare("SELECT SUM(ABS(points_change)) FROM member_points_log WHERE reference_id = ? AND action_type = 'order_discount' AND points_change < 0");
+                        $stPrnA4->execute([(int)$order['orders_id']]);
+                        $redeemedStampsPrnA4 = (int)$stPrnA4->fetchColumn();
+                    } catch (Throwable $e) {}
+                    if ($redeemedStampsPrnA4 === 0 && !empty($order['orders_msg']) && preg_match('/E-Stamp:\s*(\d+)\s*แต้ม/u', (string)$order['orders_msg'], $mPA4)) {
+                        $redeemedStampsPrnA4 = (int)$mPA4[1];
+                    }
+                    $otherDiscPrnA4 = max(0.0, (float)$order['orders_discount'] - (float)$redeemedStampsPrnA4);
+                    ?>
+                    <?php if ($redeemedStampsPrnA4 > 0): ?><div class="total-row" style="color: #dc3545;"><span><?= $useLang == 'en' ? "E-Stamp Discount ({$redeemedStampsPrnA4} pts)" : "ส่วนลด E-Stamp ({$redeemedStampsPrnA4} แต้ม)" ?>:</span><span>-<?= $currSym ?><?= number_format($redeemedStampsPrnA4 / $currencyRate, 2) ?></span></div><?php endif; ?>
+                    <?php if ($otherDiscPrnA4 > 0): ?><div class="total-row" style="color: #dc3545;"><span><?= $L['discount'] ?>:</span><span>-<?= $currSym ?><?= number_format($otherDiscPrnA4 / $currencyRate, 2) ?></span></div><?php endif; ?>
                     <?php if ($order['orders_cod'] > 0): ?><div class="total-row fw-bold"><span><?= $L['cod_fee'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_cod'] / $currencyRate, 2) ?></span></div><?php endif; ?>
                     <div class="total-row grand-total"><span><?= $L['grand_total'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_grandtotal'] / $currencyRate, 2) ?></span></div>
                     <?php if ($order['orders_paid_amount'] > 0): ?><div class="total-row fw-bold" style="color: #000;"><span><?= $L['paid'] ?>:</span><span><?= $currSym ?><?= number_format($order['orders_paid_amount'] / $currencyRate, 2) ?></span></div><?php endif; ?>

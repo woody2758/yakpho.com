@@ -202,6 +202,23 @@ try {
     ");
     echo " [OK] ตาราง addr พร้อมใช้งาน\n\n";
 
+    echo "--- 8. ตรวจสอบตาราง shop_info และ order_slips ---\n";
+    addColumnIfNotExists($db, 'shop_info', 'promptpay_id', "VARCHAR(30) DEFAULT '0800617073'");
+    $db->exec("UPDATE `shop_info` SET `promptpay_id` = `shop_phone` WHERE (`promptpay_id` IS NULL OR `promptpay_id` = '') AND `shop_phone` != ''");
+    $db->exec("
+    CREATE TABLE IF NOT EXISTS `order_slips` (
+        `slip_id` INT AUTO_INCREMENT PRIMARY KEY,
+        `orders_id` INT NOT NULL,
+        `slip_filename` VARCHAR(255) NOT NULL,
+        `slip_uploaded_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        `uploaded_by` INT DEFAULT 0,
+        INDEX `idx_orders_id` (`orders_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
+    // Clean up legacy wholesale rate text from ordetail_memo (reserved for admin production notes)
+    $db->exec("UPDATE `ordetail` SET `ordetail_memo` = '' WHERE `ordetail_memo` LIKE 'Rate % THB/kg'");
+    echo " [OK] ตาราง shop_info (PromptPay) และ order_slips พร้อมใช้งาน\n\n";
+
     echo "🎉 การอัปเดตโครงสร้างฐานข้อมูลเสร็จสมบูรณ์ 100% เรียบร้อยแล้ว!\n";
 
 } catch (Throwable $e) {

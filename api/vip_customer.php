@@ -225,6 +225,8 @@ switch ($action) {
             if (!empty($lineId)) {
                 try { $db->prepare("UPDATE user SET line_display_name = ? WHERE user_id = ?")->execute([$lineId, $userId]); } catch (Throwable $e) {}
             }
+            // Mark user_vip = 1 to indicate VIP profile completion
+            try { $db->prepare("UPDATE user SET user_vip = 1 WHERE user_id = ?")->execute([$userId]); } catch (Throwable $e) {}
 
             // Set login session
             $_SESSION['user_id'] = $userId;
