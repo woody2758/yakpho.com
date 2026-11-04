@@ -1,4 +1,5 @@
 RewriteEngine On
+RewriteBase /admin/
 
 # ให้ใช้ไฟล์จริงก่อน
 RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -9,13 +10,12 @@ RewriteRule ^ - [L]
 RewriteRule ^scanner/login/?$ pack_scanner_login.php [L,QSA]
 RewriteRule ^scanner/?$ pack_scanner.php [L,QSA]
 
-# ถ้าเป็น .html → .php
+# ถ้าเป็น .html -> .php
 RewriteRule ^(.+)\.html$ $1.php [L]
 
-# ไฟล์หลักของ Admin (ป้องกัน Infinite Loop ถ้าไฟล์ไม่มีอยู่จริง)
+# รองรับ dashboard/ หรือ orders/
+RewriteRule ^dashboard/?$ dashboard.php [L]
+
+# ไฟล์หลักของ Admin
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^([^/]+)/?$ $1.php [L]
-
-# ============================================================
-# Session Timeout (1 Year) (Moved to config.php via ini_set)
-# ============================================================

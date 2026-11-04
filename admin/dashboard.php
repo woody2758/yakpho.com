@@ -9,9 +9,13 @@ $include_dashboard_css = true;
 
 // Helper function to get simple counts
 function getDashCount($db, $sql, $params = []) {
-    $stmt = $db->prepare($sql);
-    $stmt->execute($params);
-    return $stmt->fetchColumn() ?: 0;
+    try {
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() ?: 0;
+    } catch (Throwable $e) {
+        return 0;
+    }
 }
 
 // Calculate dates in PHP timezone
@@ -89,21 +93,36 @@ $dashLineLinked   = (int)getDashCount($db, "SELECT COUNT(*) FROM user WHERE line
 $dashUnpaidComm   = (float)getDashCount($db, "SELECT SUM(amount) FROM affiliate_commissions WHERE status = 'unpaid'");
 
 // 6. Recent Orders
-$stmt = $db->query("
-    SELECT o.orders_no as id, CONCAT(u.user_name, ' ', u.user_lastname) as customer, 
-           o.orders_grandtotal as total, 
-           COALESCE(st.orsts_name, os.orsts_detail) as status, 
-           os.orsts_color as color,
-           o.orders_date as date
-    FROM orders o
-    LEFT JOIN user u ON o.user_id = u.user_id
-    LEFT JOIN orsts os ON o.orders_status = os.orsts_id
-    LEFT JOIN orsts_translations st ON os.orsts_id = st.orsts_id AND st.lang_code = 'th'
-    WHERE o.orders_del = 0
-    ORDER BY o.orders_date DESC
-    LIMIT 5
-");
-$recentOrders = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+$recentOrders = [];
+try {
+    $stmt = $db->query("
+        SELECT o.orders_no as id, CONCAT(u.user_name, ' ', u.user_lastname) as customer, 
+               o.orders_grandtotal as total, 
+               os.orsts_detail as status, 
+               os.orsts_color as color,
+               o.orders_date as date
+        FROM orders o
+        LEFT JOIN user u ON o.user_id = u.user_id
+        LEFT JOIN orsts os ON o.orders_status = os.orsts_id
+        WHERE o.orders_del = 0
+        ORDER BY o.orders_date DESC
+        LIMIT 5
+    ");
+    $recentOrders = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+} catch (Throwable $e) {
+    try {
+        $stmt = $db->query("
+            SELECT orders_no as id, orders_grandtotal as total, orders_date as date
+            FROM orders
+            WHERE orders_del = 0
+            ORDER BY orders_date DESC
+            LIMIT 5
+        ");
+        $recentOrders = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+    } catch (Throwable $e2) {
+        $recentOrders = [];
+    }
+}
 
 ob_start();
 ?>

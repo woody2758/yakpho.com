@@ -1043,6 +1043,19 @@ function get_single_product_detail(PDO $db, $idOrCode, string $lang = 'th'): ?ar
     $product['image_large'] = resolve_product_image($product['product_picture'], 'large', $pid);
     $product['image_small'] = resolve_product_image($product['product_picture'], 'small', $pid);
     $product['is_1kg_wholesale'] = in_array($catId, [32, 38, 40], true);
+    $product['likes_count'] = max(0, (int)($product['product_likes'] ?? 0));
+    $product['is_liked'] = false;
+    $sessionId = session_id();
+    $userId = (int)($_SESSION['user_id'] ?? 0);
+    try {
+        $stLike = $db->prepare("
+            SELECT id FROM user_wishlist 
+            WHERE (session_id = ? OR (user_id > 0 AND user_id = ?)) AND product_id = ? 
+            LIMIT 1
+        ");
+        $stLike->execute([$sessionId, $userId, $pid]);
+        $product['is_liked'] = (bool)$stLike->fetchColumn();
+    } catch (Exception $e) {}
 
     // Gallery images if any
     $gallery = [$product['image_large']];
