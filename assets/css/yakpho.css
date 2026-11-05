@@ -7060,21 +7060,33 @@ input, select, textarea {
 
     flex: 1;
 
-    height: 34px;
+    height: 36px;
 
     border-radius: var(--radius-pill);
 
-    border: 1px solid rgba(209, 165, 90, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.22);
 
-    padding: 0 12px;
+    padding: 0 14px;
 
     font-size: 0.78rem;
 
     font-weight: 600;
 
-    background: #FFFFFF;
+    background: #145348 !important;
 
-    color: #0b3b35 !important;
+    color: #FFFFFF !important;
+
+    outline: none;
+
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+}
+
+.profile-partner-link-input:focus {
+
+    background: #186054 !important;
+
+    border-color: var(--yp-gold, #D1A55A);
 
 }
 

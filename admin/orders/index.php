@@ -149,6 +149,11 @@ input[type="search"]::-webkit-search-results-decoration {
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0 fs-5 fs-md-3 fw-bold"><i data-lucide="shopping-bag" class="me-1 me-md-2 text-primary" style="width:20px; height:20px;"></i>จัดการคำสั่งซื้อ</h3>
         <div class="d-flex gap-1 gap-md-2">
+            <a href="<?= ADMIN_URL ?>/orders/cleanup.php" class="btn btn-sm btn-outline-danger fw-bold px-2 px-md-3" title="จัดการออเดอร์แอดมินยกเลิก & ของหมด/รอของ (ลบถาวร)">
+                <i data-lucide="trash-2" class="me-1" style="width:14px; height:14px;"></i>
+                <span class="d-none d-md-inline">แอดมินยกเลิก / รอของ (ลบถาวร)</span>
+                <span class="d-inline d-md-none">ยกเลิก/รอของ</span>
+            </a>
             <a href="<?= ADMIN_URL ?>/orders/print_batch.php" target="_blank" class="btn btn-sm btn-primary fw-bold px-2 px-md-3">
                 <i data-lucide="printer" class="me-1 me-md-2" style="width:14px; height:14px;"></i>
                 <span class="d-none d-md-inline">พิมพ์ออเดอร์เป็นชุด (A5)</span>

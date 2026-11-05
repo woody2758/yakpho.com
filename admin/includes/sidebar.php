@@ -38,6 +38,7 @@
             $count_productcat = getCount($db, "SELECT COUNT(*) FROM productcat WHERE productcat_del = 0");
             $count_product    = getCount($db, "SELECT COUNT(*) FROM product WHERE product_del = 0");
             $count_orders     = getCount($db, "SELECT COUNT(*) FROM orders WHERE orders_del = 0");
+            $count_cleanup    = getCount($db, "SELECT COUNT(*) FROM orders WHERE orders_status IN (8, 10)");
             $count_user       = getCount($db, "SELECT COUNT(*) FROM user WHERE user_del = 0");
             $count_hero       = getCount($db, "SELECT COUNT(*) FROM hero_slides WHERE hero_slides_del = 0");
             $count_blogcat    = getCount($db, "SELECT COUNT(*) FROM blogcat WHERE blogcat_del = 0");
@@ -93,6 +94,11 @@
                     <i data-lucide="shopping-bag"></i>
                     <span>รายการสั่งซื้อ</span>
                     <span id="badge-orders" class="badge bg-secondary bg-opacity-10 text-secondary ms-auto badge-sub"><?= $count_orders ?></span>
+                </a>
+                <a href="<?= ADMIN_URL ?>/orders/cleanup.php" class="menu-item sub-item">
+                    <i data-lucide="trash-2"></i>
+                    <span>แอดมินยกเลิก / รอของ</span>
+                    <span id="badge-orders-cleanup" class="badge bg-danger bg-opacity-10 text-danger ms-auto badge-sub"><?= $count_cleanup ?></span>
                 </a>
                 <a href="<?= ADMIN_URL ?>/production/" class="menu-item sub-item">
                     <i data-lucide="factory"></i>
