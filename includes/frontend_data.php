@@ -2194,3 +2194,6 @@ function get_blog_posts_data(PDO $db, string $lang = 'th', $detailLookup = null)
         'current_user'        => $currentUserInfo,
     ];
 }
+
+// Policy & Terms (Terms of Service / PDPA) helpers
+require_once __DIR__ . '/policy_helper.php';

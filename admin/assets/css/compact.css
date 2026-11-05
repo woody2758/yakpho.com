@@ -151,14 +151,23 @@ h1, h2, h3, h4, h5, h6 {
 .sidebar .menu-item {
     display: flex !important;
     align-items: center !important;
-    padding: 5px 12px !important;
+    gap: 9px !important;
+    padding: 6px 12px !important;
     margin: 1px 6px !important;
     border-radius: 6px !important;
     font-weight: 500 !important;
-    font-size: 11.5px !important; /* Smaller font */
+    font-size: 11.8px !important;
     color: #4b5563 !important; /* Gray 600 */
     transition: all 0.1s ease !important;
     text-decoration: none !important;
+}
+
+.sidebar .menu-item.sub-item {
+    padding: 6px 12px 6px 24px !important;
+}
+
+.sidebar .menu-item.sub-item.active {
+    padding-left: 21px !important;
 }
 
 .sidebar .menu-item:hover {
@@ -173,11 +182,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebar .menu-item i, 
-.sidebar .menu-item svg {
-    width: 14px !important; /* Micro icons */
-    height: 14px !important;
-    margin-right: 8px !important; /* Closer to text */
-    opacity: 0.8 !important;
+.sidebar .menu-item svg,
+.sidebar .menu-group-title i,
+.sidebar .menu-group-title svg {
+    width: 15px !important;
+    height: 15px !important;
+    min-width: 15px !important;
+    min-height: 15px !important;
+    flex: 0 0 15px !important;
+    flex-shrink: 0 !important;
+    margin-right: 0 !important;
+    opacity: 0.88 !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
 }
 
 .sidebar .menu-item.active i,
@@ -185,19 +202,25 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 1 !important;
 }
 
-.sidebar .menu-item span {
-    flex-grow: 1 !important;
+.sidebar .menu-item span:not(.badge) {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    line-height: 1.35 !important;
 }
 
 /* Sidebar Badges Refinement */
 .sidebar .badge {
-    padding: 1px 6px !important;
+    padding: 2px 6px !important;
     font-size: 10px !important;
     font-weight: 600 !important;
     border-radius: 4px !important;
     background-color: rgba(0, 0, 0, 0.05) !important;
     color: #6b7280 !important;
     margin-left: 6px !important;
+    flex-shrink: 0 !important;
 }
 
 .sidebar .menu-item.active .badge {
@@ -214,17 +237,22 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .menu-group-title {
-    font-size: 11px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    font-size: 11.5px !important;
     font-weight: 700 !important;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     color: #10b981 !important; /* Emerald Title */
-    opacity: 0.8;
+    opacity: 0.92;
 }
 
 .menu-group-arrow {
-    width: 10px !important;
-    height: 10px !important;
+    width: 13px !important;
+    height: 13px !important;
+    min-width: 13px !important;
+    flex-shrink: 0 !important;
     color: #10b981 !important;
 }
 

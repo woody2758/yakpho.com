@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us – ESTHĒR AROMA & YAK PHO</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="assets/anona-esther.css" />
+</head>
+<body>
+
+  <!-- PROTOTYPE BAR -->
+  <div class="proto-bar">
+    <div class="proto-bar-brand">
+      <span class="proto-badge">UX/UI PROTOTYPE</span>
+      <span>Anona Layout × Esther Green Tone (Alternating Dark/Light)</span>
+    </div>
+    <div class="proto-links">
+      <a href="index.html">1. หน้าแรก (Home)</a>
+      <a href="about.html" class="active">2. เกี่ยวกับเรา (About)</a>
+      <a href="products.html">3. รวมสินค้า (Products)</a>
+      <a href="gift-sets.html">4. เซตของขวัญ (Gift Sets)</a>
+      <a href="corporate-gifts.html">5. ลูกค้าองค์กร (Corporate)</a>
+      <a href="stores-contact.html">6. สาขา & ติดต่อเรา (Stores & Contact)</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="index.html" class="brand-logo">
+        <div class="brand-logo-mark">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Yak Pho · Boaz · Asher</span>
+        </div>
+      </a>
+      <nav class="desktop-nav">
+        <div class="nav-item"><a href="index.html" class="nav-link">Home</a></div>
+        <div class="nav-item"><a href="about.html" class="nav-link active">About us</a></div>
+        <div class="nav-item">
+          <a href="products.html" class="nav-link">Products <i data-lucide="chevron-down" width="15" height="15"></i></a>
+          <div class="dropdown-menu">
+            <a href="products.html"><span>🔥 สูตรร้อน (Hot Herbal Balm)</span></a>
+            <a href="products.html"><span>❄️ สูตรเย็น (Cooling Aroma)</span></a>
+            <a href="products.html"><span>🌿 สูตรนวดตัว (Body Massage)</span></a>
+            <a href="products.html"><span>👑 Esther Queen Beauty & Candle</span></a>
+            <a href="products.html"><span>🏛️ Boaz Men's Charcoal Grooming</span></a>
+            <a href="products.html"><span>🛹 Asher Teen Freshness Care</span></a>
+          </div>
+        </div>
+        <div class="nav-item"><a href="gift-sets.html" class="nav-link">Gift Sets</a></div>
+        <div class="nav-item"><a href="corporate-gifts.html" class="nav-link">Corporate Gifts</a></div>
+        <div class="nav-item"><a href="stores-contact.html" class="nav-link">Our stores</a></div>
+        <div class="nav-item"><a href="stores-contact.html#contact" class="nav-link">Contact us</a></div>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-pill"><span>🇹🇭 TH / 🇬🇧 EN</span></div>
+        <button class="cart-trigger" onclick="window.location.href='products.html'">
+          <i data-lucide="shopping-bag" width="18" height="18"></i>
+          <span class="cart-badge">2</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="mobile-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <div class="brand-logo">
+        <div class="brand-logo-mark" style="width:36px;height:36px;font-size:16px;">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title" style="font-size:17px;">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Time-Honored Wisdom</span>
+        </div>
+      </div>
+      <button class="drawer-close" id="drawerClose"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <ul class="drawer-nav">
+      <li><a href="index.html">Home (หน้าแรก)</a></li>
+      <li><a href="about.html" class="active">About us (ตำนานแบรนด์)</a></li>
+      <li><a href="products.html">Products (ผลิตภัณฑ์ทั้งหมด)</a></li>
+      <li><a href="gift-sets.html">Gift Sets (เซตของขวัญ/ของชำร่วย)</a></li>
+      <li><a href="corporate-gifts.html">Corporate Gifts (ลูกค้าองค์กร/B2B)</a></li>
+      <li><a href="stores-contact.html">Our stores (สถานที่จัดจำหน่าย)</a></li>
+      <li><a href="stores-contact.html#contact">Contact us (ติดต่อเรา)</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <!-- ===================================================================
+         SECTION 1 [TONE: DARK EMERALD] — PAGE HEADER & BRAND STORY (.text-about1 ของ Anona)
+         =================================================================== -->
+    <section class="section-dark section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">OUR HERITAGE & VISION</span>
+          <h2>About us</h2>
+          <div class="border-menu"></div>
+        </div>
+
+        <!-- โครงสร้าง 2 คอลัมน์ตามหน้า About_Und_us ของ Anona -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:40px; align-items:center;">
+          <div style="border-radius:20px; overflow:hidden; border:1.5px solid var(--esther-gold); box-shadow:var(--shadow-dark);">
+            <img src="../../uploads/blog/cover/blog_19_1766115484.webp" alt="Esther Aroma Story" style="width:100%; height:100%; object-fit:cover;" />
+          </div>
+
+          <div>
+            <div style="font-size:12px; letter-spacing:0.2em; color:var(--esther-gold); text-transform:uppercase; margin-bottom:8px;">
+              ESTHĒR AROMA CO., LTD.
+            </div>
+            <h3 style="font-family:'Cormorant Garamond',serif; font-size:34px; color:#fff; line-height:1.2; margin-bottom:14px;">
+              Time-Honored Wisdom from the Purest Soil
+            </h3>
+            <div style="width:55px; height:2px; background:var(--esther-gold); margin-bottom:20px;"></div>
+            <p style="font-size:15px; color:var(--esther-cream); margin-bottom:16px; opacity:0.92;">
+              <strong>บริษัท เอสเธอร์ อโรม่า จำกัด (Esther Aroma Co., Ltd.)</strong> ก่อตั้งขึ้นด้วยปณิธานในการยกระดับสมุนไพรไทยและเครื่องหอมธรรมชาติสู่มาตรฐานสากล (GMP / FDA) เพื่อส่งมอบประสบการณ์การบำบัดกายและใจที่แท้จริงให้แก่ผู้คนทั่วโลก
+            </p>
+            <p style="font-size:15px; color:var(--esther-cream); margin-bottom:16px; opacity:0.92;">
+              ผลิตภัณฑ์ดั้งเดิมที่สร้างชื่อเสียงให้เราคือ <strong>ยักษ์โพธิ์ (YAK PHO)</strong> บาล์มนวดและสมุนไพรหอมระเหยในเอกลักษณ์ "ผู้พิทักษ์ความปวดเมื่อย" ที่คัดสรรวัตถุดิบสมุนไพรไทยแท้ ปลอดสารเคมีอันตราย จนได้รับความไว้วางใจจากร้านนวดแผนไทยและสปาชั้นนำทั้งในและต่างประเทศ
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 2 [TONE: LIGHT WARM CREAM] — 3 CORE STORIES (จาก Esther.Aroma-book.html)
+         =================================================================== -->
+    <section class="section-light section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">ANCESTRAL WISDOM</span>
+          <h2>Our 3 Core Legends</h2>
+          <div class="border-menu"></div>
+          <p class="sub">เรื่องราวแรงบันดาลใจจากผืนดินบริสุทธิ์ สู่ผลิตภัณฑ์ระดับพรีเมียม</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+          <!-- Story 1 -->
+          <div style="background:#fff; border:1px dashed var(--esther-gold-dark); border-radius:16px; padding:28px; box-shadow:var(--shadow-soft);">
+            <div style="font-size:11px; color:var(--esther-emerald); font-weight:700; letter-spacing:0.15em; margin-bottom:8px;">STORY 01</div>
+            <h3 style="font-family:'Cormorant Garamond',serif; font-size:24px; color:var(--esther-emerald); margin-bottom:10px;">
+              1. The Royal Tarragon (ตำนานทาร์รากอนราชินี)
+            </h3>
+            <p style="font-size:14.5px; color:#4a504e;">
+              จาก <strong>"สวนลับ 116 ตร.ว."</strong> กลางกรุง สู่การปลูกทาร์รากอนออร์แกนิกด้วยความรัก เก็บเกี่ยวด้วยมือทุกใบ เพื่อสกัดเป็นน้ำมัน <strong>"Liquid Green Gold"</strong> อันล้ำค่า ที่เป็นหัวใจสำคัญของเครื่องหอมเครือเอสเธอร์
+            </p>
+          </div>
+
+          <!-- Story 2 -->
+          <div style="background:#fff; border:1px dashed var(--esther-gold-dark); border-radius:16px; padding:28px; box-shadow:var(--shadow-soft);">
+            <div style="font-size:11px; color:var(--esther-emerald); font-weight:700; letter-spacing:0.15em; margin-bottom:8px;">STORY 02</div>
+            <h3 style="font-family:'Cormorant Garamond',serif; font-size:24px; color:var(--esther-emerald); margin-bottom:10px;">
+              2. Queen's Beauty Ritual (พิธีกรรมความงามแห่งราชินี)
+            </h3>
+            <p style="font-size:14.5px; color:#4a504e;">
+              แรงบันดาลใจจากการประทินโฉม 12 เดือนของราชินีเอสเธอร์ด้วยเครื่องหอมและน้ำมันบริสุทธิ์ สู่สบู่ความงาม สกินแคร์ และเทียนหอมที่ทำให้ผู้หญิงทุกคนรู้สึกงดงามและเลอค่าดั่งราชินี
+            </p>
+          </div>
+
+          <!-- Story 3 -->
+          <div style="background:#fff; border:1px dashed var(--esther-gold-dark); border-radius:16px; padding:28px; box-shadow:var(--shadow-soft);">
+            <div style="font-size:11px; color:var(--esther-emerald); font-weight:700; letter-spacing:0.15em; margin-bottom:8px;">STORY 03</div>
+            <h3 style="font-family:'Cormorant Garamond',serif; font-size:24px; color:var(--esther-emerald); margin-bottom:10px;">
+              3. Father & Son Legacy (ตำนานพ่อสู่ลูก)
+            </h3>
+            <p style="font-size:14.5px; color:#4a504e;">
+              ความรักที่ส่งต่อจากรุ่นสู่รุ่น ผ่านแบรนด์ <strong>BOAZ</strong> (พ่อผู้เข้มแข็งและมีเกียรติยศ) และ <strong>ASHER</strong> (ลูกชายผู้เปี่ยมด้วยความสุขและความสดชื่น) สะท้อนความเข้าใจในการดูแลผู้ชายทุกเจเนอเรชัน
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 3 [TONE: DARK EMERALD] — BRAND ARCHITECTURE & 4 PILLARS
+         =================================================================== -->
+    <section class="section-dark section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">GLOBAL STANDARD</span>
+          <h2>4 Pillars of Quality</h2>
+          <div class="border-menu"></div>
+        </div>
+
+        <div class="pillars-grid">
+          <div class="icon-about-card" style="background:rgba(255,255,255,0.04); border-color:rgba(209,165,90,0.3);">
+            <div class="icon-about-circle"><i data-lucide="leaf" width="28" height="28"></i></div>
+            <h4 style="color:var(--esther-gold);">Natural Ingredients</h4>
+            <p style="color:var(--esther-cream); opacity:0.8;">วัตถุดิบธรรมชาติคัดพิเศษ ปลอดภัยและเป็นมิตรต่อสิ่งแวดล้อม</p>
+          </div>
+          <div class="icon-about-card" style="background:rgba(255,255,255,0.04); border-color:rgba(209,165,90,0.3);">
+            <div class="icon-about-circle"><i data-lucide="droplets" width="28" height="28"></i></div>
+            <h4 style="color:var(--esther-gold);">Aromatherapy</h4>
+            <p style="color:var(--esther-cream); opacity:0.8;">เบลนด์น้ำมันหอมระเหยสูตรเฉพาะ ช่วยผ่อนคลายอารมณ์และจิตใจ</p>
+          </div>
+          <div class="icon-about-card" style="background:rgba(255,255,255,0.04); border-color:rgba(209,165,90,0.3);">
+            <div class="icon-about-circle"><i data-lucide="crown" width="28" height="28"></i></div>
+            <h4 style="color:var(--esther-gold);">The Tarragon Crown</h4>
+            <p style="color:var(--esther-cream); opacity:0.8;">ดีไซน์มงกุฎแห่งใบไม้และยักษ์ไทย สง่างามเหนือกาลเวลา</p>
+          </div>
+          <div class="icon-about-card" style="background:rgba(255,255,255,0.04); border-color:rgba(209,165,90,0.3);">
+            <div class="icon-about-circle"><i data-lucide="package-check" width="28" height="28"></i></div>
+            <h4 style="color:var(--esther-gold);">Tailor-Made Gifts</h4>
+            <p style="color:var(--esther-cream); opacity:0.8;">รับจัดเซตของขวัญและของชำร่วยสั่งทำพิเศษสำหรับทุกองค์กร</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h4>ESTHĒR AROMA CO., LTD. (YAK PHO)</h4>
+          <p>บริษัท เอสเธอร์ อโรม่า จำกัด — อาณาจักรเครื่องหอมและสมุนไพรไทยมาตรฐานส่งออก GMP/FDA</p>
+        </div>
+        <div class="footer-right">
+          <a href="tel:+66926964549" class="footer-tel">
+            <i data-lucide="phone-call" width="20" height="20"></i>
+            <span>+66 92-696-4549</span>
+          </a>
+          <div class="footer-socials">
+            <a href="#" class="social-circle"><i data-lucide="facebook" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="message-circle" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="instagram" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="shopping-bag" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="store" width="18" height="18"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>© 2025–2026 ESTHĒR AROMA CO., LTD. & YAKPHO.COM. All rights reserved.</div>
+        <div>“Time-Honored Wisdom from the Purest Soil”</div>
+      </div>
+    </div>
+  </footer>
+
+  <button class="floating-top" id="backToTop"><i data-lucide="chevron-up" width="20" height="20"></i></button>
+  <script src="assets/anona-esther.js"></script>
+</body>
+</html>
+

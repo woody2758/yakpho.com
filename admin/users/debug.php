@@ -279,3 +279,4 @@ addCheck('Auth & Permissions', true, $authStatus);
 </div>
 </body>
 </html>
+

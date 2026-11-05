@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Stores & Contact Us – ESTHĒR AROMA & YAK PHO</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="assets/anona-esther.css" />
+</head>
+<body>
+
+  <!-- PROTOTYPE BAR -->
+  <div class="proto-bar">
+    <div class="proto-bar-brand">
+      <span class="proto-badge">UX/UI PROTOTYPE</span>
+      <span>Anona Layout × Esther Green Tone (Alternating Dark/Light)</span>
+    </div>
+    <div class="proto-links">
+      <a href="index.html">1. หน้าแรก (Home)</a>
+      <a href="about.html">2. เกี่ยวกับเรา (About)</a>
+      <a href="products.html">3. รวมสินค้า (Products)</a>
+      <a href="gift-sets.html">4. เซตของขวัญ (Gift Sets)</a>
+      <a href="corporate-gifts.html">5. ลูกค้าองค์กร (Corporate)</a>
+      <a href="stores-contact.html" class="active">6. สาขา & ติดต่อเรา (Stores & Contact)</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="index.html" class="brand-logo">
+        <div class="brand-logo-mark">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Yak Pho · Boaz · Asher</span>
+        </div>
+      </a>
+      <nav class="desktop-nav">
+        <div class="nav-item"><a href="index.html" class="nav-link">Home</a></div>
+        <div class="nav-item"><a href="about.html" class="nav-link">About us</a></div>
+        <div class="nav-item">
+          <a href="products.html" class="nav-link">Products <i data-lucide="chevron-down" width="15" height="15"></i></a>
+          <div class="dropdown-menu">
+            <a href="products.html"><span>🔥 สูตรร้อน (Hot Herbal Balm)</span></a>
+            <a href="products.html"><span>❄️ สูตรเย็น (Cooling Aroma)</span></a>
+            <a href="products.html"><span>🌿 สูตรนวดตัว (Body Massage)</span></a>
+            <a href="products.html"><span>👑 Esther Queen Beauty & Candle</span></a>
+            <a href="products.html"><span>🏛️ Boaz Men's Charcoal Grooming</span></a>
+            <a href="products.html"><span>🛹 Asher Teen Freshness Care</span></a>
+          </div>
+        </div>
+        <div class="nav-item"><a href="gift-sets.html" class="nav-link">Gift Sets</a></div>
+        <div class="nav-item"><a href="corporate-gifts.html" class="nav-link">Corporate Gifts</a></div>
+        <div class="nav-item"><a href="stores-contact.html" class="nav-link active">Our stores</a></div>
+        <div class="nav-item"><a href="stores-contact.html#contact" class="nav-link">Contact us</a></div>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-pill"><span>🇹🇭 TH / 🇬🇧 EN</span></div>
+        <button class="cart-trigger" onclick="window.location.href='products.html'">
+          <i data-lucide="shopping-bag" width="18" height="18"></i>
+          <span class="cart-badge">2</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="mobile-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <div class="brand-logo">
+        <div class="brand-logo-mark" style="width:36px;height:36px;font-size:16px;">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title" style="font-size:17px;">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Time-Honored Wisdom</span>
+        </div>
+      </div>
+      <button class="drawer-close" id="drawerClose"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <ul class="drawer-nav">
+      <li><a href="index.html">Home (หน้าแรก)</a></li>
+      <li><a href="about.html">About us (ตำนานแบรนด์)</a></li>
+      <li><a href="products.html">Products (ผลิตภัณฑ์ทั้งหมด)</a></li>
+      <li><a href="gift-sets.html">Gift Sets (เซตของขวัญ/ของชำร่วย)</a></li>
+      <li><a href="corporate-gifts.html">Corporate Gifts (ลูกค้าองค์กร/B2B)</a></li>
+      <li><a href="stores-contact.html" class="active">Our stores (สถานที่จัดจำหน่าย)</a></li>
+      <li><a href="stores-contact.html#contact">Contact us (ติดต่อเรา)</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <!-- ===================================================================
+         SECTION 1 [TONE: DARK EMERALD] — OUR STORES (.contact-bg2 & .btn-location ของ Anona)
+         =================================================================== -->
+    <section class="section-dark section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">WHERE TO FIND US</span>
+          <h2>Our Stores & Spa Partners</h2>
+          <div class="border-menu"></div>
+          <p class="sub">จุดจัดจำหน่ายผลิตภัณฑ์ Esther Aroma & Yak Pho และเครือข่ายร้านสปาพาร์ทเนอร์</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+          <!-- Store 1 -->
+          <div class="store-card">
+            <div>
+              <div style="font-size:11px; color:var(--esther-moss); letter-spacing:0.12em; margin-bottom:4px;">FLAGSHIP & HERB GARDEN</div>
+              <h4>Esther Secret Garden & Studio (สวนลับทาร์รากอน 116 ตร.ว.)</h4>
+              <p style="font-size:13.5px; opacity:0.8; margin-top:4px;">กรุงเทพมหานคร · ศูนย์รวมผลิตภัณฑ์ครบทั้ง 4 แบรนด์</p>
+            </div>
+            <a href="#contact" class="btn-location">Location »</a>
+          </div>
+
+          <!-- Store 2 -->
+          <div class="store-card">
+            <div>
+              <div style="font-size:11px; color:var(--esther-moss); letter-spacing:0.12em; margin-bottom:4px;">BANGKOK CRAFT ZONE</div>
+              <h4>โซนสินค้าไทยพรีเมียม @ สยาม & ไอคอนสยาม</h4>
+              <p style="font-size:13.5px; opacity:0.8; margin-top:4px;">คอลเลกชันของฝากนักท่องเที่ยว & ยักษ์โพธิ์อโรม่า 40g</p>
+            </div>
+            <a href="#contact" class="btn-location">Location »</a>
+          </div>
+
+          <!-- Store 3 -->
+          <div class="store-card">
+            <div>
+              <div style="font-size:11px; color:var(--esther-moss); letter-spacing:0.12em; margin-bottom:4px;">WELLNESS & SPA PARTNERS</div>
+              <h4>เครือข่ายร้านนวดแผนไทยและสปาพันธมิตรทั่วประเทศ</h4>
+              <p style="font-size:13.5px; opacity:0.8; margin-top:4px;">กรุงเทพฯ · เชียงใหม่ · ภูเก็ต · พัทยา · สมุย · หาดใหญ่</p>
+            </div>
+            <a href="#contact" class="btn-location">Location »</a>
+          </div>
+
+          <!-- Store 4 -->
+          <div class="store-card">
+            <div>
+              <div style="font-size:11px; color:var(--esther-moss); letter-spacing:0.12em; margin-bottom:4px;">ONLINE OFFICIAL STORE</div>
+              <h4>YakPho.com Official E-Commerce & Marketplaces</h4>
+              <p style="font-size:13.5px; opacity:0.8; margin-top:4px;">สั่งซื้อออนไลน์จัดส่งทั่วไทยและบริการส่งออกต่างประเทศ</p>
+            </div>
+            <a href="products.html" class="btn-location">Shop Online »</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 2 [TONE: LIGHT WARM CREAM] — CONTACT US (.text-contact & Dashed Form ของ Anona)
+         =================================================================== -->
+    <section class="section-light section-pad" id="contact">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">GET IN TOUCH</span>
+          <h2>Contact us</h2>
+          <div class="border-menu"></div>
+          <p class="sub">สอบถามข้อมูลผลิตภัณฑ์ สั่งทำชุดของขวัญองค์กร หรือสมัครตัวแทนจำหน่ายร้านสปา</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:36px; background:#fff; padding:32px 24px; border-radius:24px; border:1px solid rgba(11,59,53,0.1); box-shadow:var(--shadow-soft);">
+          <!-- ข้อมูลติดต่อ (ซ้าย) -->
+          <div>
+            <h3 style="font-family:'Cormorant Garamond',serif; font-size:28px; color:var(--esther-emerald); margin-bottom:12px;">
+              ESTHĒR AROMA CO., LTD.
+            </h3>
+            <p style="font-size:14.5px; color:#4a504e; margin-bottom:20px;">
+              บริษัท เอสเธอร์ อโรม่า จำกัด (สำนักงานใหญ่)<br />
+              ผู้ผลิตและจัดจำหน่ายเครื่องหอม Esther Aroma, ยักษ์โพธิ์ (Yak Pho), Boaz และ Asher
+            </p>
+
+            <div style="display:flex; flex-direction:column; gap:14px; font-size:14.5px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--esther-emerald);color:var(--esther-gold);display:flex;align-items:center;justify-content:center;">
+                  <i data-lucide="phone" width="16" height="16"></i>
+                </div>
+                <div><strong>โทรศัพท์:</strong> +66 92-696-4549</div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--esther-emerald);color:var(--esther-gold);display:flex;align-items:center;justify-content:center;">
+                  <i data-lucide="message-circle" width="16" height="16"></i>
+                </div>
+                <div><strong>LINE Official:</strong> @yakpho (มี @)</div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--esther-emerald);color:var(--esther-gold);display:flex;align-items:center;justify-content:center;">
+                  <i data-lucide="mail" width="16" height="16"></i>
+                </div>
+                <div><strong>อีเมล:</strong> contact@yakpho.com</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- แบบฟอร์มเส้นประ (ขวา - แกะจาก .form-control border-bottom: 1px dashed ของ Anona) -->
+          <form onsubmit="event.preventDefault(); alert('ส่งข้อความเรียบร้อยแล้ว (Prototype Demo)');">
+            <h4 style="font-size:18px; color:var(--esther-emerald); margin-bottom:16px;">ส่งข้อความถึงเรา (Send Inquiry)</h4>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <input type="text" class="anona-input" placeholder="ชื่อ - นามสกุล / ชื่อบริษัท (Your Name / Company) *" required />
+              <input type="tel" class="anona-input" placeholder="เบอร์โทรศัพท์ติดต่อ (Phone Number) *" required />
+              <input type="email" class="anona-input" placeholder="อีเมล (Email Address)" />
+              <textarea class="anona-input" rows="3" placeholder="รายละเอียดที่ต้องการติดต่อ เช่น สั่งซื้อราคาส่งร้านนวด / จัดเซตของขวัญองค์กร *" required></textarea>
+              <div style="margin-top:12px;">
+                <button type="submit" class="btn-gold-pill" style="background:var(--esther-emerald); color:var(--esther-gold); border-color:var(--esther-emerald);">
+                  <i data-lucide="send" width="15" height="15"></i>
+                  <span>ส่งข้อความ (Submit)</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h4>ESTHĒR AROMA CO., LTD. (YAK PHO)</h4>
+          <p>บริษัท เอสเธอร์ อโรม่า จำกัด — อาณาจักรเครื่องหอมและสมุนไพรไทยมาตรฐานส่งออก GMP/FDA</p>
+        </div>
+        <div class="footer-right">
+          <a href="tel:+66926964549" class="footer-tel">
+            <i data-lucide="phone-call" width="20" height="20"></i>
+            <span>+66 92-696-4549</span>
+          </a>
+          <div class="footer-socials">
+            <a href="#" class="social-circle"><i data-lucide="facebook" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="message-circle" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="instagram" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="shopping-bag" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="store" width="18" height="18"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>© 2025–2026 ESTHĒR AROMA CO., LTD. & YAKPHO.COM. All rights reserved.</div>
+        <div>“Time-Honored Wisdom from the Purest Soil”</div>
+      </div>
+    </div>
+  </footer>
+
+  <button class="floating-top" id="backToTop"><i data-lucide="chevron-up" width="20" height="20"></i></button>
+  <script src="assets/anona-esther.js"></script>
+</body>
+</html>
+

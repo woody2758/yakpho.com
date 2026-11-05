@@ -94,9 +94,13 @@ body.admin-layout {
     transition: 0.18s ease;
 }
 
-.menu-item i {
+.menu-item i,
+.menu-item svg {
     width: 18px;
     height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    flex: 0 0 18px;
     flex-shrink: 0;
 }
 
@@ -149,9 +153,14 @@ body.admin-layout {
     font-weight: 500;
 }
 
-.menu-group-title i {
+.menu-group-title i,
+.menu-group-title svg {
     width: 18px;
     height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    flex: 0 0 18px;
+    flex-shrink: 0;
 }
 
 .menu-group-arrow {

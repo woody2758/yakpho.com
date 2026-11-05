@@ -709,7 +709,7 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
             <div class="setting-group-card">
                 <div class="setting-group-title">นโยบายและเงื่อนไข</div>
 
-                <a href="<?= URL_PATH ?>/<?= $currentLang ?>/about" class="setting-menu-item">
+                <a href="<?= URL_PATH ?>/<?= $currentLang ?>/policy?tab=terms" class="setting-menu-item">
                     <div class="setting-item-left">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         <span>ข้อกำหนดและเงื่อนไขการใช้บริการ</span>
@@ -717,7 +717,7 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
                     <span class="setting-arrow">›</span>
                 </a>
 
-                <a href="<?= URL_PATH ?>/<?= $currentLang ?>/about" class="setting-menu-item">
+                <a href="<?= URL_PATH ?>/<?= $currentLang ?>/policy?tab=pdpa" class="setting-menu-item">
                     <div class="setting-item-left">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="m9 12 2 2 4-4"></path></svg>
                         <span>นโยบายความเป็นส่วนตัว (PDPA) &amp; มาตรฐานการบริการ</span>

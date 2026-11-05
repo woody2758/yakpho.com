@@ -100,6 +100,13 @@ $ver = time();
 
             <div class="footer-bottom">
                 © <?= date('Y') ?> <?= htmlspecialchars($contactInfo['company_name'] ?? 'Esther Aroma Co., Ltd.') ?> • Yak Pho Aroma. All Rights Reserved.
+                <div class="footer-policy-links">
+                    <a href="<?= URL_PATH ?>/<?= $currentLang ?>/policy?tab=terms"><?= $currentLang === 'th' ? 'ข้อกำหนดและเงื่อนไขการใช้บริการ' : 'Terms of Service' ?></a>
+                    <span class="footer-policy-sep">•</span>
+                    <a href="<?= URL_PATH ?>/<?= $currentLang ?>/policy?tab=pdpa"><?= $currentLang === 'th' ? 'นโยบายความเป็นส่วนตัว (PDPA)' : 'Privacy Policy (PDPA)' ?></a>
+                    <span class="footer-policy-sep">•</span>
+                    <a href="<?= URL_PATH ?>/<?= $currentLang ?>/faqs"><?= $currentLang === 'th' ? 'คำถามที่ถูกถามบ่อย (FAQs)' : 'FAQs' ?></a>
+                </div>
             </div>
         </div>
     </footer>

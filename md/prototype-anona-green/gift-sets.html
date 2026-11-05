@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gift Sets & Wedding Souvenirs – ESTHĒR AROMA & YAK PHO</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="assets/anona-esther.css" />
+</head>
+<body>
+
+  <!-- PROTOTYPE BAR -->
+  <div class="proto-bar">
+    <div class="proto-bar-brand">
+      <span class="proto-badge">UX/UI PROTOTYPE</span>
+      <span>Anona Layout × Esther Green Tone (Alternating Dark/Light)</span>
+    </div>
+    <div class="proto-links">
+      <a href="index.html">1. หน้าแรก (Home)</a>
+      <a href="about.html">2. เกี่ยวกับเรา (About)</a>
+      <a href="products.html">3. รวมสินค้า (Products)</a>
+      <a href="gift-sets.html" class="active">4. เซตของขวัญ (Gift Sets)</a>
+      <a href="corporate-gifts.html">5. ลูกค้าองค์กร (Corporate)</a>
+      <a href="stores-contact.html">6. สาขา & ติดต่อเรา (Stores & Contact)</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="index.html" class="brand-logo">
+        <div class="brand-logo-mark">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Yak Pho · Boaz · Asher</span>
+        </div>
+      </a>
+      <nav class="desktop-nav">
+        <div class="nav-item"><a href="index.html" class="nav-link">Home</a></div>
+        <div class="nav-item"><a href="about.html" class="nav-link">About us</a></div>
+        <div class="nav-item">
+          <a href="products.html" class="nav-link">Products <i data-lucide="chevron-down" width="15" height="15"></i></a>
+          <div class="dropdown-menu">
+            <a href="products.html"><span>🔥 สูตรร้อน (Hot Herbal Balm)</span></a>
+            <a href="products.html"><span>❄️ สูตรเย็น (Cooling Aroma)</span></a>
+            <a href="products.html"><span>🌿 สูตรนวดตัว (Body Massage)</span></a>
+            <a href="products.html"><span>👑 Esther Queen Beauty & Candle</span></a>
+            <a href="products.html"><span>🏛️ Boaz Men's Charcoal Grooming</span></a>
+            <a href="products.html"><span>🛹 Asher Teen Freshness Care</span></a>
+          </div>
+        </div>
+        <div class="nav-item"><a href="gift-sets.html" class="nav-link active">Gift Sets</a></div>
+        <div class="nav-item"><a href="corporate-gifts.html" class="nav-link">Corporate Gifts</a></div>
+        <div class="nav-item"><a href="stores-contact.html" class="nav-link">Our stores</a></div>
+        <div class="nav-item"><a href="stores-contact.html#contact" class="nav-link">Contact us</a></div>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-pill"><span>🇹🇭 TH / 🇬🇧 EN</span></div>
+        <button class="cart-trigger" onclick="window.location.href='products.html'">
+          <i data-lucide="shopping-bag" width="18" height="18"></i>
+          <span class="cart-badge">2</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="mobile-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <div class="brand-logo">
+        <div class="brand-logo-mark" style="width:36px;height:36px;font-size:16px;">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title" style="font-size:17px;">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Time-Honored Wisdom</span>
+        </div>
+      </div>
+      <button class="drawer-close" id="drawerClose"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <ul class="drawer-nav">
+      <li><a href="index.html">Home (หน้าแรก)</a></li>
+      <li><a href="about.html">About us (ตำนานแบรนด์)</a></li>
+      <li><a href="products.html">Products (ผลิตภัณฑ์ทั้งหมด)</a></li>
+      <li><a href="gift-sets.html" class="active">Gift Sets (เซตของขวัญ/ของชำร่วย)</a></li>
+      <li><a href="corporate-gifts.html">Corporate Gifts (ลูกค้าองค์กร/B2B)</a></li>
+      <li><a href="stores-contact.html">Our stores (สถานที่จัดจำหน่าย)</a></li>
+      <li><a href="stores-contact.html#contact">Contact us (ติดต่อเรา)</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <!-- ===================================================================
+         SECTION 1 [TONE: DARK EMERALD] — GIFT SETS INTRO & 3 ARCHED HIGHLIGHTS
+         =================================================================== -->
+    <section class="section-dark section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">WEDDING · FESTIVAL · V.I.P. SOUVENIRS</span>
+          <h2>Gift Sets</h2>
+          <div class="border-menu"></div>
+          <p class="sub">
+            ยุทธศาสตร์ Thai Quick Wins: เซตของขวัญเครื่องหอมราชินีและสมุนไพรไทยมงคล สำหรับงานแต่งงาน ของรับไหว้ผู้ใหญ่ และเทศกาลสำคัญ
+          </p>
+        </div>
+
+        <div class="gift-arch-grid">
+          <div class="gift-arch-item">
+            <div class="arch-image-wrap">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132118-9622.webp" alt="Royal Emerald Gift Set" />
+            </div>
+            <div class="bg-set-pill">เซตของขวัญพรีเมียม</div>
+          </div>
+
+          <div class="gift-arch-item stagger-middle">
+            <div class="arch-image-wrap">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132124-5018.webp" alt="Wedding Blessing Set" />
+            </div>
+            <div class="bg-set-pill">เซตของขวัญแต่งงาน</div>
+          </div>
+
+          <div class="gift-arch-item">
+            <div class="arch-image-wrap">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132130-4793.webp" alt="Recommended Gift Set" />
+            </div>
+            <div class="bg-set-pill">เซตของขวัญแนะนำ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 2 [TONE: LIGHT WARM CREAM] — CURATED GIFT SET GALLERY
+         แกะแบบหน้า Gift_Und_Sets ของ Anona (article.item.-micro 4 คอลัมน์ + ปุ่ม LINE)
+         =================================================================== -->
+    <section class="section-light section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">CURATED COLLECTIONS</span>
+          <h2>Explore Our Gift Collections</h2>
+          <div class="border-menu"></div>
+          <p class="sub">สามารถเลือก Mix & Match กลิ่นและผลิตภัณฑ์ พร้อมผูกริบบิ้นทองและพิมพ์การ์ดอวยพร</p>
+        </div>
+
+        <div class="template-b-grid">
+          <!-- Set 1 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132118-9622.webp" alt="QUEEN ESTHER RITUAL SET" />
+            </div>
+            <div class="template-b-sku">GIFT SET 01</div>
+            <div class="template-b-name">QUEEN ESTHĒR RITUAL GIFT SET (เทียนหอมโฮมสปา + สบู่ทาร์รากอน)</div>
+            <div class="template-b-price">890 THB</div>
+            <a href="https://lin.ee/9acuYWD" target="_blank" class="template-b-btn" style="background:var(--esther-emerald); color:var(--esther-gold);">
+              <i data-lucide="message-circle" width="14" height="14"></i>
+              <span>สั่งจัดเซตผ่าน LINE</span>
+            </a>
+          </div>
+
+          <!-- Set 2 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132121-1470.webp" alt="YAK PHO GUARDIAN DUO SET" />
+            </div>
+            <div class="template-b-sku">GIFT SET 02</div>
+            <div class="template-b-name">YAK PHO GUARDIAN DUO SET (เซตคู่บาล์มสมุนไพรสูตรร้อน & เย็น)</div>
+            <div class="template-b-price">350 THB</div>
+            <a href="https://lin.ee/9acuYWD" target="_blank" class="template-b-btn" style="background:var(--esther-emerald); color:var(--esther-gold);">
+              <i data-lucide="message-circle" width="14" height="14"></i>
+              <span>สั่งจัดเซตผ่าน LINE</span>
+            </a>
+          </div>
+
+          <!-- Set 3 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132124-5018.webp" alt="RECOMMENDED WEDDING GIFT SET" />
+            </div>
+            <div class="template-b-sku">GIFT SET 03</div>
+            <div class="template-b-name">RECOMMENDED WEDDING GIFT SET (ของรับไหว้ผู้ใหญ่ & ของชำร่วยมงคล)</div>
+            <div class="template-b-price">290 THB</div>
+            <a href="https://lin.ee/9acuYWD" target="_blank" class="template-b-btn" style="background:var(--esther-emerald); color:var(--esther-gold);">
+              <i data-lucide="message-circle" width="14" height="14"></i>
+              <span>สั่งจัดเซตผ่าน LINE</span>
+            </a>
+          </div>
+
+          <!-- Set 4 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132127-4578.webp" alt="ROYAL EMERALD VIP SET" />
+            </div>
+            <div class="template-b-sku">GIFT SET 04</div>
+            <div class="template-b-name">ROYAL EMERALD V.I.P. BOX (รวม 4 แบรนด์ Esther, Yak Pho, Boaz, Asher)</div>
+            <div class="template-b-price">1,490 THB</div>
+            <a href="https://lin.ee/9acuYWD" target="_blank" class="template-b-btn" style="background:var(--esther-emerald); color:var(--esther-gold);">
+              <i data-lucide="message-circle" width="14" height="14"></i>
+              <span>สั่งจัดเซตผ่าน LINE</span>
+            </a>
+          </div>
+
+          <!-- Set 5 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132133-1198.webp" alt="LOVEBIRDS AROMA GIFT SET" />
+            </div>
+            <div class="template-b-sku">GIFT SET 05</div>
+            <div class="template-b-name">LOVEBIRDS AROMA GIFT SET (เซตคู่กลิ่นกุหลาบ & มะลิไทย)</div>
+            <div class="template-b-price">450 THB</div>
+            <a href="https://lin.ee/9acuYWD" target="_blank" class="template-b-btn" style="background:var(--esther-emerald); color:var(--esther-gold);">
+              <i data-lucide="message-circle" width="14" height="14"></i>
+              <span>สั่งจัดเซตผ่าน LINE</span>
+            </a>
+          </div>
+
+          <!-- Set 6 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132135-5176.webp" alt="GOLDEN SIAM HERITAGE SET" />
+            </div>
+            <div class="template-b-sku">GIFT SET 06</div>
+            <div class="template-b-name">GOLDEN SIAM HERITAGE SET (ของฝากชาวต่างชาติ พิมพ์ 2 ภาษา TH/EN)</div>
+            <div class="template-b-price">590 THB</div>
+            <a href="https://lin.ee/9acuYWD" target="_blank" class="template-b-btn" style="background:var(--esther-emerald); color:var(--esther-gold);">
+              <i data-lucide="message-circle" width="14" height="14"></i>
+              <span>สั่งจัดเซตผ่าน LINE</span>
+            </a>
+          </div>
+
+          <!-- Set 7 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132138-4722.webp" alt="BOAZ GENTLEMAN GROOMING BOX" />
+            </div>
+            <div class="template-b-sku">GIFT SET 07</div>
+            <div class="template-b-name">BOAZ GENTLEMAN GROOMING BOX (เซตของขวัญสำหรับผู้บริหารชาย)</div>
+            <div class="template-b-price">690 THB</div>
+            <a href="https://lin.ee/9acuYWD" target="_blank" class="template-b-btn" style="background:var(--esther-emerald); color:var(--esther-gold);">
+              <i data-lucide="message-circle" width="14" height="14"></i>
+              <span>สั่งจัดเซตผ่าน LINE</span>
+            </a>
+          </div>
+
+          <!-- Set 8 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132141-3192.webp" alt="HOLIDAY BLESSING SACHET SET" />
+            </div>
+            <div class="template-b-sku">GIFT SET 08</div>
+            <div class="template-b-name">HOLIDAY BLESSING AROMA SET (เซตของขวัญเทศกาลปีใหม่ & สงกรานต์)</div>
+            <div class="template-b-price">390 THB</div>
+            <a href="https://lin.ee/9acuYWD" target="_blank" class="template-b-btn" style="background:var(--esther-emerald); color:var(--esther-gold);">
+              <i data-lucide="message-circle" width="14" height="14"></i>
+              <span>สั่งจัดเซตผ่าน LINE</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h4>ESTHĒR AROMA CO., LTD. (YAK PHO)</h4>
+          <p>บริษัท เอสเธอร์ อโรม่า จำกัด — อาณาจักรเครื่องหอมและสมุนไพรไทยมาตรฐานส่งออก GMP/FDA</p>
+        </div>
+        <div class="footer-right">
+          <a href="tel:+66926964549" class="footer-tel">
+            <i data-lucide="phone-call" width="20" height="20"></i>
+            <span>+66 92-696-4549</span>
+          </a>
+          <div class="footer-socials">
+            <a href="#" class="social-circle"><i data-lucide="facebook" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="message-circle" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="instagram" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="shopping-bag" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="store" width="18" height="18"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>© 2025–2026 ESTHĒR AROMA CO., LTD. & YAKPHO.COM. All rights reserved.</div>
+        <div>“Time-Honored Wisdom from the Purest Soil”</div>
+      </div>
+    </div>
+  </footer>
+
+  <button class="floating-top" id="backToTop"><i data-lucide="chevron-up" width="20" height="20"></i></button>
+  <script src="assets/anona-esther.js"></script>
+</body>
+</html>
+

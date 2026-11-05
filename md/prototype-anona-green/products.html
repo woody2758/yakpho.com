@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products – ESTHĒR AROMA & YAK PHO</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="assets/anona-esther.css" />
+</head>
+<body>
+
+  <!-- PROTOTYPE BAR -->
+  <div class="proto-bar">
+    <div class="proto-bar-brand">
+      <span class="proto-badge">UX/UI PROTOTYPE</span>
+      <span>Anona Layout × Esther Green Tone (Alternating Dark/Light)</span>
+    </div>
+    <div class="proto-links">
+      <a href="index.html">1. หน้าแรก (Home)</a>
+      <a href="about.html">2. เกี่ยวกับเรา (About)</a>
+      <a href="products.html" class="active">3. รวมสินค้า (Products)</a>
+      <a href="gift-sets.html">4. เซตของขวัญ (Gift Sets)</a>
+      <a href="corporate-gifts.html">5. ลูกค้าองค์กร (Corporate)</a>
+      <a href="stores-contact.html">6. สาขา & ติดต่อเรา (Stores & Contact)</a>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="index.html" class="brand-logo">
+        <div class="brand-logo-mark">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Yak Pho · Boaz · Asher</span>
+        </div>
+      </a>
+      <nav class="desktop-nav">
+        <div class="nav-item"><a href="index.html" class="nav-link">Home</a></div>
+        <div class="nav-item"><a href="about.html" class="nav-link">About us</a></div>
+        <div class="nav-item">
+          <a href="products.html" class="nav-link active">Products <i data-lucide="chevron-down" width="15" height="15"></i></a>
+          <div class="dropdown-menu">
+            <a href="products.html"><span>🔥 สูตรร้อน (Hot Herbal Balm)</span></a>
+            <a href="products.html"><span>❄️ สูตรเย็น (Cooling Aroma)</span></a>
+            <a href="products.html"><span>🌿 สูตรนวดตัว (Body Massage)</span></a>
+            <a href="products.html"><span>👑 Esther Queen Beauty & Candle</span></a>
+            <a href="products.html"><span>🏛️ Boaz Men's Charcoal Grooming</span></a>
+            <a href="products.html"><span>🛹 Asher Teen Freshness Care</span></a>
+          </div>
+        </div>
+        <div class="nav-item"><a href="gift-sets.html" class="nav-link">Gift Sets</a></div>
+        <div class="nav-item"><a href="corporate-gifts.html" class="nav-link">Corporate Gifts</a></div>
+        <div class="nav-item"><a href="stores-contact.html" class="nav-link">Our stores</a></div>
+        <div class="nav-item"><a href="stores-contact.html#contact" class="nav-link">Contact us</a></div>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-pill"><span>🇹🇭 TH / 🇬🇧 EN</span></div>
+        <button class="cart-trigger">
+          <i data-lucide="shopping-bag" width="18" height="18"></i>
+          <span class="cart-badge">2</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="mobile-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <div class="brand-logo">
+        <div class="brand-logo-mark" style="width:36px;height:36px;font-size:16px;">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title" style="font-size:17px;">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Time-Honored Wisdom</span>
+        </div>
+      </div>
+      <button class="drawer-close" id="drawerClose"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <ul class="drawer-nav">
+      <li><a href="index.html">Home (หน้าแรก)</a></li>
+      <li><a href="about.html">About us (ตำนานแบรนด์)</a></li>
+      <li><a href="products.html" class="active">Products (ผลิตภัณฑ์ทั้งหมด)</a></li>
+      <li><a href="gift-sets.html">Gift Sets (เซตของขวัญ/ของชำร่วย)</a></li>
+      <li><a href="corporate-gifts.html">Corporate Gifts (ลูกค้าองค์กร/B2B)</a></li>
+      <li><a href="stores-contact.html">Our stores (สถานที่จัดจำหน่าย)</a></li>
+      <li><a href="stores-contact.html#contact">Contact us (ติดต่อเรา)</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <!-- ===================================================================
+         SECTION 1 [TONE: DARK EMERALD] — CATEGORY HERO (.text-menu ของ Anona)
+         =================================================================== -->
+    <section class="section-dark" style="padding: 40px 0;">
+      <div class="container">
+        <div class="anona-heading" style="margin-bottom: 12px;">
+          <span class="eyebrow">ESTHĒR AROMA & YAK PHO CATALOG</span>
+          <h2>AROMATIC & HERBAL PRODUCTS</h2>
+          <div class="border-menu"></div>
+          <p class="sub">
+            คัดสรรผลิตภัณฑ์อโรม่าและยาหม่องสมุนไพรไทย 3 สูตรหลัก (สูตรร้อน, สูตรเย็น, สูตรนวดตัว) ครบ 12 กลิ่นพรีเมียม พร้อมขนาดพกพา 40g และขนาดสำหรับร้านสปา 500g / 1kg
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 2 [TONE: LIGHT WARM CREAM] — PRODUCT CATALOG GRID (Template-B)
+         แกะแบบ Anona: รหัสสินค้า + ชื่อ + ราคา + ปุ่มแคปซูล "shop now"
+         =================================================================== -->
+    <section class="section-light section-pad">
+      <div class="container">
+        <!-- ปุ่มกรองหมวดหมู่ (Interactive Filter) -->
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter-btn="all">ทั้งหมด (All Products)</button>
+          <button class="filter-tab" data-filter-btn="cooling">❄️ สูตรเย็น (Cooling Aroma)</button>
+          <button class="filter-tab" data-filter-btn="massage">🌿 สูตรนวดตัว (Body Massage)</button>
+          <button class="filter-tab" data-filter-btn="hot">🔥 สูตรร้อน & คลายเส้น (Hot Balm)</button>
+          <button class="filter-tab" data-filter-btn="mini">✨ ขวดพกพา 40g (79 THB)</button>
+        </div>
+
+        <div class="template-b-grid">
+          <!-- Item 1 -->
+          <div class="template-b-card" data-filter-item="cooling">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5090_1778577604_022a8f5b2e0bbea4.webp" alt="YP5090" />
+            </div>
+            <div class="template-b-sku">YP5090</div>
+            <div class="template-b-name">C012 สูตรเย็น ยักษ์โพธิ์อโรม่า สีขาวกลิ่นมะพร้าว (1 kg)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="template-b-card" data-filter-item="cooling">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5062_1778577530_c4b60dfe8e53ed53.webp" alt="YP5062" />
+            </div>
+            <div class="template-b-sku">YP5062</div>
+            <div class="template-b-name">C011 สูตรเย็น ยักษ์โพธิ์อโรม่า สีขาวกลิ่นดอกโมก (1 kg)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="template-b-card" data-filter-item="cooling">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5020_1778572349_3f5c43d74e7f5d5b.webp" alt="YP5020" />
+            </div>
+            <div class="template-b-sku">YP5020</div>
+            <div class="template-b-name">C007 สูตรเย็น ยักษ์โพธิ์อโรม่า สีขาวกลิ่นยูคาลิปตัส (1 kg)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="template-b-card" data-filter-item="cooling">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5019_1778571075_dbf2aabc16e147d9.webp" alt="YP5019" />
+            </div>
+            <div class="template-b-sku">YP5019</div>
+            <div class="template-b-name">C006 สูตรเย็น ยักษ์โพธิ์อโรม่า สีม่วงลาเวนเดอร์ (1 kg)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="template-b-card" data-filter-item="massage">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5100_1778583529_41486459dd9f93ab.webp" alt="YP5100" />
+            </div>
+            <div class="template-b-sku">YP5100</div>
+            <div class="template-b-name">B010 สูตรนวดตัว ยักษ์โพธิ์อโรม่า สีเหลืองอ่อนกลิ่นขิงมินท์ (1 kg)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 6 -->
+          <div class="template-b-card" data-filter-item="massage">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5099_1778582269_1f88c20502a38d59.webp" alt="YP5099" />
+            </div>
+            <div class="template-b-sku">YP5099</div>
+            <div class="template-b-name">B005 สูตรนวดตัว ยักษ์โพธิ์ สีเขียวหญ้าเอ็นยืด (1 kg)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 7 -->
+          <div class="template-b-card" data-filter-item="massage">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5085_1778580372_c1be83dcbaf33aca.webp" alt="YP5085" />
+            </div>
+            <div class="template-b-sku">YP5085</div>
+            <div class="template-b-name">B003 สูตรนวดตัว ยักษ์โพธิ์อโรม่า สีเขียวเสลดพังพอน (1 kg)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 8 -->
+          <div class="template-b-card" data-filter-item="massage">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5072_1778583107_99b750b5c58c6bba.webp" alt="YP5072" />
+            </div>
+            <div class="template-b-sku">YP5072</div>
+            <div class="template-b-name">B009 สูตรนวดตัว ยักษ์โพธิ์อโรม่า สีชมพูกลิ่นกุหลาบ (1 kg)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 9 -->
+          <div class="template-b-card" data-filter-item="mini massage">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5002_1778567705_5f4339a422e06a3e.webp" alt="YP5204" />
+            </div>
+            <div class="template-b-sku">YP5204</div>
+            <div class="template-b-name">B012 สูตรนวดตัว ยักษ์โพธิ์อโรมา กลิ่นมะพร้าว ขวดพกพา 40g</div>
+            <div class="template-b-price">79 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 10 -->
+          <div class="template-b-card" data-filter-item="mini cooling">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5007_1778568381_a6c290314871fa2d.webp" alt="YP5191" />
+            </div>
+            <div class="template-b-sku">YP5191</div>
+            <div class="template-b-name">C011 สูตรเย็น ยักษ์โพธิ์อโรม่า กลิ่นดอกโมก ขวดพกพา 40g</div>
+            <div class="template-b-price">79 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 11 -->
+          <div class="template-b-card" data-filter-item="hot">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5011_1778567814_8b665aed5cc4368d.webp" alt="TH5113" />
+            </div>
+            <div class="template-b-sku">TH5113</div>
+            <div class="template-b-name">ยักษ์โพธิ์ ยาหม่องนวดแก้อาการ สูตรร้อน กลิ่นดอกปีบ (500 กรัม)</div>
+            <div class="template-b-price">450 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Item 12 -->
+          <div class="template-b-card" data-filter-item="hot">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5016_1778568710_161b7e85a4bff687.webp" alt="YP4547" />
+            </div>
+            <div class="template-b-sku">YP4547</div>
+            <div class="template-b-name">น้ำมันคลายเส้น ยักษ์โพธิ์ สีเขียว เสลดพังพอน 30 กรัม (M02)</div>
+            <div class="template-b-price">35 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 3 [TONE: DARK EMERALD] — WHOLESALE & SPA PARTNER BANNER
+         =================================================================== -->
+    <section class="section-dark section-pad" style="text-align: center;">
+      <div class="container">
+        <div class="anona-heading" style="margin-bottom: 20px;">
+          <span class="eyebrow">WHOLESALE & EXPORT</span>
+          <h2>ต้องการสั่งจำนวนมากสำหรับร้านนวดและสปา?</h2>
+          <div class="border-menu"></div>
+          <p class="sub">เรทราคาส่งโรงงาน พร้อมใบรับรองมาตรฐาน GMP / FDA สำหรับส่งออกต่างประเทศ</p>
+        </div>
+        <a href="corporate-gifts.html" class="btn-gold-pill">
+          <i data-lucide="building-2" width="16" height="16"></i>
+          <span>ดูเรทราคาส่ง & ลูกค้าองค์กร</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h4>ESTHĒR AROMA CO., LTD. (YAK PHO)</h4>
+          <p>บริษัท เอสเธอร์ อโรม่า จำกัด — อาณาจักรเครื่องหอมและสมุนไพรไทยมาตรฐานส่งออก GMP/FDA</p>
+        </div>
+        <div class="footer-right">
+          <a href="tel:+66926964549" class="footer-tel">
+            <i data-lucide="phone-call" width="20" height="20"></i>
+            <span>+66 92-696-4549</span>
+          </a>
+          <div class="footer-socials">
+            <a href="#" class="social-circle"><i data-lucide="facebook" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="message-circle" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="instagram" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="shopping-bag" width="18" height="18"></i></a>
+            <a href="#" class="social-circle"><i data-lucide="store" width="18" height="18"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>© 2025–2026 ESTHĒR AROMA CO., LTD. & YAKPHO.COM. All rights reserved.</div>
+        <div>“Time-Honored Wisdom from the Purest Soil”</div>
+      </div>
+    </div>
+  </footer>
+
+  <button class="floating-top" id="backToTop"><i data-lucide="chevron-up" width="20" height="20"></i></button>
+  <script src="assets/anona-esther.js"></script>
+</body>
+</html>
+

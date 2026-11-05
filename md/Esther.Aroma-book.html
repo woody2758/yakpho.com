@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ESTHĒR AROMA – The 10-Year Masterplan & Brand Identity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      /* --- CORPORATE PALETTE (ยานแม่ ESTHER) --- */
+      --esther-emerald: #0B3B35;    /* Deep Emerald */
+      --esther-gold: #D1A55A;       /* Matte Royal Gold */
+      --esther-cream: #F5F1E8;      /* Warm Cream */
+      --esther-dark: #021714;       /* Deepest Dark */
+      --esther-slate: #22252a;      /* Slate Black */
+      --esther-moss: #9bb59b;       /* Moss Soft Green */
+      
+      /* --- SUB-BRAND ACCENTS --- */
+      --boaz-black: #1A1A1A;
+      --asher-orange: #FF7F50;
+      --asher-blue: #00BFFF;
+      --yak-green: #2F5233;
+      --yak-accent: #B8860B;
+
+      /* --- UI VARIABLES --- */
+      --text-main: #F5F5F4;
+      --text-soft: #D9D9D7;
+      --card-bg: rgba(4, 23, 20, 0.92);
+      --divider: rgba(209, 165, 90, 0.3);
+      --radius-xl: 24px;
+      --radius-md: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Prompt", sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 10% 10%, #1a4d40 0, rgba(0, 0, 0, 0) 60%),
+        radial-gradient(circle at 90% 90%, #5e4312 0, rgba(0, 0, 0, 0) 60%),
+        linear-gradient(135deg, #021714 0%, #000000 100%);
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .page { width: 100%; max-width: 1200px; }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 40px 24px;
+      backdrop-filter: blur(24px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Top Gold Line */
+    .card::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, var(--esther-emerald), var(--esther-gold), var(--esther-emerald));
+    }
+
+    @media (min-width: 900px) { .card { padding: 60px 80px; } }
+
+    /* --- HEADER --- */
+    .header { display: flex; flex-direction: column; gap: 24px; margin-bottom: 50px; }
+    
+    .logo-area { display: flex; align-items: center; gap: 24px; margin-bottom: 10px; }
+    
+    .logo-mark {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: radial-gradient(circle, #fdf4e3 0%, #b37c2b 100%);
+      border: 2px solid rgba(209, 165, 90, 0.6);
+      display: flex; justify-content: center; align-items: center;
+      font-family: "Cormorant Garamond", serif; font-weight: 700; font-size: 40px; color: #3e2704;
+      box-shadow: 0 0 30px rgba(209, 165, 90, 0.3);
+    }
+    
+    .brand-title {
+      font-family: "Cormorant Garamond", serif; font-size: 48px; font-weight: 600;
+      text-transform: uppercase; color: var(--esther-gold); line-height: 1; letter-spacing: 0.05em;
+    }
+    .brand-subtitle { font-size: 18px; color: var(--text-soft); margin-top: 6px; }
+    .tagline { 
+      font-family: "Cormorant Garamond", serif; font-size: 20px; color: var(--esther-cream); 
+      font-style: italic; margin-top: 4px; opacity: 0.9;
+    }
+    .tagline-th {
+      font-size: 14px; color: var(--yak-accent); margin-top: 4px; letter-spacing: 0.05em;
+    }
+
+    .doc-badge {
+      display: inline-block; padding: 6px 16px;
+      background: rgba(209, 165, 90, 0.15); border: 1px solid var(--esther-gold);
+      border-radius: 50px; color: var(--esther-gold); font-size: 12px;
+      text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: "Cormorant Garamond", serif; font-size: 36px; font-weight: 500; color: #fff;
+      margin: 0; line-height: 1.3;
+    }
+
+    .divider { border: 0; border-top: 1px solid var(--divider); margin: 50px 0; }
+
+    /* --- LAYOUT GRID --- */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; gap: 40px; } }
+
+    /* --- TYPOGRAPHY --- */
+    h2 {
+      font-family: "Cormorant Garamond", serif; font-size: 28px; color: var(--esther-gold);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-top: 40px; margin-bottom: 24px;
+      padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    h2:first-of-type { margin-top: 0; }
+    
+    h3 {
+      font-size: 16px; color: var(--esther-moss); text-transform: uppercase; letter-spacing: 0.15em;
+      margin: 28px 0 12px 0; font-weight: 600;
+    }
+    p { line-height: 1.8; font-size: 15px; color: var(--text-soft); margin-bottom: 16px; }
+    ul { padding-left: 20px; color: var(--text-soft); margin-bottom: 24px; }
+    li { margin-bottom: 8px; line-height: 1.7; }
+    strong { color: #fff; font-weight: 500; }
+
+    /* --- STRATEGY BOXES --- */
+    .strategy-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-md);
+      padding: 24px; margin-bottom: 24px;
+    }
+    
+    /* --- ROADMAP --- */
+    .roadmap-step {
+      position: relative; padding-left: 30px; margin-bottom: 40px;
+      border-left: 2px solid rgba(255,255,255,0.1);
+    }
+    .roadmap-step::before {
+      content: ""; position: absolute; left: -7px; top: 0;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--esther-gold); box-shadow: 0 0 15px var(--esther-gold);
+    }
+    .phase-badge {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em;
+      background: var(--esther-gold); color: #000; padding: 4px 10px; border-radius: 4px;
+      display: inline-block; margin-bottom: 10px; font-weight: 700;
+    }
+    .phase-head { font-family: "Cormorant Garamond", serif; font-size: 22px; color: #fff; margin-bottom: 12px; }
+
+    /* --- BRAND CARDS --- */
+    .brand-card {
+      background: rgba(0,0,0,0.3); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px;
+      border-left: 4px solid var(--esther-gold); transition: transform 0.3s;
+    }
+    .brand-card:hover { transform: translateX(5px); background: rgba(255,255,255,0.05); }
+    .bc-name { font-family: "Cormorant Garamond", serif; font-size: 20px; font-weight: 700; color: #fff; }
+    .bc-role { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.7; float: right;}
+    .bc-slogan { font-style: italic; color: var(--esther-gold); font-size: 12px; margin-top: 4px; }
+    .bc-slogan-th { font-size: 11px; color: var(--text-soft); opacity: 0.7; margin-top: 2px; }
+
+    /* --- COLOR SWATCHES --- */
+    .color-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; }
+    .swatch {
+      flex: 1 1 120px; min-width: 0; border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden;
+    }
+    .swatch-color { height: 44px; }
+    .swatch-body { padding: 10px; background: rgba(4, 23, 20, 0.6); }
+    .swatch-name { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--esther-cream); margin-bottom: 4px; font-weight: bold; }
+    .swatch-codes {
+      font-family: 'Courier New', monospace; font-size: 9px; color: rgba(255,255,255,0.5);
+      margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;
+    }
+    .swatch-desc { font-size: 10px; color: rgba(255,255,255,0.5); line-height: 1.4; }
+
+    /* --- PILLS --- */
+    .pill {
+      display: inline-flex; padding: 4px 12px; border-radius: 99px;
+      border: 1px solid rgba(245, 241, 232, 0.3); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; margin: 0 6px 8px 0;
+      color: var(--esther-cream); background: rgba(255,255,255,0.05);
+    }
+
+    /* --- STORY BOX --- */
+    .story-box {
+        background: rgba(255,255,255,0.02);
+        border: 1px dashed var(--esther-gold);
+        border-radius: var(--radius-md);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .story-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 18px; color: var(--esther-gold);
+        margin-bottom: 8px; font-weight: 600;
+    }
+
+    /* --- SPIRIT SECTION --- */
+    .spirit-section {
+      margin-top: 60px; padding: 40px; text-align: center;
+      background: linear-gradient(135deg, rgba(209, 165, 90, 0.15), rgba(4, 23, 20, 0.9));
+      border: 1px solid rgba(209, 165, 90, 0.3); border-radius: var(--radius-xl);
+    }
+    .spirit-quote { font-family: "Cormorant Garamond", serif; font-size: 28px; font-style: italic; color: #fff; margin-bottom: 12px; }
+    .spirit-desc { font-size: 14px; color: var(--esther-gold); letter-spacing: 0.2em; text-transform: uppercase; }
+
+    .footer {
+      margin-top: 60px; text-align: center; font-size: 11px; letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.3); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+    <div class="card">
+      
+      <header class="header">
+        <div class="logo-area">
+          <div class="logo-mark">EA</div>
+          <div>
+            <div class="brand-title">ESTHĒR AROMA</div>
+            <div class="brand-subtitle">บริษัท เอสเธอร์ อโรม่า จำกัด (Esther Aroma Co., Ltd.)</div>
+            <div class="tagline">Time-Honored Wisdom from the Purest Soil</div>
+            <div class="tagline-th">"ภูมิปัญญาอันทรงคุณค่า... จากผืนดินบริสุทธิ์"</div>
+          </div>
+        </div>
+        
+        <div>
+          <span class="doc-badge">INTERNAL MASTERPLAN (2025-2035)</span>
+          <h1>The 10-Year IPO Roadmap & Brand Identity</h1>
+          <p style="max-width: 800px; font-size: 16px;">
+            เอกสารแม่บทฉบับสมบูรณ์ สำหรับผู้บริหารและพนักงาน เพื่อสื่อสารทิศทางการเงิน เป้าหมายองค์กร 
+            และมาตรฐานแบรนด์ (Visual & Voice) ให้เป็นหนึ่งเดียว สู่การเป็น "อาณาจักรเครื่องหอมระดับโลก"
+          </p>
+        </div>
+      </header>
+
+      <hr class="divider" />
+
+      <div class="grid">
+        
+        <div>
+          <section>
+            <h2>01 · Corporate Objectives</h2>
+            <div class="strategy-box">
+              <strong style="color: var(--esther-gold); font-size:18px;">💰 Financial Separation</strong>
+              <p>แยก "กระเป๋าธุรกิจ" ออกจาก "กระเป๋าครอบครัว" 100% เพื่อความโปร่งใส เห็นกำไรที่แท้จริง และลดแรงกดดันส่วนตัว</p>
+            </div>
+            <div class="strategy-box">
+              <strong style="color: var(--esther-gold); font-size:18px;">🌍 Global Standard</strong>
+              <p>ยกระดับจากสินค้า OTOP สู่แบรนด์ส่งออกที่มีมาตรฐานสากล (GMP/FDA) รองรับคู่ค้า B2B ทั่วโลก</p>
+            </div>
+            <div class="strategy-box">
+              <strong style="color: var(--esther-gold); font-size:18px;">🏛️ Legacy Building</strong>
+              <p>สร้างระบบ Auto-run ภายใน 10 ปี เพื่อให้ธุรกิจเดินได้เอง และส่งต่อให้รุ่นลูก (Asher Generation) อย่างยั่งยืน</p>
+            </div>
+          </section>
+
+          <section>
+            <h2>02 · The 10-Year IPO Roadmap</h2>
+            <p>แผนยุทธศาสตร์ 3 ระยะ สู่เป้าหมายเกษียณมั่งคั่ง</p>
+
+            <div class="roadmap-step">
+              <span class="phase-badge">PHASE 1 : YEARS 1-3</span>
+              <div class="phase-head">Foundation & Thai Market Quick Wins</div>
+              <ul>
+                <li><strong>Accounting:</strong> จดทะเบียนนิติบุคคล, แยกบัญชีรับ-จ่ายชัดเจน</li>
+                <li><strong>Production:</strong> คำนวณ Standard Cost และพัฒนาสูตร Signature (Fire Oil/Tarragon)</li>
+                <li><strong>Thai Quick Wins:</strong> ลุยตลาด <strong>"ของชำร่วย"</strong> (Wedding/Corporate Gift) และ <strong>"เทียนหอม"</strong> (Home Spa) เพื่อสร้างกระแสเงินสดทันที</li>
+                <li><strong>Branding:</strong> เปิดตัว 4 แบรนด์หลักให้ติดตลาดในประเทศ</li>
+              </ul>
+            </div>
+
+            <div class="roadmap-step">
+              <span class="phase-badge">PHASE 2 : YEARS 4-6</span>
+              <div class="phase-head">Scaling & Automation</div>
+              <ul>
+                <li>บุกตลาดตะวันออกกลาง (อาหรับ/อิสราเอล) และยุโรป</li>
+                <li>ติดตั้งระบบ ERP และจ้างทีมบริหารมืออาชีพ</li>
+                <li>แปรรูปสมุนไพรในไร่เป็นสินค้ามูลค่าสูง (High Value)</li>
+              </ul>
+            </div>
+
+            <div class="roadmap-step">
+              <span class="phase-badge">PHASE 3 : YEARS 7-10</span>
+              <div class="phase-head">IPO or Legacy</div>
+              <ul>
+                <li><strong>Option A:</strong> IPO เข้าตลาดฯ ระดมทุนขยายอาณาจักร</li>
+                <li><strong>Option B:</strong> Passive Income ส่งต่อให้ลูกชายบริหาร</li>
+                <li><strong>Goal:</strong> เกษียณอย่างมีความสุข (Joyful Retirement)</li>
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <h2>03 · Global Website Strategy</h2>
+            <p>รองรับ <strong>10 ภาษาหลัก</strong> เพื่อเจาะตลาดที่มีกำลังซื้อสูงสุด</p>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span class="pill" style="border-color:var(--esther-gold); background:rgba(209,165,90,0.1);">🇬🇧 English</span>
+              <span class="pill">🇹🇭 Thai</span>
+              <span class="pill">🇨🇳 Chinese</span>
+              <span class="pill">🇩🇪 German</span>
+              <span class="pill">🇫🇷 French</span>
+              <span class="pill">🇯🇵 Japanese</span>
+              <span class="pill">🇰🇷 Korean</span>
+              <span class="pill">🇷🇺 Russian</span>
+              <span class="pill" style="border-color:var(--esther-gold);">🇦🇪 Arabic</span>
+              <span class="pill" style="border-color:var(--esther-gold);">🇮🇱 Hebrew</span>
+            </div>
+          </section>
+          
+          <section>
+            <h2>04 · Brand Architecture</h2>
+            <div class="brand-card" style="border-color: var(--esther-gold);">
+              <span class="bc-name" style="color:var(--esther-gold);">👑 ESTHER</span> <span class="bc-role">QUEEN / SPA</span>
+              <div class="bc-slogan">"The Queen's Beauty Ritual"</div>
+              <div class="bc-slogan-th">"พิธีกรรมความงามแห่งราชินี"</div>
+              <p style="margin:4px 0 0; font-size:13px; opacity:0.8;">สบู่ความงาม, สกินแคร์, เทียนหอม (New)</p>
+            </div>
+            <div class="brand-card" style="border-color: #6a8f6a;">
+              <span class="bc-name" style="color:#6a8f6a;">👹 YAK PHO</span> <span class="bc-role">GUARDIAN / BALM</span>
+              <div class="bc-slogan" style="color:#6a8f6a;">"Ancient Thai Wisdom"</div>
+              <div class="bc-slogan-th">"ภูมิปัญญาไทย... ผู้พิทักษ์ความปวดเมื่อย"</div>
+              <p style="margin:4px 0 0; font-size:13px; opacity:0.8;">ยาหม่อง, แก้ปวด สำหรับร้านนวด</p>
+            </div>
+            <div class="brand-card" style="border-color: #fff;">
+              <span class="bc-name" style="color:#fff;">🏛️ BOAZ</span> <span class="bc-role">FATHER / MEN</span>
+              <div class="bc-slogan" style="color:#fff;">"Strength & Honor"</div>
+              <div class="bc-slogan-th">"ความแกร่งและเกียรติยศ"</div>
+              <p style="margin:4px 0 0; font-size:13px; opacity:0.8;">สบู่ชาร์โคล, Grooming ผู้ชายวัยทำงาน</p>
+            </div>
+            <div class="brand-card" style="border-color: #ff7f50;">
+              <span class="bc-name" style="color:#ff7f50;">🛹 ASHER</span> <span class="bc-role">SON / TEEN</span>
+              <div class="bc-slogan" style="color:#ff7f50;">"Joy & Freshness"</div>
+              <div class="bc-slogan-th">"ความสุขและความสดชื่น"</div>
+              <p style="margin:4px 0 0; font-size:13px; opacity:0.8;">สบู่ลดสิว, สปอร์ต สำหรับวัยรุ่น</p>
+            </div>
+          </section>
+        </div>
+
+        <div>
+          <section>
+            <h2>07 · Visual Identity</h2>
+            <p>ชุดสีหลักของ Esther Aroma ถูกออกแบบให้มีความหรู สงบ และสะท้อนความเป็น <strong>Ancestral Wisdom</strong> อย่างชัดเจน พร้อมค่าสีมาตรฐานสำหรับสิ่งพิมพ์ (CMYK) และหน้าจอ (HEX)</p>
+
+            <h3>Brand Colors (Corporate)</h3>
+            <div class="color-row">
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--esther-emerald);"></div>
+                <div class="swatch-body">
+                  <div class="swatch-name">Deep Emerald</div>
+                  <div class="swatch-codes">
+                    HEX: #0B3B35<br>
+                    CMYK: 88, 45, 65, 55
+                  </div>
+                  <div class="swatch-desc">ฐานหลักของแบรนด์ ใช้สำหรับพื้นหลัง, Header</div>
+                </div>
+              </div>
+
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--esther-gold);"></div>
+                <div class="swatch-body">
+                  <div class="swatch-name">Matte Royal Gold</div>
+                  <div class="swatch-codes">
+                    HEX: #D1A55A<br>
+                    CMYK: 20, 35, 75, 5
+                  </div>
+                  <div class="swatch-desc">ใช้กับโลโก้, เส้นคั่น, Icon ที่ต้องการความโดดเด่น</div>
+                </div>
+              </div>
+
+              <div class="swatch">
+                <div class="swatch-color" style="background: var(--esther-cream);"></div>
+                <div class="swatch-body">
+                  <div class="swatch-name">Warm Cream</div>
+                  <div class="swatch-codes">
+                    HEX: #F5F1E8<br>
+                    CMYK: 3, 3, 8, 0
+                  </div>
+                  <div class="swatch-desc">เหมาะกับพื้นหลังโหมดสว่าง หรือเอกสารงานพิมพ์</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="color-row">
+              <div class="swatch">
+                <div class="swatch-color" style="background: #22252A;"></div>
+                <div class="swatch-body">
+                  <div class="swatch-name">Slate Black</div>
+                  <div class="swatch-codes">
+                    HEX: #22252A<br>
+                    CMYK: 70, 60, 50, 80
+                  </div>
+                  <div class="swatch-desc">ใช้เป็นตัวอักษรในพื้นอ่อน หรือหัวข้อที่ต้องการน้ำหนัก</div>
+                </div>
+              </div>
+
+              <div class="swatch">
+                <div class="swatch-color" style="background: #9BB59B;"></div>
+                <div class="swatch-body">
+                  <div class="swatch-name">Moss Soft Green</div>
+                  <div class="swatch-codes">
+                    HEX: #9BB59B<br>
+                    CMYK: 40, 15, 45, 0
+                  </div>
+                  <div class="swatch-desc">ใช้ใน Subheading, เส้นบาง หรือพื้นหลัง Block เล็กๆ</div>
+                </div>
+              </div>
+            </div>
+
+            <h3>Logo Concept</h3>
+            <p><strong>"The Tarragon Crown" (มงกุฎแห่งใบไม้):</strong> สื่อถึงราชินีเอสเธอร์ โดยใช้เส้นสายของใบทาร์รากอนมาถักทอเป็นรูปมงกุฎสีทอง เน้นความเรียบหรูและธรรมชาติ</p>
+
+            <h3>Typography</h3>
+            <p>
+              <strong>Display / Headline:</strong> <span style="font-family:'Cormorant Garamond', serif; font-size:18px;">Cormorant Garamond</span><br>
+              ฟอนต์ Serif ที่ให้ความรู้สึกหรู สงบ และคลาสสิก (ใช้พาดหัว)<br><br>
+              <strong>Body / UI:</strong> <span style="font-family:'Prompt', sans-serif;">Prompt (พรอมท์)</span><br>
+              ฟอนต์ Sans-serif ภาษาไทยที่อ่านง่าย บาลานซ์ระหว่างความสมัยใหม่และความเป็นทางการ
+            </p>
+          </section>
+
+          <section>
+            <h2>08 · Brand Voice & Stories</h2>
+
+            <h3>Brand Voice</h3>
+            <ul>
+              <li><strong>Warm & Professional:</strong> สุภาพ เป็นกันเอง แต่ชัดเจนและเป็นมืออาชีพ</li>
+              <li><strong>Calm & Confident:</strong> น้ำเสียงนิ่ง มั่นใจ ไม่โอ้อวดเกินจริง</li>
+              <li><strong>Ancestral Wisdom (Subtle Approach):</strong> แฝงปรัชญาความเชื่อผ่านชื่อแบรนด์ (Esther/Boaz/Asher) และวัตถุดิบโบราณ โดยสื่อสารในรูปแบบสากล (Subtle & Universal) ไม่ใช้คำทางศาสนาตรงๆ</li>
+            </ul>
+
+            <h3>Our 3 Core Stories</h3>
+            <div class="story-box">
+                <div class="story-title">1. The Royal Tarragon (ตำนานทาร์รากอนราชินี)</div>
+                <p style="font-size:13px; margin:0;">
+                    จาก "สวนลับ 116 ตร.ว." กลางกรุง สู่การปลูกทาร์รากอนออร์แกนิกด้วยรัก เก็บเกี่ยวด้วยมือ 
+                    เพื่อสกัดเป็นน้ำมัน "Liquid Green Gold" อันล้ำค่า ที่หาไม่ได้จากที่อื่น
+                </p>
+            </div>
+            <div class="story-box">
+                <div class="story-title">2. Biblical Beauty Ritual (พิธีกรรมความงามแห่งพระคัมภีร์)</div>
+                <p style="font-size:13px; margin:0;">
+                    แรงบันดาลใจจากการเตรียมตัว 12 เดือนของราชินีเอสเธอร์ ด้วยเครื่องหอมและน้ำมันศักดิ์สิทธิ์ 
+                    สู่ผลิตภัณฑ์ที่ทำให้ผู้หญิงทุกคนรู้สึกงดงามและเลอค่าดั่งราชินี
+                </p>
+            </div>
+            <div class="story-box">
+                <div class="story-title">3. Father & Son Legacy (ตำนานพ่อสู่ลูก)</div>
+                <p style="font-size:13px; margin:0;">
+                    ความรักที่ส่งต่อจากรุ่นสู่รุ่น ผ่านแบรนด์ BOAZ (พ่อผู้เข้มแข็ง) และ ASHER (ลูกผู้สดใส) 
+                    สะท้อนความเข้าใจในการดูแลผู้ชายทุกเจเนอเรชัน
+                </p>
+            </div>
+
+            <h3>Packaging Guidelines</h3>
+            <ul>
+              <li>โลโก้วางเด่นด้านหน้า บนพื้นสี Emerald หรือ Cream</li>
+              <li>ใช้เส้นทองบางๆ เพื่อขับภาพความหรู ไม่ใช้ลายไทยที่แน่นจนเกินไป</li>
+              <li>ข้อมูลภาษาอังกฤษและไทยชัดเจน อ่านง่ายสำหรับลูกค้าต่างชาติ (Global Friendly)</li>
+              <li>หลีกเลี่ยงคำโฆษณาเกินจริง ให้เน้น &ldquo;คุณภาพ&rdquo; และ &ldquo;ประสบการณ์การใช้งานจริง&rdquo;</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>09 · Brand Spirit</h2>
+            <div class="spirit-section">
+              <div class="spirit-quote">
+                “Time-Honored Wisdom from the Purest Soil”
+              </div>
+              <div class="spirit-desc">
+                ภูมิปัญญาอันทรงคุณค่า... จากผืนดินบริสุทธิ์
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="footer">
+        CONFIDENTIAL DOCUMENT · INTERNAL USE ONLY · ESTHER AROMA CO., LTD. · 2025
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

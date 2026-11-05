@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESTHĒR AROMA & YAK PHO – Time-Honored Wisdom from the Purest Soil</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="assets/anona-esther.css" />
+</head>
+
+<body>
+
+  <!-- =====================================================================
+       PROTOTYPE NAVIGATION SWITCHER (สำหรับพรีวิว UX/UI ทั้ง 6 หน้า)
+       ===================================================================== -->
+  <div class="proto-bar">
+    <div class="proto-bar-brand">
+      <span class="proto-badge">UX/UI PROTOTYPE</span>
+      <span>Anona Layout × Esther Green Tone (Alternating Dark/Light)</span>
+    </div>
+    <div class="proto-links">
+      <a href="index.html" class="active">1. หน้าแรก (Home)</a>
+      <a href="about.html">2. เกี่ยวกับเรา (About)</a>
+      <a href="products.html">3. รวมสินค้า (Products)</a>
+      <a href="gift-sets.html">4. เซตของขวัญ (Gift Sets)</a>
+      <a href="corporate-gifts.html">5. ลูกค้าองค์กร (Corporate)</a>
+      <a href="stores-contact.html">6. สาขา & ติดต่อเรา (Stores & Contact)</a>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       HEADER & NAVIGATION (แกะแบบ Anona Thailand: Mobile Bar + Slide-out Drawer)
+       ===================================================================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <!-- ปุ่ม Hamburger บนมือถือ -->
+      <button class="menu-toggle" id="menuToggle" aria-label="Open Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- โลโก้แบรนด์ -->
+      <a href="index.html" class="brand-logo">
+        <div class="brand-logo-mark">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Yak Pho · Boaz · Asher</span>
+        </div>
+      </a>
+
+      <!-- เมนูหลักบน Desktop (7 เมนูตามโครง Anona Thailand) -->
+      <nav class="desktop-nav">
+        <div class="nav-item">
+          <a href="index.html" class="nav-link active">Home</a>
+        </div>
+        <div class="nav-item">
+          <a href="about.html" class="nav-link">About us</a>
+        </div>
+        <div class="nav-item">
+          <a href="products.html" class="nav-link">
+            Products <i data-lucide="chevron-down" width="15" height="15"></i>
+          </a>
+          <div class="dropdown-menu">
+            <a href="products.html?cat=hot"><span>🔥 สูตรร้อน (Hot Herbal Balm)</span></a>
+            <a href="products.html?cat=cool"><span>❄️ สูตรเย็น (Cooling Aroma)</span></a>
+            <a href="products.html?cat=massage"><span>🌿 สูตรนวดตัว (Body Massage)</span></a>
+            <a href="products.html?cat=esther"><span>👑 Esther Queen Beauty & Candle</span></a>
+            <a href="products.html?cat=boaz"><span>🏛️ Boaz Men's Charcoal Grooming</span></a>
+            <a href="products.html?cat=asher"><span>🛹 Asher Teen Freshness Care</span></a>
+          </div>
+        </div>
+        <div class="nav-item">
+          <a href="gift-sets.html" class="nav-link">Gift Sets</a>
+        </div>
+        <div class="nav-item">
+          <a href="corporate-gifts.html" class="nav-link">Corporate Gifts</a>
+        </div>
+        <div class="nav-item">
+          <a href="stores-contact.html" class="nav-link">Our stores</a>
+        </div>
+        <div class="nav-item">
+          <a href="stores-contact.html#contact" class="nav-link">Contact us</a>
+        </div>
+      </nav>
+
+      <!-- ปุ่มสลับภาษา 10 ภาษา & ตะกร้าสินค้า (.shopcart ของ Anona) -->
+      <div class="header-actions">
+        <div class="lang-pill" title="รองรับ 10 ภาษาหลัก (Global Strategy)">
+          <span>🇹🇭 TH / 🇬🇧 EN</span>
+          <i data-lucide="globe" width="13" height="13" style="color: var(--esther-gold);"></i>
+        </div>
+        <button class="cart-trigger" aria-label="Shopping Cart" onclick="window.location.href='products.html'">
+          <i data-lucide="shopping-bag" width="18" height="18"></i>
+          <span class="cart-badge">2</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Sidebar Drawer (#ItopplusMainSidebar) -->
+  <div class="mobile-drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="mobile-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <div class="brand-logo">
+        <div class="brand-logo-mark" style="width:36px;height:36px;font-size:16px;">EA</div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-title" style="font-size:17px;">ESTHĒR AROMA</span>
+          <span class="brand-logo-sub">Time-Honored Wisdom</span>
+        </div>
+      </div>
+      <button class="drawer-close" id="drawerClose" aria-label="Close Menu">
+        <i data-lucide="x" width="18" height="18"></i>
+      </button>
+    </div>
+    <ul class="drawer-nav">
+      <li><a href="index.html" class="active">Home (หน้าแรก)</a></li>
+      <li><a href="about.html">About us (ตำนานแบรนด์)</a></li>
+      <li>
+        <button class="drawer-dropdown-btn">
+          <span>Products (ผลิตภัณฑ์ทั้งหมด)</span>
+          <i data-lucide="chevron-down" width="16" height="16" class="caret-icon"></i>
+        </button>
+        <div class="drawer-submenu open">
+          <a href="products.html">• Yak Pho สูตรร้อน (Hot Balm)</a>
+          <a href="products.html">• Yak Pho สูตรเย็น (Cool Aroma)</a>
+          <a href="products.html">• Yak Pho สูตรนวดตัว (Massage)</a>
+          <a href="products.html">• Esther Queen Skincare & Candle</a>
+          <a href="products.html">• Boaz Men Grooming</a>
+          <a href="products.html">• Asher Teen Fresh Care</a>
+        </div>
+      </li>
+      <li><a href="gift-sets.html">Gift Sets (เซตของขวัญ/ของชำร่วย)</a></li>
+      <li><a href="corporate-gifts.html">Corporate Gifts (ลูกค้าองค์กร/B2B)</a></li>
+      <li><a href="stores-contact.html">Our stores (สถานที่จัดจำหน่าย)</a></li>
+      <li><a href="stores-contact.html#contact">Contact us (ติดต่อเรา)</a></li>
+    </ul>
+    <div class="drawer-footer">
+      <div style="color: var(--esther-gold); font-weight: 600; margin-bottom: 4px;">10 Global Languages Supported</div>
+      <div>🇬🇧 🇹🇭 🇨🇳 🇩🇪 🇫🇷 🇯🇵 🇰🇷 🇷🇺 🇦🇪 🇮🇱</div>
+    </div>
+  </aside>
+
+  <main>
+    <!-- ===================================================================
+         SECTION 1 [TONE: DARK EMERALD] — HERO BANNER (.itopplus-slide ของ Anona)
+         =================================================================== -->
+    <section class="hero-banner">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <i data-lucide="crown" width="14" height="14"></i>
+            <span>THE TARRAGON CROWN · EST. 2025</span>
+          </div>
+          <h1 class="hero-title">
+            Time-Honored Wisdom<br />
+            <span>from the Purest Soil</span>
+          </h1>
+          <div class="hero-tagline-th">"ภูมิปัญญาอันทรงคุณค่า... จากผืนดินบริสุทธิ์"</div>
+          <p class="hero-desc">
+            อาณาจักรเครื่องหอมและสมุนไพรบำบัดมาตรฐานส่งออก GMP/FDA ผสานความเลอค่าแห่งราชินีเอสเธอร์ (Esther Aroma)
+            และภูมิปัญญาไทยผู้พิทักษ์ความปวดเมื่อย (Yak Pho)
+          </p>
+          <div class="hero-cta-group">
+            <a href="products.html" class="btn-gold-pill">
+              <span>เลือกชมผลิตภัณฑ์</span>
+              <i data-lucide="arrow-right" width="16" height="16"></i>
+            </a>
+            <a href="gift-sets.html" class="btn-outline-pill">
+              <i data-lucide="gift" width="16" height="16"></i>
+              <span>เซตของขวัญ & ของชำร่วย</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-frame">
+            <img src="../../uploads/hero/hero_1766484354_694a698201f63.jpg" alt="Esther Aroma & Yak Pho Hero Banner" />
+          </div>
+          <div class="hero-floating-card">
+            <div
+              style="width:38px;height:38px;border-radius:50%;background:rgba(209,165,90,0.2);display:flex;align-items:center;justify-content:center;color:var(--esther-gold);">
+              <i data-lucide="shield-check" width="20" height="20"></i>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--esther-gold);">GMP & FDA Certified</div>
+              <div style="font-size:11px;color:var(--esther-cream);">12 Signature Scents · Global Export</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 2 [TONE: LIGHT WARM CREAM] — 4 FEATURE PILLARS (.icon-about ของ Anona)
+         บนมือถือเรียง 2x2 คอลัมน์, บน Desktop เรียง 4 คอลัมน์
+         =================================================================== -->
+    <section class="section-light section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">OUR CORE VALUES</span>
+          <h2>The Pillars of Ancestral Wisdom</h2>
+          <div class="border-menu"></div>
+        </div>
+
+        <div class="pillars-grid">
+          <!-- Pillar 1 -->
+          <div class="icon-about-card">
+            <div class="icon-about-circle">
+              <i data-lucide="sprout" width="28" height="28"></i>
+            </div>
+            <h4>Natural Ingredients</h4>
+            <p>สกัดจากทาร์รากอนออร์แกนิก "Liquid Green Gold" และสมุนไพรไทยบริสุทธิ์ ปลอดภัยต่อทุกสภาพผิว</p>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="icon-about-card">
+            <div class="icon-about-circle">
+              <i data-lucide="sparkles" width="28" height="28"></i>
+            </div>
+            <h4>Aromatherapy Ritual</h4>
+            <p>เบลนด์น้ำมันหอมระเหย 12 กลิ่นซิกเนเจอร์ ช่วยปรับสมดุลอารมณ์ ผ่อนคลายความเหนื่อยล้าอย่างล้ำลึก</p>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="icon-about-card">
+            <div class="icon-about-circle">
+              <i data-lucide="award" width="28" height="28"></i>
+            </div>
+            <h4>Thai & Royal Heritage</h4>
+            <p>เอกลักษณ์ยักษ์โพธิ์ผู้พิทักษ์ความปวดเมื่อย ผสานความหรูหราระดับสากล มาตรฐาน GMP / FDA</p>
+          </div>
+
+          <!-- Pillar 4 -->
+          <div class="icon-about-card">
+            <div class="icon-about-circle">
+              <i data-lucide="gift" width="28" height="28"></i>
+            </div>
+            <h4>Customizable Gifts</h4>
+            <p>บริการจัดเซตของขวัญ ของชำร่วยงานแต่งงาน และของพรีเมียมองค์กร (Corporate & Wedding Gifts)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 3 [TONE: DARK EMERALD] — BESTSELLERS CHECKERBOARD
+         แกะแบบ Anona 100%: สลับภาพซ้าย-ขวา 4 แถว (.bg-seller + .text-seller h3 ฟอนต์เขียน)
+         =================================================================== -->
+    <section class="section-dark section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">SIGNATURE COLLECTIONS</span>
+          <h2>Bestsellers & 4 Core Brands</h2>
+          <div class="border-menu"></div>
+          <p class="sub">4 แบรนด์หลักภายใต้เครือบริษัท เอสเธอร์ อโรม่า จำกัด ที่ตอบโจทย์ทุกเจเนอเรชัน</p>
+        </div>
+
+        <div class="bestseller-list">
+          <!-- Row 1: Image Left, Text Right -->
+          <article class="bestseller-row">
+            <div class="bestseller-media">
+              <img src="../../uploads/products/large-product_5090_1778577604_022a8f5b2e0bbea4.webp"
+                alt="Yak Pho Herbal Balm" />
+              <span class="bestseller-tag">👹 YAK PHO · GUARDIAN / BALM</span>
+            </div>
+            <div class="bestseller-body">
+              <h3 class="bestseller-script">Yak Pho Herbal Balm</h3>
+              <div class="bestseller-subtitle">"Ancient Thai Wisdom — ภูมิปัญญาไทย ผู้พิทักษ์ความปวดเมื่อย"</div>
+              <p class="bestseller-desc">
+                บาล์มนวดสมุนไพรไทยแท้และครีมนวดอโรม่า 3 สูตรหลัก (สูตรร้อน, สูตรเย็น, สูตรนวดตัว) มีให้เลือกถึง 12
+                กลิ่นพรีเมียม ออกแบบมาเพื่อร้านนวดไทยและสปาชั้นนำทั่วโลก
+              </p>
+              <a href="products.html" class="btn-outline-pill">Explore Yak Pho »</a>
+            </div>
+          </article>
+
+          <!-- Row 2: Text Left, Image Right (สลับด้านอัตโนมัติบนจอใหญ่) -->
+          <article class="bestseller-row">
+            <div class="bestseller-media">
+              <img src="../../uploads/blog/cover/blog_19_1766115484.webp" alt="Esther Queen Beauty Ritual" />
+              <span class="bestseller-tag">👑 ESTHĒR · QUEEN / SPA</span>
+            </div>
+            <div class="bestseller-body">
+              <h3 class="bestseller-script">Queen's Beauty Ritual</h3>
+              <div class="bestseller-subtitle">"พิธีกรรมความงามแห่งราชินี — Liquid Green Gold"</div>
+              <p class="bestseller-desc">
+                แรงบันดาลใจจากการประทินโฉม 12 เดือนของราชินีเอสเธอร์ สู่สบู่ความงาม สกินแคร์
+                และเทียนหอมไขถั่วเหลืองธรรมชาติ ผสานสารสกัดทาร์รากอนออร์แกนิกจากสวนลับ 116 ตร.ว.
+              </p>
+              <a href="products.html" class="btn-outline-pill">Explore Esther »</a>
+            </div>
+          </article>
+
+          <!-- Row 3: Image Left, Text Right -->
+          <article class="bestseller-row">
+            <div class="bestseller-media">
+              <img src="../../uploads/hero/hero_1766486232_694a70d8ba6a2.jpg" alt="Boaz Strength & Honor" />
+              <span class="bestseller-tag">🏛️ BOAZ · FATHER / MEN</span>
+            </div>
+            <div class="bestseller-body">
+              <h3 class="bestseller-script">Boaz Strength & Honor</h3>
+              <div class="bestseller-subtitle">"ความแกร่งและเกียรติยศ — Men's Grooming"</div>
+              <p class="bestseller-desc">
+                ผลิตภัณฑ์ดูแลผิวและสบู่ชาร์โคลดีท็อกซ์สูตรเข้มข้น สำหรับผู้ชายวัยทำงาน
+                มอบความสะอาดล้ำลึกพร้อมกลิ่นหอมสุขุม นุ่มลึก สะท้อนบุคลิกผู้นำที่มั่นคง
+              </p>
+              <a href="products.html" class="btn-outline-pill">Explore Boaz »</a>
+            </div>
+          </article>
+
+          <!-- Row 4: Text Left, Image Right -->
+          <article class="bestseller-row">
+            <div class="bestseller-media">
+              <img src="../../uploads/hero/hero_1766486522_694a71faca4e6.jpg" alt="Asher Joy & Freshness" />
+              <span class="bestseller-tag">🛹 ASHER · SON / TEEN</span>
+            </div>
+            <div class="bestseller-body">
+              <h3 class="bestseller-script">Asher Joy & Freshness</h3>
+              <div class="bestseller-subtitle">"ความสุขและความสดชื่น — Teen & Sport Care"</div>
+              <p class="bestseller-desc">
+                ส่งต่อความรักจากรุ่นพ่อสู่รุ่นลูก ด้วยสบู่ลดสิวและสกินแคร์สูตรอ่อนโยนสำหรับวัยรุ่นและสายสปอร์ต
+                คืนความสดชื่นกระปรี้กระเปร่าหลังออกกำลังกาย
+              </p>
+              <a href="products.html" class="btn-outline-pill">Explore Asher »</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 4 [TONE: LIGHT WARM CREAM] — AROMATIC PRODUCTS CATEGORIES
+         แกะแบบ Anona: กริด 4 หมวดหมู่หลัก ซูมภาพเมื่อ Hover + .text-product
+         =================================================================== -->
+    <section class="section-light section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">PRODUCT CATEGORIES</span>
+          <h2>Aromatic & Herbal Products</h2>
+          <div class="border-menu"></div>
+          <p class="sub">คัดสรรผลิตภัณฑ์จากธรรมชาติ มาตรฐานส่งออก สำหรับใช้ส่วนตัว ร้านสปา และเป็นของฝาก</p>
+        </div>
+
+        <div class="aromatic-cats-grid">
+          <!-- Cat 1 -->
+          <a href="products.html" class="aromatic-cat-card">
+            <div class="aromatic-cat-img">
+              <img src="../../uploads/products/large-product_5199_1778758041_fbbc7cfd5f086406.webp"
+                alt="Cooling Aromatic Balm"
+                onerror="this.src='../../uploads/products/large-product_5020_1778572349_3f5c43d74e7f5d5b.webp'" />
+            </div>
+            <div class="text-product">
+              Cooling Aroma Balm
+              <small>บาล์มอโรม่าสูตรเย็น 12 กลิ่น</small>
+            </div>
+          </a>
+
+          <!-- Cat 2 -->
+          <a href="products.html" class="aromatic-cat-card">
+            <div class="aromatic-cat-img">
+              <img src="../../uploads/products/large-product_5019_1778571075_dbf2aabc16e147d9.webp"
+                alt="Hot Herbal Relief Balm" />
+            </div>
+            <div class="text-product">
+              Hot Herbal Relief
+              <small>ยาหม่องสมุนไพรสูตรร้อนคลายเส้น</small>
+            </div>
+          </a>
+
+          <!-- Cat 3 -->
+          <a href="products.html" class="aromatic-cat-card">
+            <div class="aromatic-cat-img">
+              <img src="../../uploads/products/large-product_5100_1778583529_41486459dd9f93ab.webp"
+                alt="Body Massage Aroma" />
+            </div>
+            <div class="text-product">
+              Spa Body Massage
+              <small>ครีมและบาล์มนวดตัวสำหรับร้านสปา</small>
+            </div>
+          </a>
+
+          <!-- Cat 4 -->
+          <a href="products.html" class="aromatic-cat-card">
+            <div class="aromatic-cat-img">
+              <img src="../../uploads/blog/medium-blog-13-1766132093.webp" alt="Natural Soy Candle & Soap" />
+            </div>
+            <div class="text-product">
+              Soy Candle & Botanical Soap
+              <small>เทียนหอมโฮมสปา & สบู่ราชินี</small>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 5 [TONE: DARK EMERALD] — PERSONALISED GIFT SETS & ARCHED CARDS
+         แกะแบบ Anona 100%: ข้อความแนะนำ + 3 การ์ดซุ้มโค้ง (border-radius: 888px 888px 0 0)
+         พร้อมป้ายแคปซูล .bg-set ซ้อนทับด้านล่าง
+         =================================================================== -->
+    <section class="section-dark section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">THAI QUICK WINS · B2B & WEDDING</span>
+          <h2>Personalised Gift Sets</h2>
+          <div class="border-menu"></div>
+        </div>
+
+        <div class="gift-intro-box">
+          <h4>
+            ESTHĒR AROMA & YAK PHO มีบริการจัด Gift Set สำหรับโอกาสพิเศษและเทศกาลต่างๆ ไม่ว่าจะเป็นเซตของขวัญวันเกิด
+            ของชำร่วยงานแต่งงาน (Wedding Gift) ของรับไหว้ผู้ใหญ่ ของขวัญปีใหม่ และของพรีเมียมสำหรับองค์กร (Corporate
+            Gifts)
+          </h4>
+          <p>
+            โดยทางแบรนด์มีทั้งเซตของขวัญแบบสำเร็จรูปที่จับคู่ผลิตภัณฑ์ยอดนิยมไว้ให้เลือกชม และแบบ <strong>Personalised
+              Gift Set</strong> ที่ลูกค้าสามารถเลือก Mix & Match กลิ่นและสินค้าได้เองตามใจชอบ รวมถึงบริการ Tailor-Made
+            ประทับตราโลโก้บริษัทตามธีมงานหรือ Corporate Identity
+          </p>
+          <p style="color: var(--esther-gold); font-weight: 500; margin-top: 18px;">
+            สอบถามรายละเอียดเพิ่มเติม · LINE OA: @yakpho · โทร: 092-696-4549
+          </p>
+        </div>
+
+        <!-- 3 Arched Gift Cards (เอกลักษณ์ Anona) -->
+        <div class="gift-arch-grid">
+          <!-- Arch 1 -->
+          <a href="gift-sets.html" class="gift-arch-item">
+            <div class="arch-image-wrap">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132118-9622.webp" alt="เซตของขวัญพรีเมียม" />
+            </div>
+            <div class="bg-set-pill">เซตของขวัญพรีเมียม</div>
+          </a>
+
+          <!-- Arch 2 (เยื้องลงมาด้วย .stagger-middle เหมือน .padding-set ของ Anona) -->
+          <a href="gift-sets.html" class="gift-arch-item stagger-middle">
+            <div class="arch-image-wrap">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132124-5018.webp" alt="เซตของขวัญแต่งงาน" />
+            </div>
+            <div class="bg-set-pill">เซตของขวัญแต่งงาน</div>
+          </a>
+
+          <!-- Arch 3 -->
+          <a href="gift-sets.html" class="gift-arch-item">
+            <div class="arch-image-wrap">
+              <img src="../../uploads/blog/gallery/blog-13-gallery-1766132130-4793.webp" alt="เซตของขวัญแนะนำ" />
+            </div>
+            <div class="bg-set-pill">เซตของขวัญแนะนำ</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 6 [TONE: LIGHT WARM CREAM] — FEATURED PRODUCTS (Template-B Card)
+         แสดงตัวอย่างการ์ดสินค้าจริงจาก DB พร้อมปุ่มแคปซูล "shop now"
+         =================================================================== -->
+    <section class="section-light section-pad">
+      <div class="container">
+        <div class="anona-heading">
+          <span class="eyebrow">SHOP ONLINE</span>
+          <h2>12 Signature Scents Showcase</h2>
+          <div class="border-menu"></div>
+          <p class="sub">ตัวอย่างการ์ดสินค้า (Template-B ของ Anona) พร้อมปุ่มทรงแคปซูล</p>
+        </div>
+
+        <div class="template-b-grid">
+          <!-- Product 1 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5090_1778577604_022a8f5b2e0bbea4.webp" alt="YP5090" />
+            </div>
+            <div class="template-b-sku">YP5090 · COOLING</div>
+            <div class="template-b-name">ยักษ์โพธิ์อโรม่า สูตรเย็น กลิ่นมะพร้าว (Coconut)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Product 2 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5019_1778571075_dbf2aabc16e147d9.webp" alt="YP5019" />
+            </div>
+            <div class="template-b-sku">YP5019 · COOLING</div>
+            <div class="template-b-name">ยักษ์โพธิ์อโรม่า สูตรเย็น กลิ่นลาเวนเดอร์ (Lavender)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Product 3 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5072_1778583107_99b750b5c58c6bba.webp" alt="YP5072" />
+            </div>
+            <div class="template-b-sku">YP5072 · MASSAGE</div>
+            <div class="template-b-name">ยักษ์โพธิ์อโรม่า สูตรนวดตัว กลิ่นกุหลาบ (Rose)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+
+          <!-- Product 4 -->
+          <div class="template-b-card">
+            <div class="template-b-pic">
+              <img src="../../uploads/products/large-product_5085_1778580372_c1be83dcbaf33aca.webp" alt="YP5085" />
+            </div>
+            <div class="template-b-sku">YP5085 · HERBAL</div>
+            <div class="template-b-name">ยักษ์โพธิ์อโรม่า สูตรนวดตัว เสลดพังพอน (Clinacanthus)</div>
+            <div class="template-b-price">750 THB</div>
+            <button class="template-b-btn js-add-cart">
+              <i data-lucide="shopping-cart" width="14" height="14"></i>
+              <span>shop now</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 36px;">
+          <a href="products.html" class="btn-gold-pill"
+            style="background: var(--esther-emerald); color: var(--esther-gold);">
+            <span>ดูสินค้าทั้งหมด (View All Products)</span>
+            <i data-lucide="arrow-right" width="16" height="16"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================================
+       FOOTER (แกะแบบ .itopplus-footer ของ Anona: ซ้ายที่อยู่, ขวาเบอร์โทร + 5 Social Icons)
+       ===================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h4>ESTHĒR AROMA CO., LTD. (YAK PHO)</h4>
+          <p>
+            บริษัท เอสเธอร์ อโรม่า จำกัด — อาณาจักรเครื่องหอมและสมุนไพรไทยมาตรฐานส่งออก GMP/FDA<br />
+            Bangkok, Thailand · Global Export (10 Languages Supported)
+          </p>
+        </div>
+
+        <div class="footer-right">
+          <a href="tel:+66926964549" class="footer-tel">
+            <i data-lucide="phone-call" width="20" height="20"></i>
+            <span>+66 92-696-4549</span>
+          </a>
+          <div class="footer-socials">
+            <a href="#" class="social-circle" title="Facebook"><i data-lucide="facebook" width="18" height="18"></i></a>
+            <a href="#" class="social-circle" title="LINE Official"><i data-lucide="message-circle" width="18"
+                height="18"></i></a>
+            <a href="#" class="social-circle" title="Instagram"><i data-lucide="instagram" width="18"
+                height="18"></i></a>
+            <a href="#" class="social-circle" title="Shopee"><i data-lucide="shopping-bag" width="18"
+                height="18"></i></a>
+            <a href="#" class="social-circle" title="Lazada"><i data-lucide="store" width="18" height="18"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2025–2026 ESTHĒR AROMA CO., LTD. & YAKPHO.COM. All rights reserved.</div>
+        <div>“Time-Honored Wisdom from the Purest Soil”</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ปุ่มลอยกลับขึ้นด้านบน (.backToTop ของ Anona) -->
+  <button class="floating-top" id="backToTop" title="Back to top">
+    <i data-lucide="chevron-up" width="20" height="20"></i>
+  </button>
+
+  <script src="assets/anona-esther.js"></script>
+</body>
+
+</html>

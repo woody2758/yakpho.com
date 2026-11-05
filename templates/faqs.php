@@ -2,6 +2,35 @@
 $currentLang = $SITE['lang'] ?? 'th';
 $faqCategories = $STORES_DATA['faq_categories'] ?? [];
 $allFaqs = $STORES_DATA['faqs'] ?? [];
+
+if (!function_exists('render_faq_answer_html')) {
+    function render_faq_answer_html(string $rawAnswer): string
+    {
+        $raw = trim($rawAnswer);
+        if ($raw === '') {
+            return '';
+        }
+        // Decode entities (in case HTML was entity-encoded or contains &nbsp;)
+        $decoded = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $hasHtmlTags = ($decoded !== strip_tags($decoded));
+
+        if ($hasHtmlTags) {
+            $allowedTags = '<p><br><strong><b><em><i><u><ul><ol><li><a><span><div><h4><h5><h6><blockquote><table><thead><tbody><tr><th><td>';
+            $clean = strip_tags($decoded, $allowedTags);
+            // Replace non-breaking spaces with normal spaces so words wrap naturally
+            $clean = str_replace(["\xC2\xA0", '&nbsp;'], ' ', $clean);
+            // Collapse multiple spaces
+            $clean = preg_replace('/[ \t]{2,}/u', ' ', $clean);
+            // Remove empty paragraphs
+            $clean = preg_replace('/<p[^>]*>\s*(<br\s*\/?>|\s)*<\/p>/iu', '', $clean);
+            return trim($clean);
+        }
+
+        // Plain text fallback
+        $plain = str_replace(["\xC2\xA0", '&nbsp;'], ' ', $decoded);
+        return nl2br(htmlspecialchars($plain, ENT_QUOTES, 'UTF-8'));
+    }
+}
 ?>
 
 <div class="yp-container content-page-container">
@@ -36,7 +65,7 @@ $allFaqs = $STORES_DATA['faqs'] ?? [];
             <?php if (empty($catItems)) continue; ?>
             <div class="faq-group-box">
                 <div class="faq-group-header">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-group-mono-icon"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                     <span><?= htmlspecialchars($cat['category_name']) ?></span>
                 </div>
                 <?php if (!empty($cat['category_detail'])): ?>
@@ -55,7 +84,7 @@ $allFaqs = $STORES_DATA['faqs'] ?? [];
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </button>
                             <div class="faq-answer-collapse">
-                                <?= nl2br(htmlspecialchars($faq['answer'])) ?>
+                                <?= render_faq_answer_html((string)($faq['answer'] ?? '')) ?>
                             </div>
                         </div>
                     <?php endforeach; ?>

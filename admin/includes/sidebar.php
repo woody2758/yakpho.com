@@ -224,7 +224,7 @@
                     <span id="badge-faqscat" class="badge bg-secondary bg-opacity-10 text-secondary ms-auto badge-sub"><?= $count_faqscat ?></span>
                 </a>
                 <a href="<?= ADMIN_URL ?>/faqs/" class="menu-item sub-item">
-                    <i data-lucide="message-circle-question"></i>
+                    <i data-lucide="file-question"></i>
                     <span>คำถามที่พบบ่อย (FAQs)</span>
                     <span id="badge-faqs" class="badge bg-secondary bg-opacity-10 text-secondary ms-auto badge-sub"><?= $count_faqs ?></span>
                 </a>
@@ -237,6 +237,10 @@
                     <i data-lucide="newspaper"></i>
                     <span>บทความ / ข่าวสาร (Blog Posts)</span>
                     <span id="badge-blog" class="badge bg-secondary bg-opacity-10 text-secondary ms-auto badge-sub"><?= $count_blog ?></span>
+                </a>
+                <a href="<?= ADMIN_URL ?>/settings/policy.php" class="menu-item sub-item">
+                    <i data-lucide="shield-check"></i>
+                    <span>นโยบายและข้อกำหนด (Policy)</span>
                 </a>
             </div>
         </div>
@@ -266,6 +270,10 @@
                 <a href="<?= ADMIN_URL ?>/settings/" class="menu-item sub-item">
                     <i data-lucide="info"></i>
                     <span>ข้อมูลร้านค้า</span>
+                </a>
+                <a href="<?= ADMIN_URL ?>/settings/policy.php" class="menu-item sub-item">
+                    <i data-lucide="shield-check"></i>
+                    <span>นโยบายและข้อกำหนด (Policy)</span>
                 </a>
             </div>
         </div>

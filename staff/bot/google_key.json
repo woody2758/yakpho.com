@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "yakpho-ai-system",
+  "private_key_id": "c3f4fc3080a36fe958089a59f7d7bbfd80c0bd07",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDMCICsdj3evE7L\ng5llYR18iFFhQ36DKRM0vObaSO2Cak8+gJrqxktn78R6y9aX2R5JouLjJVHWzf8d\n9d5faYGJ5Cpihny0AEp1p8HhN+LAtADtqxllyGdareyDAj44vC0tdkZDVOIoG+fH\nLcWWLdDoKPpW3xafIJb/P3G7YuLMLjXSwkMm4nQZK3IlAnPQIXxmkG+Pr8/GsxrF\njbA14kRi18CAkRawOeVS6AptJRY1ZiCxVJPtHtKlmSF20VdoWZQe/sEfBtzgGd0A\nWvX69U74AurmHweFpEwb8k12tdzXI8F6nVVqjaN6DhcMxY/W9lSjq3X2mjaVXfJX\nikHDYHGtAgMBAAECggEAU4iBodoxH3FqMyE4WszFZThsVQ1sjOdysQtL2n+0GcpL\nklPV2RwBQFbmUr4EqBugrlYtXQDo/jBNbCc++UI5YkqTXc4g3RMnaP8bPgmC4RFx\nNdzwo37GbdY6ODLhZZoJRw0e3C8y/mfaX24qcH9mgb5RK+LfIJwXpf4EIstr/lqL\nK6cBZjlkYa7B/LgaXPSlzBu8OfhhT1VL4Z0mKdLslxjtB1jp4It8Cy9B5qnGTGJb\nyJaUqROLUoctJvnfZ8c9nl119NXGa4Uf25gdi6yPLrtIUWXntXn1d0zBoNYPWj/t\nICZf+cezyydKuV11ctCeN4Eku7cft46chknLBjenQwKBgQD4hgSETbtBV1GRKBbp\nYtuWqpsBqj3iMb0AjQ/CI8P2eBUIInD/y+JCeGnPz1mCnjy4gTXZL5ucql8Ik1bG\n1yGoBL23Qj2II5R6X78BQcaHmzC0mwc0fpru6Y0ZuhFK8eZkq3+rjxdAwp7b2sjL\n+7Knm/BvnPn64H8B4lmnLJWX6wKBgQDSK9jJ/qf2gnzhgN8gh8wHCOM+4/SjLc66\ntgq+SOlhkQqcUIBWTokGQBGYE4Uu5wwYaURtrkJe+7Q5st8tCxvA3cvtzeLMX47B\ndoxABezKJVJC/tgFwOOtdBe6y0IGDLoy0EGKlI+3YVSpIB2C+s00Zt//r+IGJXE4\ntA/rCLmOxwKBgQCw+k8RIIGvAE2XvyLBxKJ3YrrLrr4u7BiZ4dpM+Ec+pzji+BPc\NQbFKxa+4/vsJl87TNhZ96srH7BZXQM4yk6vZeDsNgG3hw7fLnvIm1yTiRJgKt4w\npdATPsI6heR2qFjXa8GZHGcEuRODoQPJL06ESWopMXJbE6+eWeBaSkelTQKBgQC8\nR+mLc+ZWsSlc/41kYCNIfg7ObXrgoI3duG3BcCIbdMtTo86FAxBAGC9q1Lnwfa3Z\nRJy3wW/WFZmsQvEqMhRn4IrrfBFc05JZAHG+fVBW+75JJHK0HMwavLDxd1urfcVk\n9ipxEov5VWl5pbqqdzJUaoDrV06eAPcAPFcyUHujSwKBgQCViwq30F3/t/h/LgEx\n3WFb96YRT8cF98p69XgdNhLYMZJzwzDmzu7/yAT3fsLEMJf2yVnKd7E8kZ7hyOD7\n0yCXzACGGy8kuqLiOKI3cMvmj1KSca7NuOpsWFDgA9ob2kH8je6VQHjGQTU1sDH7\ns6fJjudrMaWYoTRB/EdxkeR0OQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "yakpho-worker@yakpho-ai-system.iam.gserviceaccount.com",
+  "client_id": "102995892002690979242",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/official/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/yakpho-worker%40yakpho-ai-system.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

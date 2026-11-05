@@ -107,6 +107,10 @@ $routes = [
     'blog'            => 'blog.php',
     'articles'        => 'blog.php',
     'news'            => 'blog.php',
+    'policy'          => 'policy.php',
+    'terms'           => 'policy.php',
+    'privacy'         => 'policy.php',
+    'pdpa'            => 'policy.php',
 ];
 
 // 1. Load Global Site Context (Contact, Languages, Main Categories, Cart, Default SEO)
@@ -160,6 +164,20 @@ switch ($template_file) {
         $SEO['title'] = ($lang === 'th' ? 'คำถามที่ถูกถามบ่อย (FAQs) | ' : 'Frequently Asked Questions (FAQs) | ') . 'Yak Pho Aroma';
         $SEO['description'] = ($lang === 'th' ? 'รวมคำถามที่พบบ่อยเกี่ยวกับบาล์มนวดสมุนไพรร้านสปา เรทราคาส่ง 1 กก. สูตรทาร์รากอน และการจัดส่งทั่วประเทศ' : 'Frequently Asked Questions about Yak Pho Aroma spa wholesale products, 1kg rates, and worldwide export.');
         $SEO['keywords'] = 'คำถามที่พบบ่อย, FAQs ยักษ์โพธิ์, เรทราคาส่ง 1 กก, บาล์มนวดสูตรร้อนสูตรเย็น, จัดส่งพัสดุ';
+        break;
+
+    case 'policy.php':
+        $POLICY_DATA = get_policy_page_data($db, $lang);
+        $activePolicyTab = strtolower(trim((string)($_GET['tab'] ?? '')));
+        if ($activePolicyTab === '' && in_array($base, ['privacy', 'pdpa'], true)) {
+            $activePolicyTab = 'pdpa';
+        } elseif ($activePolicyTab === '') {
+            $activePolicyTab = 'terms';
+        }
+        $POLICY_DATA['active_tab'] = ($activePolicyTab === 'pdpa' || $activePolicyTab === 'privacy') ? 'pdpa' : 'terms';
+        $SEO['title'] = ($lang === 'th' ? 'นโยบายความเป็นส่วนตัว (PDPA) และข้อกำหนดการใช้บริการ | ' : 'Terms of Service & Privacy Policy (PDPA) | ') . 'Yak Pho Aroma';
+        $SEO['description'] = ($lang === 'th' ? 'ข้อกำหนดและเงื่อนไขการใช้บริการ นโยบายความเป็นส่วนตัว (PDPA) และมาตรฐานการรับประกันคุณภาพผลิตภัณฑ์ยักษ์โพธิ์ โดย บริษัท เอสเธอร์ อโรม่า จำกัด' : 'Terms and Conditions, PDPA Privacy Policy, and Service Standards by Esther Aroma Co., Ltd.');
+        $SEO['keywords'] = 'นโยบายความเป็นส่วนตัว, PDPA, ข้อกำหนดและเงื่อนไข, ยักษ์โพธิ์, เอสเธอร์ อโรม่า';
         break;
 
     case 'products.php':

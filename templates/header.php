@@ -386,6 +386,10 @@ $savedTheme = $_COOKIE['yakpho_theme'] ?? 'dark';
 
                             </a>
 
+                            <a href="<?= URL_PATH ?>/<?= $currentLang ?>/faqs" class="header-chat-circle header-chat-faq" title="<?= $currentLang === 'th' ? 'คำถามที่ถูกถามบ่อย (FAQs)' : 'FAQs' ?>">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                            </a>
+
                         </div>
 
                     </div>
