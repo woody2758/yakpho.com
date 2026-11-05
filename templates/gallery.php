@@ -115,11 +115,11 @@ function openGalleryLightbox(cardEl) {
     if (activeGalleryIndex < 0) activeGalleryIndex = 0;
 
     renderLightboxThumbnails();
-    updateLightboxSlide();
+    updateLightboxSlide(0, true);
 
     const modal = document.getElementById('ypGalleryLightbox');
     modal.classList.remove('d-none');
-    modal.classList.add('is-open');
+    requestAnimationFrame(() => modal.classList.add('is-open'));
     document.body.style.overflow = 'hidden';
 }
 
@@ -127,7 +127,7 @@ function closeGalleryLightbox() {
     const modal = document.getElementById('ypGalleryLightbox');
     if (modal) {
         modal.classList.remove('is-open');
-        modal.classList.add('d-none');
+        setTimeout(() => modal.classList.add('d-none'), 200);
     }
     document.body.style.overflow = '';
 }
@@ -135,13 +135,14 @@ function closeGalleryLightbox() {
 function stepGalleryLightbox(delta) {
     if (!activeGalleryList.length) return;
     activeGalleryIndex = (activeGalleryIndex + delta + activeGalleryList.length) % activeGalleryList.length;
-    updateLightboxSlide();
+    updateLightboxSlide(delta, false);
 }
 
 function selectGalleryThumbnail(idx) {
-    if (idx < 0 || idx >= activeGalleryList.length) return;
+    if (idx < 0 || idx >= activeGalleryList.length || idx === activeGalleryIndex) return;
+    const dir = idx > activeGalleryIndex ? 1 : -1;
     activeGalleryIndex = idx;
-    updateLightboxSlide();
+    updateLightboxSlide(dir, false);
 }
 
 function renderLightboxThumbnails() {
@@ -154,17 +155,37 @@ function renderLightboxThumbnails() {
     `).join('');
 }
 
-function updateLightboxSlide() {
+let galleryFadeTimer = null;
+function updateLightboxSlide(direction = 0, instant = false) {
     const mainImg = document.getElementById('ypLightboxMainImg');
     const counter = document.getElementById('ypLightboxCounter');
     const url = activeGalleryList[activeGalleryIndex] || '';
 
     if (mainImg) {
-        mainImg.classList.add('is-switching');
-        setTimeout(() => {
+        if (galleryFadeTimer) clearTimeout(galleryFadeTimer);
+        if (instant) {
+            mainImg.classList.remove('is-switching', 'is-switching-next', 'is-switching-prev');
             mainImg.src = url;
-            mainImg.classList.remove('is-switching');
-        }, 90);
+        } else {
+            const fadeClass = direction > 0 ? 'is-switching-next' : (direction < 0 ? 'is-switching-prev' : 'is-switching');
+            mainImg.classList.remove('is-switching', 'is-switching-next', 'is-switching-prev');
+            mainImg.classList.add(fadeClass);
+
+            galleryFadeTimer = setTimeout(() => {
+                const preload = new Image();
+                preload.onload = () => {
+                    mainImg.src = url;
+                    requestAnimationFrame(() => {
+                        mainImg.classList.remove('is-switching', 'is-switching-next', 'is-switching-prev');
+                    });
+                };
+                preload.onerror = () => {
+                    mainImg.src = url;
+                    mainImg.classList.remove('is-switching', 'is-switching-next', 'is-switching-prev');
+                };
+                preload.src = url;
+            }, 140);
+        }
     }
     if (counter) {
         counter.textContent = (activeGalleryIndex + 1) + ' / ' + activeGalleryList.length;
