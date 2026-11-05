@@ -69,14 +69,16 @@ function register_admin_line_target(PDO $db, string $targetId): void {
     if (empty($targetId)) {
         return;
     }
-    $existing = trim(get_site_setting($db, 'admin_line_user_id', ''));
-    $parts = array_filter(array_map('trim', explode(',', $existing)));
-    if (!in_array($targetId, $parts, true)) {
-        $parts[] = $targetId;
-    }
-    $updated = implode(',', array_unique($parts));
-    $stmt = $db->prepare("INSERT INTO sitesettings (setting_key, setting_value) VALUES ('admin_line_user_id', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
-    $stmt->execute([$updated]);
+    try {
+        $existing = trim(get_site_setting($db, 'admin_line_user_id', ''));
+        $parts = array_filter(array_map('trim', explode(',', $existing)));
+        if (!in_array($targetId, $parts, true)) {
+            $parts[] = $targetId;
+        }
+        $updated = implode(',', array_unique($parts));
+        $stmt = $db->prepare("INSERT INTO sitesettings (setting_name, setting_value, created_at, updated_at) VALUES ('admin_line_user_id', ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+        $stmt->execute([$updated]);
+    } catch (Throwable $e) {}
 }
 
 foreach ($data['events'] as $event) {
@@ -118,3 +120,4 @@ foreach ($data['events'] as $event) {
 }
 
 echo json_encode(['status' => 'ok']);
+

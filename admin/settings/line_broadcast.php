@@ -126,21 +126,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'send_
     }
 }
 
+// Ensure required tables exist (Self-healing for production DB)
+try {
+    $db->exec("CREATE TABLE IF NOT EXISTS `sitesettings` (
+        `setting_id` INT(11) NOT NULL AUTO_INCREMENT,
+        `setting_name` VARCHAR(100) NOT NULL,
+        `setting_value` TEXT DEFAULT NULL,
+        `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `save_id` INT(11) DEFAULT 0,
+        `update_id` INT(11) DEFAULT 0,
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`setting_id`),
+        UNIQUE KEY `setting_name` (`setting_name`),
+        KEY `idx_setting_name` (`setting_name`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    $db->exec("CREATE TABLE IF NOT EXISTS `line_broadcast_logs` (
+        `broadcast_id` INT(11) NOT NULL AUTO_INCREMENT,
+        `target_tier` VARCHAR(50) NOT NULL DEFAULT 'all',
+        `message_text` TEXT NOT NULL,
+        `recipient_count` INT(11) DEFAULT 0,
+        `sent_by_user_id` INT(11) NOT NULL DEFAULT 0,
+        `sent_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`broadcast_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+} catch (Throwable $e) {}
+
 // Load Current Settings
-$stmt = $db->query("SELECT setting_name, setting_value FROM sitesettings WHERE setting_name IN ('resend_api_key', 'resend_from_email', 'admin_notify_email', 'line_channel_access_token', 'admin_line_user_id', 'line_login_channel_id', 'line_login_channel_secret')");
-$settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+$settings = [];
+try {
+    $stmt = $db->query("SELECT setting_name, setting_value FROM sitesettings WHERE setting_name IN ('resend_api_key', 'resend_from_email', 'admin_notify_email', 'line_channel_access_token', 'admin_line_user_id', 'line_login_channel_id', 'line_login_channel_secret')");
+    if ($stmt) {
+        $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+    }
+} catch (Throwable $e) {}
 
 // Count LINE connected users per tier
-$tierCountsStmt = $db->query("
-    SELECT 
-        COUNT(CASE WHEN line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as all_line,
-        COUNT(CASE WHEN member_tier = 'therapist_partner' AND line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as partner_line,
-        COUNT(CASE WHEN member_tier = 'vip_spa' AND line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as vip_line,
-        COUNT(CASE WHEN (member_tier = 'general' OR member_tier IS NULL OR member_tier = '') AND line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as general_line,
-        COUNT(CASE WHEN member_tier = 'oem_export' AND line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as oem_line
-    FROM user WHERE user_del = 0
-");
-$row = $tierCountsStmt->fetch(PDO::FETCH_ASSOC);
+$row = [];
+try {
+    $tierCountsStmt = $db->query("
+        SELECT 
+            COUNT(CASE WHEN line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as all_line,
+            COUNT(CASE WHEN member_tier = 'therapist_partner' AND line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as partner_line,
+            COUNT(CASE WHEN member_tier = 'vip_spa' AND line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as vip_line,
+            COUNT(CASE WHEN (member_tier = 'general' OR member_tier IS NULL OR member_tier = '') AND line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as general_line,
+            COUNT(CASE WHEN member_tier = 'oem_export' AND line_user_id IS NOT NULL AND line_user_id != '' THEN 1 END) as oem_line
+        FROM user WHERE user_del = 0
+    ");
+    if ($tierCountsStmt) {
+        $row = $tierCountsStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    }
+} catch (Throwable $e) {}
 
 $lineCounts = [
     'all'               => (int)($row['all_line'] ?? 0),
@@ -151,8 +187,13 @@ $lineCounts = [
 ];
 
 // Fetch recent broadcast logs
-$histStmt = $db->query("SELECT * FROM line_broadcast_logs ORDER BY broadcast_id DESC LIMIT 10");
-$history = $histStmt->fetchAll(PDO::FETCH_ASSOC);
+$history = [];
+try {
+    $histStmt = $db->query("SELECT * FROM line_broadcast_logs ORDER BY broadcast_id DESC LIMIT 10");
+    if ($histStmt) {
+        $history = $histStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+} catch (Throwable $e) {}
 
 ob_start();
 ?>

@@ -242,6 +242,20 @@ try {
         `sent_at` DATETIME DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
+    $db->exec("
+    CREATE TABLE IF NOT EXISTS `sitesettings` (
+        `setting_id` INT(11) NOT NULL AUTO_INCREMENT,
+        `setting_name` VARCHAR(100) NOT NULL,
+        `setting_value` TEXT DEFAULT NULL,
+        `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        `save_id` INT(11) DEFAULT 0,
+        `update_id` INT(11) DEFAULT 0,
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`setting_id`),
+        UNIQUE KEY `setting_name` (`setting_name`),
+        KEY `idx_setting_name` (`setting_name`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
 
     // Ensure default notification settings exist in sitesettings (secrets configured via Admin UI)
     $defaultSiteSettings = [

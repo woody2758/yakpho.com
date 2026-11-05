@@ -71,9 +71,30 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     }
 }
 
+// Ensure resend_email_templates table exists
+try {
+    $db->exec("CREATE TABLE IF NOT EXISTS `resend_email_templates` (
+        `template_id` INT(11) NOT NULL AUTO_INCREMENT,
+        `template_code` VARCHAR(100) NOT NULL,
+        `template_name` VARCHAR(255) NOT NULL,
+        `email_subject` VARCHAR(255) NOT NULL,
+        `email_body_html` LONGTEXT NOT NULL,
+        `available_merge_tags` TEXT DEFAULT NULL,
+        `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+        `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (`template_id`),
+        UNIQUE KEY `template_code` (`template_code`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+} catch (Throwable $e) {}
+
 // Fetch all templates
-$stmt = $db->query("SELECT * FROM resend_email_templates ORDER BY template_id ASC");
-$templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$templates = [];
+try {
+    $stmt = $db->query("SELECT * FROM resend_email_templates ORDER BY template_id ASC");
+    if ($stmt) {
+        $templates = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+} catch (Throwable $e) {}
 
 // Check if Resend API key is configured
 $resendApiKey = get_site_setting($db, 'resend_api_key');
