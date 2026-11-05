@@ -30,7 +30,22 @@ $linePic       = (string)($prof['line_pic'] ?? '');
 $affiliateCode = (string)($prof['affiliate_code'] ?? '');
 $affiliateData = $prof['affiliate_data'] ?? null;
 $referralUrl   = (string)($prof['referral_url'] ?? '');
-$shippingAddress = $prof['shipping_address'] ?? ['name' => '', 'mobile' => '', 'detail' => '', 'postcode' => ''];
+$shippingAddress = $prof['shipping_address'] ?? ['addr_id' => 0, 'name' => '', 'mobile' => '', 'detail' => '', 'detail2' => '', 'provinces_id' => 1, 'province_name' => '', 'postcode' => '', 'addr_type' => 1, 'addr_position' => 1, 'addr_forword' => '', 'addr_tax_id' => ''];
+$userAddresses   = $prof['user_addresses'] ?? [];
+$provincesList   = $prof['provinces'] ?? [];
+$storeProfile    = $prof['store_profile'] ?? [
+    'nickname'             => '',
+    'birthdate'            => '',
+    'line_id'              => '',
+    'shop_name'            => '',
+    'shop_address'         => '',
+    'user_google_map'      => '',
+    'user_website'         => '',
+    'business_type'        => '',
+    'favorite_scents'      => [],
+    'feedback'             => '',
+    'vip_bonus_50_awarded' => false,
+];
 $orderCounts     = $prof['order_counts'] ?? ['to_pay' => 0, 'to_ship' => 0, 'to_receive' => 0, 'completed' => 0];
 $userOrders      = $prof['user_orders'] ?? [];
 $selectedStatus  = (string)($prof['selected_status'] ?? 'all');
@@ -562,22 +577,123 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
 
 <!-- Right Column -->
         <div class="profile-orders-col">
-            <!-- 8. Section: การตั้งค่า -->
-            <div class="setting-group-card">
-                <div class="setting-group-title">การตั้งค่า</div>
+            <!-- 7. Dedicated Card: ที่อยู่ร้าน & ข้อมูลปฏิสัมพันธ์ลูกค้า + แผนที่ร้าน Google Maps (+50 M-Stamp) -->
+            <div class="profile-store-vip-card" id="profileStoreVipCard">
+                <div class="profile-store-vip-header">
+                    <div class="profile-store-vip-title-row">
+                        <span class="profile-store-vip-icon">🏪</span>
+                        <div>
+                            <div class="profile-store-vip-title">ข้อมูลร้านสปา &amp; ปฏิสัมพันธ์ลูกค้า (VIP)</div>
+                            <div class="profile-store-vip-sub">เชื่อมโยงกับลิงก์สิทธิพิเศษและแผนที่ร้าน Google Maps</div>
+                        </div>
+                    </div>
+                    <?php if (!empty($storeProfile['vip_bonus_50_awarded'])): ?>
+                    <span class="profile-store-bonus-badge is-awarded" id="storeBonusBadge">
+                        ✅ รับโบนัส +50 แต้มแล้ว
+                    </span>
+                    <?php else: ?>
+                    <span class="profile-store-bonus-badge" id="storeBonusBadge">
+                        🎁 กรอกครบรับ +50 แต้ม
+                    </span>
+                    <?php endif; ?>
+                </div>
 
-                <!-- ตั้งค่าที่อยู่จัดส่ง (อ้างอิงจากฐานข้อมูล addr & user) -->
-                <div class="setting-menu-item" onclick="openAddressModal()" role="button" tabindex="0">
+                <div class="profile-store-vip-body" id="profileStoreVipBody">
+                    <div class="profile-store-info-grid">
+                        <div class="profile-store-info-item">
+                            <span class="profile-store-label">ชื่อร้าน / ธุรกิจ:</span>
+                            <strong class="profile-store-value" id="dispStoreName">
+                                <?= !empty($storeProfile['shop_name']) ? htmlspecialchars($storeProfile['shop_name']) : (!empty($storeProfile['business_type']) ? htmlspecialchars($storeProfile['business_type']) : 'ยังไม่ได้ระบุชื่อร้าน/ธุรกิจ') ?>
+                            </strong>
+                        </div>
+                        <div class="profile-store-info-item">
+                            <span class="profile-store-label">ชื่อเล่น / วันเกิด:</span>
+                            <span class="profile-store-value" id="dispStoreNickname">
+                                <?php
+                                $nickBirth = [];
+                                if (!empty($storeProfile['nickname'])) $nickBirth[] = 'คุณ' . $storeProfile['nickname'];
+                                if (!empty($storeProfile['birthdate'])) $nickBirth[] = '🎂 ' . date('d/m/Y', strtotime($storeProfile['birthdate']));
+                                echo !empty($nickBirth) ? htmlspecialchars(implode(' • ', $nickBirth)) : 'ยังไม่ได้ระบุ';
+                                ?>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="profile-store-info-block">
+                        <span class="profile-store-label">📍 ที่อยู่ร้าน / สถานประกอบการ:</span>
+                        <div class="profile-store-value" id="dispStoreAddress">
+                            <?= !empty($storeProfile['shop_address']) ? nl2br(htmlspecialchars($storeProfile['shop_address'])) : '<span class="text-muted">ยังไม่ได้ระบุที่อยู่ร้าน (คลิกปุ่มด้านล่างเพื่อกรอกข้อมูลร้าน)</span>' ?>
+                        </div>
+                    </div>
+
+                    <div class="profile-store-map-box" id="dispStoreMapBox">
+                        <?php if (!empty($storeProfile['user_google_map'])): ?>
+                        <div class="profile-store-map-active">
+                            <div class="profile-store-map-left">
+                                <span class="profile-store-map-pin">🗺️</span>
+                                <div>
+                                    <div class="profile-store-map-title">แผนที่ร้าน Google Maps เชื่อมต่อแล้ว</div>
+                                    <div class="profile-store-map-url"><?= htmlspecialchars(mb_strimwidth($storeProfile['user_google_map'], 0, 42, '...')) ?></div>
+                                </div>
+                            </div>
+                            <a href="<?= htmlspecialchars($storeProfile['user_google_map']) ?>" target="_blank" rel="noopener" class="profile-btn-map-link">
+                                เปิดแผนที่ ↗
+                            </a>
+                        </div>
+                        <?php else: ?>
+                        <div class="profile-store-map-empty" onclick="openStoreProfileModal()" role="button" tabindex="0">
+                            <span class="profile-store-map-pin">📍</span>
+                            <div class="profile-store-map-empty-text">
+                                <strong>ยังไม่ได้แนบลิงก์แผนที่ร้าน Google Maps</strong>
+                                <span>เพิ่มพิกัดร้าน Google Maps และข้อมูลร้านครบ รับฟรีทันที +50 M-Stamp!</span>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if (!empty($storeProfile['favorite_scents'])): ?>
+                    <div class="profile-store-scents-row" id="dispStoreScents">
+                        <span class="profile-store-label">🌿 กลิ่นที่ใช้ประจำ:</span>
+                        <div class="profile-store-scent-tags">
+                            <?php foreach ($storeProfile['favorite_scents'] as $scent): ?>
+                            <span class="profile-store-scent-pill"><?= htmlspecialchars((string)$scent) ?></span>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="profile-store-vip-footer">
+                    <button type="button" class="profile-btn-store-edit" onclick="openStoreProfileModal()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                        <span><?= !empty($storeProfile['vip_bonus_50_awarded']) ? 'แก้ไขข้อมูลร้าน & แผนที่ Google Maps' : 'กรอกข้อมูลร้าน & แผนที่ Google Maps (+50 แต้ม)' ?></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 8. Section: การตั้งค่า (สมุดที่อยู่จัดส่ง รองรับหลายที่อยู่) -->
+            <div class="setting-group-card">
+                <div class="setting-group-title">การตั้งค่าและสมุดที่อยู่จัดส่ง</div>
+
+                <!-- ตั้งค่าที่อยู่จัดส่ง (อ้างอิงจากฐานข้อมูล addr & user เชื่อมโยงระบบคำสั่งซื้อ Admin) -->
+                <div class="setting-menu-item setting-address-book-item" onclick="openAddressModal()" role="button" tabindex="0">
                     <div class="setting-item-left">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                         <div>
-                            <div class="setting-item-title-wrap">ตั้งค่าที่อยู่จัดส่ง</div>
+                            <div class="setting-item-title-wrap">
+                                <span>สมุดที่อยู่จัดส่งพัสดุ</span>
+                                <span class="addr-book-count-pill" id="displayAddrCountBadge"><?= count($userAddresses) ?> ที่อยู่</span>
+                            </div>
                             <div class="setting-item-subtitle" id="displayShippingSub">
-                                <?= !empty($shippingAddress['detail']) ? htmlspecialchars(mb_strimwidth($shippingAddress['detail'], 0, 32, '...')) : 'ยังไม่ได้ระบุที่อยู่จัดส่ง' ?>
+                                <?php if (!empty($shippingAddress['detail'])): ?>
+                                    ⭐ ที่อยู่หลัก: <?= htmlspecialchars(mb_strimwidth(trim($shippingAddress['detail'] . ' ' . ($shippingAddress['detail2'] ?? '') . ' ' . ($shippingAddress['province_name'] ?? '') . ' ' . ($shippingAddress['postcode'] ?? '')), 0, 46, '...')) ?>
+                                <?php else: ?>
+                                    ยังไม่ได้ระบุที่อยู่จัดส่ง (คลิกเพื่อเพิ่มที่อยู่)
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
-                    <span class="setting-arrow">›</span>
+                    <span class="setting-manage-addr-btn">จัดการ ›</span>
                 </div>
 
                 <div class="setting-menu-item" onclick="window.toggleTheme();" role="button" tabindex="0">
@@ -813,13 +929,106 @@ async function applyTherapistPartner(btn) {
     }
 }
 
+// ============================================================
+// Multi-Address Book Manager (สมุดที่อยู่จัดส่ง รองรับ 10+ ที่อยู่ เชื่อมโยง Admin Orders)
+// ============================================================
+let userSavedAddresses = <?= json_encode($userAddresses, JSON_UNESCAPED_UNICODE) ?>;
+const profileProvincesList = <?= json_encode($provincesList, JSON_UNESCAPED_UNICODE) ?>;
+let currentStoreProfile = <?= json_encode($storeProfile, JSON_UNESCAPED_UNICODE) ?>;
+
+const addrTypeMeta = {
+    1: { icon: '🏠', label: 'ที่บ้าน' },
+    2: { icon: '🏢', label: 'ที่ทำงาน / ร้านสปา' },
+    3: { icon: '📄', label: 'ออกใบกำกับภาษี' },
+    4: { icon: '📦', label: 'ส่งในนาม' },
+    5: { icon: '👤', label: 'ผู้รับแทน' },
+    6: { icon: '🏕️', label: 'ที่อยู่ชั่วคราว' }
+};
+
+function escapeHtmlStr(str) {
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function syncAddressBookSummaryUI() {
+    const badge = document.getElementById('displayAddrCountBadge');
+    if (badge) {
+        badge.textContent = (userSavedAddresses.length || 0) + ' ที่อยู่';
+    }
+    const sub = document.getElementById('displayShippingSub');
+    if (sub) {
+        const primary = userSavedAddresses.find(a => Number(a.addr_position) === 1) || userSavedAddresses[0];
+        if (primary && primary.addr_detail) {
+            const fullText = [primary.addr_detail, primary.addr_detail2, primary.province_name, primary.addr_postcode]
+                .filter(Boolean).join(' ').trim();
+            sub.textContent = '⭐ ที่อยู่หลัก: ' + (fullText.length > 46 ? fullText.substring(0, 46) + '...' : fullText);
+        } else {
+            sub.textContent = 'ยังไม่ได้ระบุที่อยู่จัดส่ง (คลิกเพื่อเพิ่มที่อยู่)';
+        }
+    }
+}
+
+function buildAddressBookListHtml(filterKeyword = '') {
+    const kw = filterKeyword.trim().toLowerCase();
+    const filtered = userSavedAddresses.filter(a => {
+        if (!kw) return true;
+        const hay = [a.addr_name, a.addr_mobile, a.addr_detail, a.addr_detail2, a.province_name, a.addr_postcode, a.addr_forword]
+            .filter(Boolean).join(' ').toLowerCase();
+        return hay.includes(kw);
+    });
+
+    if (filtered.length === 0) {
+        return `
+            <div class="addr-book-empty">
+                <div class="addr-book-empty-icon">📍</div>
+                <div class="addr-book-empty-title">${kw ? 'ไม่พบที่อยู่ที่ค้นหา' : 'ยังไม่มีที่อยู่จัดส่งในสมุดที่อยู่'}</div>
+                <div class="addr-book-empty-sub">กดปุ่ม "+ เพิ่มที่อยู่จัดส่งใหม่" ด้านบนเพื่อบันทึกที่อยู่</div>
+            </div>
+        `;
+    }
+
+    return filtered.map(a => {
+        const id = Number(a.addr_id);
+        const isPrimary = Number(a.addr_position) === 1;
+        const tMeta = addrTypeMeta[Number(a.addr_type) || 1] || addrTypeMeta[1];
+        const fullAddr = [a.addr_detail, a.addr_detail2, a.province_name, a.addr_postcode].filter(Boolean).join(' ');
+
+        return `
+            <div class="addr-book-card ${isPrimary ? 'is-primary' : ''}" data-addr-id="${id}">
+                <div class="addr-book-card-top">
+                    <div class="addr-book-badges">
+                        <span class="addr-type-pill">${tMeta.icon} ${escapeHtmlStr(tMeta.label)}</span>
+                        ${isPrimary ? '<span class="addr-primary-pill">⭐ ที่อยู่หลัก (ใช้จัดส่งอัตโนมัติ)</span>' : ''}
+                    </div>
+                    <div class="addr-book-actions">
+                        ${!isPrimary ? `<button type="button" class="addr-btn-set-default" onclick="setPrimaryAddress(${id})">ตั้งเป็นที่อยู่หลัก</button>` : ''}
+                        <button type="button" class="addr-btn-edit" onclick="openAddressFormModal(${id})">แก้ไข</button>
+                        <button type="button" class="addr-btn-del" onclick="deleteSavedAddress(${id})">ลบ</button>
+                    </div>
+                </div>
+                <div class="addr-book-recipient">
+                    <strong>${escapeHtmlStr(a.addr_name || 'ไม่ระบุชื่อผู้รับ')}</strong>
+                    <span class="addr-book-phone">📞 ${escapeHtmlStr(a.addr_mobile || '-')}</span>
+                </div>
+                <div class="addr-book-detail">${escapeHtmlStr(fullAddr)}</div>
+                ${a.addr_tax_id ? `<div class="addr-book-meta">🧾 เลขผู้เสียภาษี: ${escapeHtmlStr(a.addr_tax_id)}</div>` : ''}
+                ${a.addr_forword ? `<div class="addr-book-meta">📝 หมายเหตุจัดส่ง: ${escapeHtmlStr(a.addr_forword)}</div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
 async function openAddressModal() {
     const currentUserId = <?= (int)$userId ?>;
     if (currentUserId <= 0) {
         Swal.fire({
             icon: 'info',
             title: 'เข้าสู่ระบบสมาชิก',
-            text: 'กรุณาเข้าสู่ระบบผ่าน LINE เพื่อตั้งค่าที่อยู่จัดส่งของคุณ',
+            text: 'กรุณาเข้าสู่ระบบผ่าน LINE หรือบัญชีสมาชิก เพื่อจัดการสมุดที่อยู่จัดส่งของคุณ',
             showCancelButton: true,
             confirmButtonColor: '#00B900',
             cancelButtonColor: '#6c757d',
@@ -829,50 +1038,274 @@ async function openAddressModal() {
         return;
     }
 
-    const currName = <?= json_encode($shippingAddress['name'] ?? '') ?>;
-    const currMobile = <?= json_encode($shippingAddress['mobile'] ?? '') ?>;
-    const currDetail = <?= json_encode($shippingAddress['detail'] ?? '') ?>;
-    const currPostcode = <?= json_encode($shippingAddress['postcode'] ?? '') ?>;
+    // Fetch latest addresses from server to ensure 100% sync with Admin Orders
+    try {
+        const res = await fetch('<?= URL_PATH ?>/api/member.php?action=get_addresses');
+        const json = await res.json();
+        if (json.status && json.data && Array.isArray(json.data.addresses)) {
+            userSavedAddresses = json.data.addresses;
+            syncAddressBookSummaryUI();
+        }
+    } catch (e) {}
 
-    const { value: formValues } = await Swal.fire({
-        title: 'ตั้งค่าที่อยู่จัดส่ง',
+    Swal.fire({
+        title: `<div class="addr-modal-header"><span>📍 สมุดที่อยู่จัดส่งพัสดุ (${userSavedAddresses.length})</span></div>`,
         html: `
-            <div class="text-start mb-2">
-                <label class="form-label small fw-bold mb-1">ชื่อ-นามสกุล ผู้รับ:</label>
-                <input id="swalAddrName" class="swal2-input m-0 mb-3 w-100 fs-6" value="${currName}" placeholder="ชื่อ-นามสกุล ผู้รับ">
-                
-                <label class="form-label small fw-bold mb-1">เบอร์โทรศัพท์ติดต่อ:</label>
-                <input id="swalAddrMobile" class="swal2-input m-0 mb-3 w-100 fs-6" value="${currMobile}" placeholder="08xxxxxxxx">
-                
-                <label class="form-label small fw-bold mb-1">ที่อยู่จัดส่ง (บ้านเลขที่, ถนน, ตำบล, อำเภอ, จังหวัด):</label>
-                <textarea id="swalAddrDetail" class="swal2-textarea m-0 mb-3 w-100 fs-6" rows="3" placeholder="ระบุที่อยู่จัดส่งโดยละเอียด...">${currDetail}</textarea>
-                
-                <label class="form-label small fw-bold mb-1">รหัสไปรษณีย์:</label>
-                <input id="swalAddrPostcode" class="swal2-input m-0 w-100 fs-6" value="${currPostcode}" placeholder="10xxx">
+            <div class="addr-book-modal-wrap">
+                <div class="addr-book-toolbar">
+                    <input type="text" id="addrBookSearchInput" class="addr-book-search-input" placeholder="🔍 ค้นหาชื่อผู้รับ, เบอร์โทร, ที่อยู่..." oninput="filterAddressBookInModal(this.value)">
+                    <button type="button" class="addr-btn-add-new" onclick="openAddressFormModal(0)">
+                        + เพิ่มที่อยู่จัดส่งใหม่
+                    </button>
+                </div>
+                <div class="addr-book-list-scroll" id="addrBookListContainer">
+                    ${buildAddressBookListHtml('')}
+                </div>
             </div>
         `,
+        width: 680,
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: {
+            popup: 'addr-book-swal-popup'
+        }
+    });
+}
+
+function filterAddressBookInModal(val) {
+    const cont = document.getElementById('addrBookListContainer');
+    if (cont) {
+        cont.innerHTML = buildAddressBookListHtml(val);
+    }
+}
+
+async function setPrimaryAddress(addrId) {
+    try {
+        const res = await fetch('<?= URL_PATH ?>/api/member.php?action=set_default_address', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ addr_id: addrId })
+        });
+        const json = await res.json();
+        if (json.status && json.data) {
+            userSavedAddresses = json.data.addresses || [];
+            syncAddressBookSummaryUI();
+            const searchVal = document.getElementById('addrBookSearchInput')?.value || '';
+            filterAddressBookInModal(searchVal);
+        }
+    } catch (e) {}
+}
+
+async function deleteSavedAddress(addrId) {
+    const target = userSavedAddresses.find(a => Number(a.addr_id) === Number(addrId));
+    const confirmDel = await Swal.fire({
+        icon: 'warning',
+        title: 'ยืนยันการลบที่อยู่?',
+        text: target ? `ต้องการลบที่อยู่ของ "${target.addr_name}" ใช่หรือไม่?` : 'ต้องการลบที่อยู่นี้ใช่หรือไม่?',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'ลบที่อยู่',
+        cancelButtonText: 'ยกเลิก'
+    });
+    if (!confirmDel.isConfirmed) {
+        openAddressModal();
+        return;
+    }
+
+    try {
+        const res = await fetch('<?= URL_PATH ?>/api/member.php?action=delete_address', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ addr_id: addrId })
+        });
+        const json = await res.json();
+        if (json.status && json.data) {
+            userSavedAddresses = json.data.addresses || [];
+            syncAddressBookSummaryUI();
+        }
+    } catch (e) {}
+    openAddressModal();
+}
+
+let modalZipTimer = null;
+function handleModalZipLookup(val) {
+    clearTimeout(modalZipTimer);
+    const clean = String(val || '').replace(/[^0-9]/g, '');
+    const sugBox = document.getElementById('swalZipSuggestions');
+    if (clean.length === 5) {
+        modalZipTimer = setTimeout(() => {
+            fetch(`<?= URL_PATH ?>/api/address_lookup.php?action=postcode&code=${clean}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (data.province_id > 0) {
+                            const provSel = document.getElementById('swalAddrProvince');
+                            if (provSel) provSel.value = String(data.province_id);
+                        }
+                        const detail2El = document.getElementById('swalAddrDetail2');
+                        if (data.suggestions && data.suggestions.length > 0 && sugBox) {
+                            if (detail2El && !detail2El.value.trim()) {
+                                detail2El.value = data.suggestions[0];
+                            }
+                            sugBox.innerHTML = data.suggestions.map(s =>
+                                `<button type="button" class="addr-zip-chip" onclick="selectModalZipSuggestion('${escapeHtmlStr(s)}')">📍 ${escapeHtmlStr(s)}</button>`
+                            ).join('');
+                            sugBox.classList.remove('d-none');
+                        } else if (sugBox) {
+                            sugBox.classList.add('d-none');
+                        }
+                    }
+                })
+                .catch(() => {});
+        }, 150);
+    } else if (sugBox) {
+        sugBox.classList.add('d-none');
+    }
+}
+
+function selectModalZipSuggestion(text) {
+    const detail2El = document.getElementById('swalAddrDetail2');
+    if (detail2El) detail2El.value = text;
+}
+
+async function openAddressFormModal(addrId = 0) {
+    const isEdit = Number(addrId) > 0;
+    const existing = isEdit ? userSavedAddresses.find(a => Number(a.addr_id) === Number(addrId)) : null;
+
+    const currName      = existing ? (existing.addr_name || '') : <?= json_encode($userName !== 'ลูกค้าทั่วไป (Guest)' ? $userName : '') ?>;
+    const currMobile    = existing ? (existing.addr_mobile || '') : <?= json_encode($userTel) ?>;
+    const currDetail    = existing ? (existing.addr_detail || '') : '';
+    const currDetail2   = existing ? (existing.addr_detail2 || '') : '';
+    const currPostcode  = existing ? (existing.addr_postcode || '') : '';
+    const currProvId    = existing ? Number(existing.provinces_id || 1) : 1;
+    const currType      = existing ? Number(existing.addr_type || 1) : 1;
+    const currTaxId     = existing ? (existing.addr_tax_id || '') : '';
+    const currForword   = existing ? (existing.addr_forword || '') : '';
+    const currIsDefault = existing ? (Number(existing.addr_position) === 1) : (userSavedAddresses.length === 0);
+
+    const provOptionsHtml = profileProvincesList.map(p => {
+        const pid = Number(p.provinces_id);
+        const sel = pid === currProvId ? 'selected' : '';
+        return `<option value="${pid}" ${sel}>${escapeHtmlStr(p.name_th)}</option>`;
+    }).join('');
+
+    const typeButtonsHtml = Object.entries(addrTypeMeta).map(([k, v]) => {
+        const active = Number(k) === currType ? 'active' : '';
+        return `<button type="button" class="addr-type-select-btn ${active}" data-type="${k}" onclick="selectAddrTypeBtn(this)">${v.icon} ${escapeHtmlStr(v.label)}</button>`;
+    }).join('');
+
+    const { value: formValues } = await Swal.fire({
+        title: `<div class="addr-modal-header"><span>${isEdit ? '✏️ แก้ไขที่อยู่จัดส่ง' : '➕ เพิ่มที่อยู่จัดส่งใหม่'}</span></div>`,
+        html: `
+            <div class="addr-form-modal-wrap text-start">
+                <input type="hidden" id="swalAddrId" value="${isEdit ? Number(addrId) : 0}">
+                <input type="hidden" id="swalAddrType" value="${currType}">
+
+                <div class="addr-form-field">
+                    <label class="addr-form-label">ประเภทที่อยู่</label>
+                    <div class="addr-type-btn-grid" id="swalAddrTypeGrid">
+                        ${typeButtonsHtml}
+                    </div>
+                </div>
+
+                <div class="addr-form-row-2">
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">ชื่อผู้รับ / ชื่อร้านสปา *</label>
+                        <input id="swalAddrName" class="addr-form-input" value="${escapeHtmlStr(currName)}" placeholder="ชื่อ-นามสกุล หรือชื่อร้าน">
+                    </div>
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">เบอร์โทรศัพท์ผู้รับ *</label>
+                        <input id="swalAddrMobile" class="addr-form-input" value="${escapeHtmlStr(currMobile)}" placeholder="08x-xxx-xxxx">
+                    </div>
+                </div>
+
+                <div class="addr-form-field">
+                    <label class="addr-form-label">บ้านเลขที่ / หมู่บ้าน / อาคาร / ซอย / ถนน *</label>
+                    <textarea id="swalAddrDetail" class="addr-form-textarea" rows="2" placeholder="เช่น 41/40 หมู่บ้านเคซี ปาร์ควิว 2 ถนนเลียบคลองสอง 29">${escapeHtmlStr(currDetail)}</textarea>
+                </div>
+
+                <div class="addr-form-row-2">
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">รหัสไปรษณีย์ (ค้นหาอัตโนมัติ) *</label>
+                        <input id="swalAddrPostcode" class="addr-form-input" maxlength="5" value="${escapeHtmlStr(currPostcode)}" placeholder="เช่น 10510" oninput="handleModalZipLookup(this.value)">
+                    </div>
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">ตำบล/แขวง และ อำเภอ/เขต</label>
+                        <input id="swalAddrDetail2" class="addr-form-input" value="${escapeHtmlStr(currDetail2)}" placeholder="เช่น แขวงบางชัน เขตคลองสามวา">
+                    </div>
+                </div>
+                <div id="swalZipSuggestions" class="addr-zip-suggestions d-none"></div>
+
+                <div class="addr-form-row-2">
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">จังหวัด *</label>
+                        <select id="swalAddrProvince" class="addr-form-select">
+                            ${provOptionsHtml}
+                        </select>
+                    </div>
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">เลขประจำตัวผู้เสียภาษี (ถ้าออกบิล)</label>
+                        <input id="swalAddrTaxId" class="addr-form-input" maxlength="20" value="${escapeHtmlStr(currTaxId)}" placeholder="เลข 13 หลัก (ถ้ามี)">
+                    </div>
+                </div>
+
+                <div class="addr-form-field">
+                    <label class="addr-form-label">หมายเหตุถึงขนส่ง / จุดสังเกต</label>
+                    <input id="swalAddrForword" class="addr-form-input" value="${escapeHtmlStr(currForword)}" placeholder="เช่น ฝากป้อมยาม, โทรก่อนเข้าส่ง">
+                </div>
+
+                <label class="addr-default-check-row" for="swalAddrIsDefault">
+                    <input type="checkbox" id="swalAddrIsDefault" ${currIsDefault ? 'checked' : ''}>
+                    <span>⭐ ตั้งเป็นที่อยู่หลัก (ใช้เป็นค่าเริ่มต้นในการสั่งซื้อและเชื่อมโยงกับระบบ Admin)</span>
+                </label>
+            </div>
+        `,
+        width: 620,
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: 'บันทึกที่อยู่จัดส่ง',
-        cancelButtonText: 'ยกเลิก',
+        confirmButtonText: '💾 บันทึกที่อยู่',
+        cancelButtonText: 'ย้อนกลับ',
         confirmButtonColor: '#0B3B35',
         cancelButtonColor: '#6c757d',
+        customClass: {
+            popup: 'addr-book-swal-popup'
+        },
         preConfirm: () => {
             const name = document.getElementById('swalAddrName').value.trim();
             const mobile = document.getElementById('swalAddrMobile').value.trim();
             const detail = document.getElementById('swalAddrDetail').value.trim();
+            const detail2 = document.getElementById('swalAddrDetail2').value.trim();
             const postcode = document.getElementById('swalAddrPostcode').value.trim();
+            const provinces_id = Number(document.getElementById('swalAddrProvince').value || 1);
+            const addr_type = Number(document.getElementById('swalAddrType').value || 1);
+            const addr_tax_id = document.getElementById('swalAddrTaxId').value.trim();
+            const addr_forword = document.getElementById('swalAddrForword').value.trim();
+            const is_default = document.getElementById('swalAddrIsDefault').checked ? 1 : 0;
+
             if (!name || !mobile || !detail) {
                 Swal.showValidationMessage('กรุณากรอกชื่อผู้รับ เบอร์โทรศัพท์ และที่อยู่จัดส่งให้ครบถ้วน');
                 return false;
             }
-            return { addr_name: name, addr_mobile: mobile, addr_detail: detail, addr_postcode: postcode };
+            return {
+                addr_id: isEdit ? Number(addrId) : 0,
+                addr_name: name,
+                addr_mobile: mobile,
+                addr_detail: detail,
+                addr_detail2: detail2,
+                addr_postcode: postcode,
+                provinces_id,
+                addr_type,
+                addr_tax_id,
+                addr_forword,
+                is_default
+            };
         }
     });
 
     if (formValues) {
         Swal.fire({
-            title: 'กำลังบันทึก...',
+            title: 'กำลังบันทึกที่อยู่...',
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading()
         });
@@ -883,20 +1316,234 @@ async function openAddressModal() {
                 body: JSON.stringify(formValues)
             });
             const json = await res.json();
-            if (json.status) {
+            if (json.status && json.data) {
+                userSavedAddresses = json.data.addresses || [];
+                syncAddressBookSummaryUI();
                 await Swal.fire({
                     icon: 'success',
-                    title: 'สำเร็จ',
+                    title: 'บันทึกสำเร็จ',
                     text: json.message,
-                    timer: 1800,
+                    timer: 1400,
                     showConfirmButton: false
                 });
-                const sub = document.getElementById('displayShippingSub');
-                if (sub) {
-                    sub.textContent = formValues.addr_detail.substring(0, 32) + (formValues.addr_detail.length > 32 ? '...' : '');
-                }
+                openAddressModal();
             } else {
                 Swal.fire({ icon: 'error', title: 'ไม่สำเร็จ', text: json.message || 'บันทึกไม่สำเร็จ' });
+            }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้' });
+        }
+    } else {
+        openAddressModal();
+    }
+}
+
+function selectAddrTypeBtn(btn) {
+    document.querySelectorAll('#swalAddrTypeGrid .addr-type-select-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const inp = document.getElementById('swalAddrType');
+    if (inp) inp.value = btn.getAttribute('data-type') || '1';
+}
+
+// ============================================================
+// Dedicated Store / Interactive VIP Profile & Google Maps Modal (+50 M-Stamp)
+// ============================================================
+const storeBusinessTypes = [
+    'ร้านนวดแผนไทย / สปา',
+    'หมอนวดอิสระ / ฟรีแลนซ์',
+    'คลินิกกายภาพ / จัดกระดูก',
+    'โรงแรม / รีสอร์ท',
+    'ซื้อใช้เองในครอบครัว',
+    'ของฝาก / ของชำร่วย'
+];
+
+const storeFavoriteScentsList = [
+    'สูตรร้อน กลิ่นต้นตำรับ',
+    'สูตรร้อน กลิ่นไพล',
+    'สูตรเย็น เสลดพังพอน',
+    'สูตรเย็น ตะไคร้หอม',
+    'สูตรนวดตัว อโรม่ามะลิ',
+    'สูตรนวดตัว ลาเวนเดอร์',
+    'สูตรเย็น ยูคาลิปตัส',
+    'สูตรร้อน ขิงมินท์'
+];
+
+function selectStoreBizChip(btn) {
+    document.querySelectorAll('#swalBizChips .store-chip-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const inp = document.getElementById('swalStoreBizType');
+    if (inp) inp.value = btn.getAttribute('data-val') || '';
+}
+
+function toggleStoreScentChip(btn) {
+    btn.classList.toggle('active');
+}
+
+async function openStoreProfileModal() {
+    const currentUserId = <?= (int)$userId ?>;
+    if (currentUserId <= 0) {
+        Swal.fire({
+            icon: 'info',
+            title: 'เข้าสู่ระบบเพื่อรับ +50 แต้ม',
+            text: 'กรุณาเข้าสู่ระบบก่อนกรอกข้อมูลร้านและแผนที่ Google Maps เพื่อรับโบนัส +50 M-Stamp ทันที',
+            showCancelButton: true,
+            confirmButtonColor: '#00B900',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'เข้าสู่ระบบ LINE',
+            cancelButtonText: 'ปิด'
+        }).then(r => { if (r.isConfirmed) window.location.href = '<?= URL_PATH ?>/api/line_auth.php?action=login'; });
+        return;
+    }
+
+    const sp = currentStoreProfile || {};
+    const selectedScents = Array.isArray(sp.favorite_scents) ? sp.favorite_scents : [];
+
+    const bizChipsHtml = storeBusinessTypes.map(b => {
+        const active = (sp.business_type === b) ? 'active' : '';
+        return `<button type="button" class="store-chip-btn ${active}" data-val="${escapeHtmlStr(b)}" onclick="selectStoreBizChip(this)">${escapeHtmlStr(b)}</button>`;
+    }).join('');
+
+    const scentChipsHtml = storeFavoriteScentsList.map(s => {
+        const active = selectedScents.includes(s) ? 'active' : '';
+        return `<button type="button" class="store-chip-btn multi ${active}" data-val="${escapeHtmlStr(s)}" onclick="toggleStoreScentChip(this)">${escapeHtmlStr(s)}</button>`;
+    }).join('');
+
+    const { value: formData } = await Swal.fire({
+        title: `<div class="addr-modal-header"><span>🏪 ข้อมูลร้านสปา &amp; แผนที่ Google Maps</span></div>`,
+        html: `
+            <div class="addr-form-modal-wrap text-start">
+                ${!sp.vip_bonus_50_awarded ? `
+                <div class="store-modal-bonus-banner">
+                    <span>🎁</span>
+                    <div>
+                        <strong>กรอกข้อมูลร้านและลิงก์แผนที่ Google Maps ครบ รับฟรีทันที +50 M-Stamp!</strong>
+                        <div>ใช้เป็นส่วนลดเงินสด ฿50 บาทในคำสั่งซื้อถัดไปได้ทันที</div>
+                    </div>
+                </div>` : ''}
+
+                <input type="hidden" id="swalStoreBizType" value="${escapeHtmlStr(sp.business_type || '')}">
+
+                <div class="addr-form-row-2">
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">ชื่อร้านนวด / สปา / คลินิก *</label>
+                        <input id="swalStoreShopName" class="addr-form-input" value="${escapeHtmlStr(sp.shop_name || '')}" placeholder="เช่น ยักษ์โพธิ์ สปา แอนด์ มาสสาจ">
+                    </div>
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">ชื่อเล่น (เพื่อให้แอดมินเรียกขานอย่างเป็นกันเอง)</label>
+                        <input id="swalStoreNickname" class="addr-form-input" value="${escapeHtmlStr(sp.nickname || '')}" placeholder="เช่น พี่นิด, หมออุไร, คุณแอน">
+                    </div>
+                </div>
+
+                <div class="addr-form-row-2">
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">🎂 วัน-เดือนเกิด (รับของขวัญเดือนเกิด)</label>
+                        <input type="date" id="swalStoreBirthdate" class="addr-form-input" value="${escapeHtmlStr(sp.birthdate || '')}">
+                    </div>
+                    <div class="addr-form-field">
+                        <label class="addr-form-label">🌐 เว็บไซต์ / เพจ Facebook ร้าน (ถ้ามี)</label>
+                        <input id="swalStoreWebsite" class="addr-form-input" value="${escapeHtmlStr(sp.user_website || '')}" placeholder="เช่น facebook.com/yourspa">
+                    </div>
+                </div>
+
+                <div class="addr-form-field">
+                    <label class="addr-form-label">📍 ที่อยู่ร้าน / สถานประกอบการ (สำหรับประชาสัมพันธ์และติดต่อ)</label>
+                    <textarea id="swalStoreAddress" class="addr-form-textarea" rows="2" placeholder="ระบุที่ตั้งร้านนวด / สปา หรือคลินิกของท่าน...">${escapeHtmlStr(sp.shop_address || '')}</textarea>
+                </div>
+
+                <div class="addr-form-field">
+                    <label class="addr-form-label">🗺️ ลิงก์แผนที่ร้าน Google Maps (วางลิงก์พิกัดร้าน เพื่อรับแต้มโบนัส +50 แต้ม)</label>
+                    <input type="url" id="swalStoreGoogleMap" class="addr-form-input" value="${escapeHtmlStr(sp.user_google_map || '')}" placeholder="เช่น https://maps.app.goo.gl/... หรือ https://www.google.com/maps/...">
+                </div>
+
+                <div class="addr-form-field">
+                    <label class="addr-form-label">รูปแบบการใช้งานยาหม่อง / ประเภทธุรกิจ (แตะเลือก 1 ข้อ)</label>
+                    <div class="store-chips-wrap" id="swalBizChips">
+                        ${bizChipsHtml}
+                    </div>
+                </div>
+
+                <div class="addr-form-field">
+                    <label class="addr-form-label">🌿 สูตรและกลิ่นสมุนไพรที่ใช้ประจำ (เลือกได้หลายข้อ)</label>
+                    <div class="store-chips-wrap" id="swalScentChips">
+                        ${scentChipsHtml}
+                    </div>
+                </div>
+
+                <div class="addr-form-field">
+                    <label class="addr-form-label">💬 ข้อเสนอแนะถึงทีมปรุงยาหม่องยักษ์โพธิ์ (ถ้ามี)</label>
+                    <textarea id="swalStoreFeedback" class="addr-form-textarea" rows="2" placeholder="เช่น กลิ่นที่อยากให้ทำเพิ่ม หรือสิ่งที่อยากให้เราดูแลเพิ่มเติม...">${escapeHtmlStr(sp.feedback || '')}</textarea>
+                </div>
+            </div>
+        `,
+        width: 650,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: sp.vip_bonus_50_awarded ? '💾 บันทึกข้อมูลร้าน' : '🎁 บันทึก & รับ +50 M-Stamp',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#0B3B35',
+        cancelButtonColor: '#6c757d',
+        customClass: {
+            popup: 'addr-book-swal-popup'
+        },
+        preConfirm: () => {
+            const shop_name = document.getElementById('swalStoreShopName').value.trim();
+            const nickname = document.getElementById('swalStoreNickname').value.trim();
+            const birthdate = document.getElementById('swalStoreBirthdate').value.trim();
+            const user_website = document.getElementById('swalStoreWebsite').value.trim();
+            const shop_address = document.getElementById('swalStoreAddress').value.trim();
+            const user_google_map = document.getElementById('swalStoreGoogleMap').value.trim();
+            const business_type = document.getElementById('swalStoreBizType').value.trim();
+            const feedback = document.getElementById('swalStoreFeedback').value.trim();
+
+            const favorite_scents = [];
+            document.querySelectorAll('#swalScentChips .store-chip-btn.active').forEach(b => {
+                const v = b.getAttribute('data-val');
+                if (v) favorite_scents.push(v);
+            });
+
+            if (!shop_name && !business_type && !shop_address) {
+                Swal.showValidationMessage('กรุณาระบุชื่อร้าน หรือประเภทธุรกิจ หรือที่อยู่ร้านอย่างน้อย 1 รายการ');
+                return false;
+            }
+
+            return {
+                shop_name,
+                nickname,
+                birthdate,
+                user_website,
+                shop_address,
+                user_google_map,
+                business_type,
+                favorite_scents,
+                feedback
+            };
+        }
+    });
+
+    if (formData) {
+        Swal.fire({
+            title: 'กำลังบันทึกข้อมูลร้าน...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+        try {
+            const res = await fetch('<?= URL_PATH ?>/api/member.php?action=save_store_profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const json = await res.json();
+            if (json.status && json.data) {
+                currentStoreProfile = json.data.store_profile || formData;
+                await reloadProfileContainer();
+                await Swal.fire({
+                    icon: 'success',
+                    title: json.data.awarded_bonus ? '🎉 รับโบนัส +50 M-Stamp สำเร็จ!' : 'บันทึกสำเร็จ!',
+                    text: json.message,
+                    confirmButtonColor: '#0B3B35'
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'ไม่สำเร็จ', text: json.message || 'ไม่สามารถบันทึกข้อมูลได้' });
             }
         } catch (e) {
             Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้' });

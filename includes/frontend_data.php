@@ -1346,11 +1346,27 @@ function get_checkout_page_data(PDO $db, string $lang = 'th'): array
                 $loggedUser['user_postcode'] = (string)($loggedUser['user_postcode'] ?? '');
                 $memberPoints = max((int)($loggedUser['m_stamp_points'] ?? 0), (int)($loggedUser['user_stars'] ?? 0));
                 
-                // Fetch latest saved shipping address from addr
-                $stA = $db->prepare("SELECT addr_detail, addr_detail2, addr_postcode, provinces_id, country_id FROM addr WHERE user_id = ? AND addr_del = 0 ORDER BY addr_id DESC LIMIT 1");
+                // Fetch all saved shipping addresses from addr (primary addr_position DESC first)
+                $stA = $db->prepare("
+                    SELECT a.addr_id, a.addr_name, a.addr_mobile, a.addr_detail, a.addr_detail2,
+                           a.addr_postcode, a.provinces_id, a.country_id, a.addr_type, a.addr_position,
+                           a.addr_forword, a.addr_tax_id, p.name_th AS province_name
+                    FROM addr a
+                    LEFT JOIN provinces p ON a.provinces_id = p.provinces_id
+                    WHERE a.user_id = ? AND a.addr_del = 0
+                    ORDER BY a.addr_position DESC, CASE WHEN a.addr_type = 1 THEN 0 ELSE 1 END, a.addr_id DESC
+                ");
                 $stA->execute([$userId]);
-                $savedAddr = $stA->fetch(PDO::FETCH_ASSOC);
+                $savedAddrList = $stA->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                $loggedUser['saved_addresses'] = $savedAddrList;
+                $savedAddr = $savedAddrList[0] ?? null;
                 if ($savedAddr) {
+                    if (!empty($savedAddr['addr_name'])) {
+                        $loggedUser['user_name'] = $savedAddr['addr_name'];
+                    }
+                    if (!empty($savedAddr['addr_mobile'])) {
+                        $loggedUser['user_mobile'] = $savedAddr['addr_mobile'];
+                    }
                     $loggedUser['user_address'] = $savedAddr['addr_detail'] ?: $loggedUser['user_address'];
                     $loggedUser['user_address_detail2'] = $savedAddr['addr_detail2'] ?: '';
                     $loggedUser['user_postcode'] = $savedAddr['addr_postcode'] ?: $loggedUser['user_postcode'];
@@ -1541,27 +1557,95 @@ function get_profile_page_data(PDO $db, string $lang = 'th'): array
     $tierInfo      = function_exists('get_member_tier_info') ? get_member_tier_info($memberTier) : ['badge' => '🌿', 'short_name' => 'General'];
     $referralUrl   = !empty($affiliateCode) ? (defined('ROOT_URL') ? ROOT_URL : '') . '/?ref=' . $affiliateCode : '';
 
-    // Shipping Address from DB
+    // Shipping Addresses & Provinces from DB
     $shippingAddress = [
-        'name'     => $userName,
-        'mobile'   => $userTel,
-        'detail'   => $userData['user_address'] ?? '',
-        'postcode' => $userData['user_postcode'] ?? '',
+        'addr_id'       => 0,
+        'name'          => $userName,
+        'mobile'        => $userTel,
+        'detail'        => $userData['user_address'] ?? '',
+        'detail2'       => '',
+        'provinces_id'  => (int)($userData['user_province'] ?? 1),
+        'province_name' => '',
+        'postcode'      => $userData['user_postcode'] ?? '',
+        'addr_type'     => 1,
+        'addr_position' => 1,
+        'addr_forword'  => '',
+        'addr_tax_id'   => '',
     ];
+    $userAddresses = [];
+    $provincesList = [];
+
+    try {
+        $provStmt = $db->query("SELECT provinces_id, name_th FROM provinces WHERE provinces_id != 79 ORDER BY name_th ASC");
+        $provincesList = $provStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Exception $e) {}
 
     if ($userId > 0) {
         try {
-            $addrStmt = $db->prepare("SELECT * FROM addr WHERE user_id = ? AND addr_del = 0 ORDER BY addr_status DESC, addr_id DESC LIMIT 1");
+            $addrStmt = $db->prepare("
+                SELECT a.*, p.name_th AS province_name
+                FROM addr a
+                LEFT JOIN provinces p ON a.provinces_id = p.provinces_id
+                WHERE a.user_id = ? AND a.addr_del = 0
+                ORDER BY a.addr_position DESC, CASE WHEN a.addr_type = 1 THEN 0 ELSE 1 END, a.addr_id DESC
+            ");
             $addrStmt->execute([$userId]);
-            $addrRow = $addrStmt->fetch(PDO::FETCH_ASSOC);
-            if ($addrRow) {
+            $userAddresses = $addrStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            // Ensure at least one address is marked primary (addr_position = 1) if addresses exist
+            if (!empty($userAddresses)) {
+                $hasPrimary = false;
+                foreach ($userAddresses as $ua) {
+                    if ((int)($ua['addr_position'] ?? 0) === 1) {
+                        $hasPrimary = true;
+                        break;
+                    }
+                }
+                if (!$hasPrimary) {
+                    $userAddresses[0]['addr_position'] = 1;
+                    try {
+                        $db->prepare("UPDATE addr SET addr_position = 1 WHERE addr_id = ?")->execute([(int)$userAddresses[0]['addr_id']]);
+                    } catch (Throwable $e2) {}
+                }
+
+                $addrRow = $userAddresses[0];
+                $shippingAddress['addr_id']       = (int)($addrRow['addr_id'] ?? 0);
                 if (!empty($addrRow['addr_name'])) $shippingAddress['name'] = $addrRow['addr_name'];
                 if (!empty($addrRow['addr_mobile'])) $shippingAddress['mobile'] = $addrRow['addr_mobile'];
                 if (!empty($addrRow['addr_detail'])) $shippingAddress['detail'] = $addrRow['addr_detail'];
+                $shippingAddress['detail2']       = (string)($addrRow['addr_detail2'] ?? '');
+                $shippingAddress['provinces_id']  = (int)($addrRow['provinces_id'] ?? 1);
+                $shippingAddress['province_name'] = (string)($addrRow['province_name'] ?? '');
                 if (!empty($addrRow['addr_postcode'])) $shippingAddress['postcode'] = $addrRow['addr_postcode'];
+                $shippingAddress['addr_type']     = (int)($addrRow['addr_type'] ?? 1);
+                $shippingAddress['addr_position'] = (int)($addrRow['addr_position'] ?? 1);
+                $shippingAddress['addr_forword']  = (string)($addrRow['addr_forword'] ?? '');
+                $shippingAddress['addr_tax_id']   = (string)($addrRow['addr_tax_id'] ?? '');
             }
         } catch (Exception $e) {}
     }
+
+    // Parse Store & Interactive VIP Profile (user_note JSON + user columns)
+    $crmNote = [];
+    if (!empty($userData['user_note'])) {
+        $decodedNote = json_decode((string)$userData['user_note'], true);
+        if (is_array($decodedNote)) {
+            $crmNote = $decodedNote;
+        }
+    }
+    $storeProfile = [
+        'nickname'             => (string)($userData['user_nickname'] ?? ($crmNote['nickname'] ?? '')),
+        'birthdate'            => (string)($userData['user_birthdate'] ?? ($crmNote['birthdate'] ?? '')),
+        'line_id'              => (string)($userData['line_display_name'] ?? ($crmNote['line_id'] ?? '')),
+        'shop_name'            => (string)($crmNote['shop_name'] ?? ''),
+        'shop_address'         => (string)($crmNote['shop_address'] ?? ''),
+        'user_google_map'      => (string)($userData['user_google_map'] ?? ($crmNote['user_google_map'] ?? '')),
+        'user_website'         => (string)($userData['user_website'] ?? ($crmNote['user_website'] ?? '')),
+        'business_type'        => (string)($crmNote['business_type'] ?? ''),
+        'favorite_scents'      => is_array($crmNote['favorite_scents'] ?? null) ? $crmNote['favorite_scents'] : [],
+        'feedback'             => (string)($crmNote['feedback'] ?? ''),
+        'vip_bonus_50_awarded' => !empty($crmNote['vip_bonus_50_awarded']),
+    ];
 
     $selectedStatus = (string)($_GET['status'] ?? 'all');
 
@@ -1581,6 +1665,9 @@ function get_profile_page_data(PDO $db, string $lang = 'th'): array
         'affiliate_data'   => $affiliateData,
         'referral_url'     => $referralUrl,
         'shipping_address' => $shippingAddress,
+        'user_addresses'   => $userAddresses,
+        'provinces'        => $provincesList,
+        'store_profile'    => $storeProfile,
         'order_counts'     => $orderCounts,
         'user_orders'      => $userOrders,
         'selected_status'  => $selectedStatus,

@@ -181,7 +181,7 @@ switch ($action) {
         $points = (int)($user['user_stars'] ?? 0);
         if (!empty($user['m_stamp_points'])) $points = max($points, (int)$user['m_stamp_points']);
 
-        // Check latest address in addr
+        // Check primary / latest address in addr
         $stA = $db->prepare("
             SELECT a.addr_detail, a.addr_detail2, a.addr_postcode, a.provinces_id, a.country_id,
                    p.name_th as province_name, c.country_name
@@ -189,7 +189,7 @@ switch ($action) {
             LEFT JOIN provinces p ON a.provinces_id = p.provinces_id
             LEFT JOIN countries c ON a.country_id = c.country_id
             WHERE a.user_id = ? AND a.addr_del = 0
-            ORDER BY a.addr_id DESC
+            ORDER BY a.addr_position DESC, CASE WHEN a.addr_type = 1 THEN 0 ELSE 1 END, a.addr_id DESC
             LIMIT 1
         ");
         $stA->execute([$userId]);

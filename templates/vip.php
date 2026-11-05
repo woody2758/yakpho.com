@@ -155,6 +155,28 @@ $token = htmlspecialchars($_GET['token'] ?? '');
                             <button type="button" class="vip-chip-btn" data-value="ซื้อใช้เองในครอบครัว">🏠 ใช้เองในบ้าน / ผู้สูงอายุ</button>
                             <button type="button" class="vip-chip-btn" data-value="ของฝาก / ของชำร่วย">🎁 ของฝาก / ของชำร่วยงานบุญ</button>
                         </div>
+
+                        <div class="vip-form-row-2" style="margin-top: 16px;">
+                            <div class="vip-field">
+                                <label class="vip-label">ชื่อร้านนวด / สปา / คลินิก (ถ้ามี)</label>
+                                <input type="text" name="shop_name" id="inp_shop_name" class="vip-input" placeholder="เช่น ยักษ์โพธิ์ สปา แอนด์ มาสสาจ">
+                            </div>
+                            <div class="vip-field">
+                                <label class="vip-label">เว็บไซต์ / เพจ Facebook ร้าน (ถ้ามี)</label>
+                                <input type="text" name="user_website" id="inp_user_website" class="vip-input" placeholder="เช่น facebook.com/yourspa">
+                            </div>
+                        </div>
+
+                        <div class="vip-field" style="margin-top: 14px;">
+                            <label class="vip-label">ที่อยู่ร้าน / สถานประกอบการ (เพื่อให้เราแนะนำลูกค้าในพื้นที่ให้รู้จักร้านท่าน)</label>
+                            <textarea name="shop_address" id="inp_shop_address" class="vip-textarea" rows="2" placeholder="ระบุที่ตั้งร้านนวด / สปา ของท่าน..."></textarea>
+                        </div>
+
+                        <div class="vip-field" style="margin-top: 14px;">
+                            <label class="vip-label">📍 ลิงก์แผนที่ร้าน Google Maps (วางลิงก์พิกัดร้าน เพื่อรับสิทธิพิเศษแนะนำร้านและแต้มโบนัส)</label>
+                            <input type="url" name="user_google_map" id="inp_user_google_map" class="vip-input" placeholder="เช่น https://maps.app.goo.gl/... หรือ https://goo.gl/maps/...">
+                            <span class="vip-input-hint">🗺️ นำลิงก์แชร์จากแอป Google Maps มาวางได้เลยค่ะ ข้อมูลนี้จะซิงก์ไปยังหน้าโปรไฟล์ของท่านด้วย</span>
+                        </div>
                     </div>
 
                     <!-- Section 3: Favorite Aromas / Scents (Chip Multi-Selection) -->
@@ -285,6 +307,10 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("inp_nickname").value = cust.nickname || "";
             document.getElementById("inp_birthdate").value = cust.birthdate || "";
             document.getElementById("inp_line_id").value = cust.line_id || "";
+            if (document.getElementById("inp_shop_name")) document.getElementById("inp_shop_name").value = cust.shop_name || "";
+            if (document.getElementById("inp_shop_address")) document.getElementById("inp_shop_address").value = cust.shop_address || "";
+            if (document.getElementById("inp_user_google_map")) document.getElementById("inp_user_google_map").value = cust.user_google_map || "";
+            if (document.getElementById("inp_user_website")) document.getElementById("inp_user_website").value = cust.user_website || "";
             document.getElementById("inp_feedback").value = cust.feedback || "";
 
             // Pre-select Business Type chip

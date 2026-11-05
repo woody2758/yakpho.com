@@ -166,6 +166,29 @@ try {
             ]);
             exit;
 
+        case 'get_addresses':
+            if ($userId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => false, 'data' => null, 'message' => 'กรุณาเข้าสู่ระบบ']);
+                exit;
+            }
+            $stList = $db->prepare("
+                SELECT a.*, p.name_th AS province_name
+                FROM addr a
+                LEFT JOIN provinces p ON a.provinces_id = p.provinces_id
+                WHERE a.user_id = ? AND a.addr_del = 0
+                ORDER BY a.addr_position DESC, CASE WHEN a.addr_type = 1 THEN 0 ELSE 1 END, a.addr_id DESC
+            ");
+            $stList->execute([$userId]);
+            $addresses = $stList->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            http_response_code(200);
+            echo json_encode([
+                'status'  => true,
+                'data'    => ['addresses' => $addresses],
+                'message' => 'Success'
+            ]);
+            exit;
+
         case 'save_address':
             if ($userId <= 0) {
                 http_response_code(401);
@@ -173,10 +196,19 @@ try {
                 exit;
             }
 
+            $addrId       = (int)($payload['addr_id'] ?? 0);
             $addrName     = trim((string)($payload['addr_name'] ?? ''));
             $addrMobile   = trim((string)($payload['addr_mobile'] ?? ''));
             $addrDetail   = trim((string)($payload['addr_detail'] ?? ''));
+            $addrDetail2  = trim((string)($payload['addr_detail2'] ?? ''));
+            $provincesId  = (int)($payload['provinces_id'] ?? 1);
+            if ($provincesId <= 0) $provincesId = 1;
             $addrPostcode = trim((string)($payload['addr_postcode'] ?? ''));
+            $addrType     = (int)($payload['addr_type'] ?? 1);
+            if ($addrType < 1 || $addrType > 6) $addrType = 1;
+            $addrTaxId    = trim((string)($payload['addr_tax_id'] ?? ''));
+            $addrForword  = trim((string)($payload['addr_forword'] ?? ''));
+            $isDefault    = !empty($payload['is_default']) ? 1 : 0;
 
             if ($addrName === '' || $addrMobile === '' || $addrDetail === '') {
                 http_response_code(422);
@@ -184,35 +216,331 @@ try {
                 exit;
             }
 
-            // Update user table
-            $stU = $db->prepare("UPDATE user SET user_name = ?, user_mobile = ?, user_address = ?, user_postcode = ?, user_update = NOW() WHERE user_id = ?");
-            $stU->execute([$addrName, $addrMobile, $addrDetail, $addrPostcode, $userId]);
-            $_SESSION['user_name'] = $addrName;
-            $_SESSION['user_mobile'] = $addrMobile;
+            // Check how many active addresses the user currently has
+            $cntStmt = $db->prepare("SELECT COUNT(*) FROM addr WHERE user_id = ? AND addr_del = 0");
+            $cntStmt->execute([$userId]);
+            $activeCount = (int)$cntStmt->fetchColumn();
+            if ($activeCount === 0) {
+                $isDefault = 1;
+            }
 
-            // Check if user already has an address record in addr table
-            $checkAddr = $db->prepare("SELECT addr_id FROM addr WHERE user_id = ? AND addr_del = 0 ORDER BY addr_status DESC, addr_id DESC LIMIT 1");
-            $checkAddr->execute([$userId]);
-            $existingAddrId = $checkAddr->fetchColumn();
+            if ($isDefault === 1) {
+                $db->prepare("UPDATE addr SET addr_position = 0 WHERE user_id = ?")->execute([$userId]);
+            }
 
-            if ($existingAddrId) {
-                $stA = $db->prepare("UPDATE addr SET addr_name = ?, addr_mobile = ?, addr_detail = ?, addr_postcode = ?, addr_update = NOW() WHERE addr_id = ?");
-                $stA->execute([$addrName, $addrMobile, $addrDetail, $addrPostcode, $existingAddrId]);
-            } else {
-                $stA = $db->prepare("INSERT INTO addr (addr_name, addr_mobile, addr_detail, addr_postcode, country_id, provinces_id, addr_status, addr_del, addr_type, user_id, addr_date, addr_update) VALUES (?, ?, ?, ?, 171, 1, 1, 0, 1, ?, NOW(), NOW())");
-                $stA->execute([$addrName, $addrMobile, $addrDetail, $addrPostcode, $userId]);
+            if ($addrId > 0) {
+                // Verify ownership
+                $chk = $db->prepare("SELECT addr_id, addr_position FROM addr WHERE addr_id = ? AND user_id = ? AND addr_del = 0 LIMIT 1");
+                $chk->execute([$addrId, $userId]);
+                $ownRow = $chk->fetch(PDO::FETCH_ASSOC);
+                if ($ownRow) {
+                    $finalPos = ($isDefault === 1) ? 1 : (int)($ownRow['addr_position'] ?? 0);
+                    $stA = $db->prepare("
+                        UPDATE addr
+                        SET addr_name = ?, addr_mobile = ?, addr_detail = ?, addr_detail2 = ?,
+                            provinces_id = ?, addr_postcode = ?, addr_type = ?, addr_position = ?,
+                            addr_tax_id = ?, addr_forword = ?, addr_update = NOW(), update_id = ?
+                        WHERE addr_id = ? AND user_id = ?
+                    ");
+                    $stA->execute([
+                        $addrName, $addrMobile, $addrDetail, $addrDetail2,
+                        $provincesId, $addrPostcode, $addrType, $finalPos,
+                        $addrTaxId, $addrForword, $userId,
+                        $addrId, $userId
+                    ]);
+                } else {
+                    $addrId = 0;
+                }
+            }
+
+            if ($addrId <= 0) {
+                $stA = $db->prepare("
+                    INSERT INTO addr (
+                        addr_name, addr_mobile, addr_detail, addr_detail2, addr_postcode,
+                        country_id, provinces_id, addr_status, addr_del, addr_type, addr_position,
+                        addr_tax_id, addr_forword, user_id, save_id, update_id, addr_date, addr_update
+                    ) VALUES (
+                        ?, ?, ?, ?, ?,
+                        171, ?, 1, 0, ?, ?,
+                        ?, ?, ?, ?, ?, NOW(), NOW()
+                    )
+                ");
+                $stA->execute([
+                    $addrName, $addrMobile, $addrDetail, $addrDetail2, $addrPostcode,
+                    $provincesId, $addrType, $isDefault,
+                    $addrTaxId, $addrForword, $userId, $userId, $userId
+                ]);
+                $addrId = (int)$db->lastInsertId();
+            }
+
+            // Ensure at least one address has addr_position = 1
+            $stDef = $db->prepare("SELECT a.*, p.name_th AS province_name FROM addr a LEFT JOIN provinces p ON a.provinces_id = p.provinces_id WHERE a.user_id = ? AND a.addr_del = 0 ORDER BY a.addr_position DESC, a.addr_id DESC LIMIT 1");
+            $stDef->execute([$userId]);
+            $primaryAddr = $stDef->fetch(PDO::FETCH_ASSOC);
+            if ($primaryAddr) {
+                if ((int)($primaryAddr['addr_position'] ?? 0) !== 1) {
+                    $db->prepare("UPDATE addr SET addr_position = 1 WHERE addr_id = ?")->execute([(int)$primaryAddr['addr_id']]);
+                    $primaryAddr['addr_position'] = 1;
+                }
+                $combinedDetail = trim($primaryAddr['addr_detail'] . (!empty($primaryAddr['addr_detail2']) ? (' ' . $primaryAddr['addr_detail2']) : ''));
+                $stU = $db->prepare("UPDATE user SET user_address = ?, user_postcode = ?, user_province = ?, user_update = NOW() WHERE user_id = ?");
+                $stU->execute([$combinedDetail, $primaryAddr['addr_postcode'] ?? '', (string)($primaryAddr['provinces_id'] ?? '1'), $userId]);
+            }
+
+            // Return updated address list
+            $stList = $db->prepare("
+                SELECT a.*, p.name_th AS province_name
+                FROM addr a
+                LEFT JOIN provinces p ON a.provinces_id = p.provinces_id
+                WHERE a.user_id = ? AND a.addr_del = 0
+                ORDER BY a.addr_position DESC, CASE WHEN a.addr_type = 1 THEN 0 ELSE 1 END, a.addr_id DESC
+            ");
+            $stList->execute([$userId]);
+            $allAddresses = $stList->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            http_response_code(200);
+            echo json_encode([
+                'status'  => true,
+                'data'    => [
+                    'addr_id'         => $addrId,
+                    'primary_address' => $primaryAddr,
+                    'addresses'       => $allAddresses,
+                ],
+                'message' => 'บันทึกที่อยู่จัดส่งเรียบร้อยแล้ว',
+            ]);
+            exit;
+
+        case 'set_default_address':
+            if ($userId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => false, 'data' => null, 'message' => 'กรุณาเข้าสู่ระบบ']);
+                exit;
+            }
+            $addrId = (int)($payload['addr_id'] ?? ($_GET['addr_id'] ?? 0));
+            if ($addrId <= 0) {
+                http_response_code(422);
+                echo json_encode(['status' => false, 'data' => null, 'message' => 'ไม่พบรหัสที่อยู่']);
+                exit;
+            }
+
+            $chk = $db->prepare("SELECT * FROM addr WHERE addr_id = ? AND user_id = ? AND addr_del = 0 LIMIT 1");
+            $chk->execute([$addrId, $userId]);
+            $targetRow = $chk->fetch(PDO::FETCH_ASSOC);
+            if (!$targetRow) {
+                http_response_code(404);
+                echo json_encode(['status' => false, 'data' => null, 'message' => 'ไม่พบที่อยู่นี้ในระบบ']);
+                exit;
+            }
+
+            $db->prepare("UPDATE addr SET addr_position = 0 WHERE user_id = ?")->execute([$userId]);
+            $db->prepare("UPDATE addr SET addr_position = 1, addr_update = NOW() WHERE addr_id = ? AND user_id = ?")->execute([$addrId, $userId]);
+
+            $combinedDetail = trim($targetRow['addr_detail'] . (!empty($targetRow['addr_detail2']) ? (' ' . $targetRow['addr_detail2']) : ''));
+            $db->prepare("UPDATE user SET user_address = ?, user_postcode = ?, user_province = ?, user_update = NOW() WHERE user_id = ?")
+               ->execute([$combinedDetail, $targetRow['addr_postcode'] ?? '', (string)($targetRow['provinces_id'] ?? '1'), $userId]);
+
+            $stList = $db->prepare("
+                SELECT a.*, p.name_th AS province_name
+                FROM addr a
+                LEFT JOIN provinces p ON a.provinces_id = p.provinces_id
+                WHERE a.user_id = ? AND a.addr_del = 0
+                ORDER BY a.addr_position DESC, CASE WHEN a.addr_type = 1 THEN 0 ELSE 1 END, a.addr_id DESC
+            ");
+            $stList->execute([$userId]);
+            $allAddresses = $stList->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            http_response_code(200);
+            echo json_encode([
+                'status'  => true,
+                'data'    => [
+                    'primary_address' => $allAddresses[0] ?? null,
+                    'addresses'       => $allAddresses,
+                ],
+                'message' => 'ตั้งเป็นที่อยู่หลักเรียบร้อยแล้ว',
+            ]);
+            exit;
+
+        case 'delete_address':
+            if ($userId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => false, 'data' => null, 'message' => 'กรุณาเข้าสู่ระบบ']);
+                exit;
+            }
+            $addrId = (int)($payload['addr_id'] ?? ($_GET['addr_id'] ?? 0));
+            if ($addrId <= 0) {
+                http_response_code(422);
+                echo json_encode(['status' => false, 'data' => null, 'message' => 'ไม่พบรหัสที่อยู่']);
+                exit;
+            }
+
+            $db->prepare("UPDATE addr SET addr_del = 1, addr_position = 0, addr_update = NOW() WHERE addr_id = ? AND user_id = ?")
+               ->execute([$addrId, $userId]);
+
+            // Promote next address to primary if needed
+            $stList = $db->prepare("
+                SELECT a.*, p.name_th AS province_name
+                FROM addr a
+                LEFT JOIN provinces p ON a.provinces_id = p.provinces_id
+                WHERE a.user_id = ? AND a.addr_del = 0
+                ORDER BY a.addr_position DESC, CASE WHEN a.addr_type = 1 THEN 0 ELSE 1 END, a.addr_id DESC
+            ");
+            $stList->execute([$userId]);
+            $allAddresses = $stList->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            if (!empty($allAddresses)) {
+                $hasPrimary = false;
+                foreach ($allAddresses as $ua) {
+                    if ((int)($ua['addr_position'] ?? 0) === 1) {
+                        $hasPrimary = true;
+                        break;
+                    }
+                }
+                if (!$hasPrimary) {
+                    $firstId = (int)$allAddresses[0]['addr_id'];
+                    $db->prepare("UPDATE addr SET addr_position = 1 WHERE addr_id = ?")->execute([$firstId]);
+                    $allAddresses[0]['addr_position'] = 1;
+                }
+                $pRow = $allAddresses[0];
+                $combinedDetail = trim($pRow['addr_detail'] . (!empty($pRow['addr_detail2']) ? (' ' . $pRow['addr_detail2']) : ''));
+                $db->prepare("UPDATE user SET user_address = ?, user_postcode = ?, user_province = ?, user_update = NOW() WHERE user_id = ?")
+                   ->execute([$combinedDetail, $pRow['addr_postcode'] ?? '', (string)($pRow['provinces_id'] ?? '1'), $userId]);
             }
 
             http_response_code(200);
             echo json_encode([
                 'status'  => true,
                 'data'    => [
-                    'addr_name'     => $addrName,
-                    'addr_mobile'   => $addrMobile,
-                    'addr_detail'   => $addrDetail,
-                    'addr_postcode' => $addrPostcode,
+                    'primary_address' => $allAddresses[0] ?? null,
+                    'addresses'       => $allAddresses,
                 ],
-                'message' => 'บันทึกที่อยู่จัดส่งเรียบร้อยแล้ว',
+                'message' => 'ลบที่อยู่จัดส่งเรียบร้อยแล้ว',
+            ]);
+            exit;
+
+        case 'save_store_profile':
+            if ($userId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => false, 'data' => null, 'message' => 'กรุณาเข้าสู่ระบบก่อนบันทึกข้อมูลร้าน']);
+                exit;
+            }
+
+            $nickname       = trim((string)($payload['nickname'] ?? ''));
+            $birthdate      = trim((string)($payload['birthdate'] ?? ''));
+            $shopName       = trim((string)($payload['shop_name'] ?? ''));
+            $shopAddress    = trim((string)($payload['shop_address'] ?? ''));
+            $googleMapUrl   = trim((string)($payload['user_google_map'] ?? ''));
+            $websiteUrl     = trim((string)($payload['user_website'] ?? ''));
+            $businessType   = trim((string)($payload['business_type'] ?? ''));
+            $favScentsRaw   = $payload['favorite_scents'] ?? [];
+            $favoriteScents = is_array($favScentsRaw)
+                ? array_values(array_filter(array_map('trim', $favScentsRaw)))
+                : array_values(array_filter(array_map('trim', explode(',', (string)$favScentsRaw))));
+            $feedback       = trim((string)($payload['feedback'] ?? ''));
+
+            $db->beginTransaction();
+
+            $stCheck = $db->prepare("SELECT * FROM user WHERE user_id = ? LIMIT 1");
+            $stCheck->execute([$userId]);
+            $uRow = $stCheck->fetch(PDO::FETCH_ASSOC);
+
+            if (!$uRow) {
+                $db->rollBack();
+                http_response_code(404);
+                echo json_encode(['status' => false, 'data' => null, 'message' => 'ไม่พบข้อมูลสมาชิก']);
+                exit;
+            }
+
+            $crmData = [];
+            if (!empty($uRow['user_note'])) {
+                $decoded = json_decode((string)$uRow['user_note'], true);
+                if (is_array($decoded)) {
+                    $crmData = $decoded;
+                }
+            }
+
+            $crmData['nickname']        = $nickname;
+            $crmData['birthdate']       = $birthdate;
+            $crmData['shop_name']       = $shopName;
+            $crmData['shop_address']    = $shopAddress;
+            $crmData['user_google_map'] = $googleMapUrl;
+            $crmData['user_website']    = $websiteUrl;
+            $crmData['business_type']   = $businessType;
+            $crmData['favorite_scents'] = $favoriteScents;
+            $crmData['feedback']        = $feedback;
+            $crmData['updated_at']      = date('Y-m-d H:i:s');
+
+            // Award +50 M-Stamp bonus when store info & Google Maps / interactive profile is completed
+            $awardedBonus = false;
+            $isProfileCompleteForBonus = ($shopName !== '' || $shopAddress !== '' || $businessType !== '') && ($googleMapUrl !== '' || !empty($favoriteScents) || $nickname !== '');
+
+            if (empty($crmData['vip_bonus_50_awarded']) && $isProfileCompleteForBonus) {
+                $crmData['vip_bonus_50_awarded'] = true;
+                $crmData['vip_bonus_awarded_at'] = date('Y-m-d H:i:s');
+                $crmData['vip_bonus_amount'] = 50;
+                $awardedBonus = true;
+
+                if (function_exists('award_m_stamp_points')) {
+                    award_m_stamp_points($db, $userId, 50, 'vip_store_profile_bonus', null, 'โบนัสกรอกข้อมูลร้านและแผนที่ Google Maps ครบถ้วน (+50 M-Stamp)');
+                } else {
+                    $db->prepare("UPDATE user SET user_stars = COALESCE(user_stars, 0) + 50, m_stamp_points = COALESCE(m_stamp_points, 0) + 50 WHERE user_id = ?")->execute([$userId]);
+                }
+            }
+
+            $jsonNote = json_encode($crmData, JSON_UNESCAPED_UNICODE);
+            $parsedBirthdate = !empty($birthdate) ? date('Y-m-d', strtotime($birthdate)) : null;
+
+            $stmtUpd = $db->prepare("
+                UPDATE user
+                SET user_nickname   = ?,
+                    user_birthdate  = ?,
+                    user_google_map = ?,
+                    user_website    = ?,
+                    user_note       = ?,
+                    user_vip        = 1,
+                    user_update     = NOW()
+                WHERE user_id = ?
+            ");
+            $stmtUpd->execute([
+                $nickname !== '' ? $nickname : ($uRow['user_nickname'] ?? null),
+                $parsedBirthdate ?: ($uRow['user_birthdate'] ?? null),
+                $googleMapUrl,
+                $websiteUrl,
+                $jsonNote,
+                $userId
+            ]);
+
+            $stPts = $db->prepare("SELECT user_stars, m_stamp_points FROM user WHERE user_id = ? LIMIT 1");
+            $stPts->execute([$userId]);
+            $ptsRow = $stPts->fetch(PDO::FETCH_ASSOC);
+            $newPoints = max((int)($ptsRow['user_stars'] ?? 0), (int)($ptsRow['m_stamp_points'] ?? 0));
+            $_SESSION['m_stamp_points'] = $newPoints;
+            $_SESSION['user_stars'] = $newPoints;
+
+            $db->commit();
+
+            http_response_code(200);
+            echo json_encode([
+                'status'  => true,
+                'data'    => [
+                    'awarded_bonus'    => $awardedBonus,
+                    'bonus_points'     => 50,
+                    'new_total_points' => $newPoints,
+                    'store_profile'    => [
+                        'nickname'             => $nickname,
+                        'birthdate'            => $birthdate,
+                        'shop_name'            => $shopName,
+                        'shop_address'         => $shopAddress,
+                        'user_google_map'      => $googleMapUrl,
+                        'user_website'         => $websiteUrl,
+                        'business_type'        => $businessType,
+                        'favorite_scents'      => $favoriteScents,
+                        'feedback'             => $feedback,
+                        'vip_bonus_50_awarded' => !empty($crmData['vip_bonus_50_awarded']),
+                    ],
+                ],
+                'message' => $awardedBonus
+                    ? '🎉 ยินดีด้วยค่ะ! บันทึกข้อมูลร้านและแผนที่เรียบร้อย ท่านได้รับโบนัสพิเศษ +50 M-Stamp ทันที!'
+                    : 'บันทึกข้อมูลร้านและสิทธิพิเศษเรียบร้อยแล้วค่ะ',
             ]);
             exit;
 

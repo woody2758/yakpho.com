@@ -63,12 +63,37 @@ if (!$schemaChecked && isset($db)) {
         'member_tier'       => "ALTER TABLE user ADD COLUMN member_tier VARCHAR(50) DEFAULT 'general'",
         'affiliate_code'    => "ALTER TABLE user ADD COLUMN affiliate_code VARCHAR(50) DEFAULT NULL",
         'email_verified'    => "ALTER TABLE user ADD COLUMN email_verified TINYINT DEFAULT 0",
-        'user_key'          => "ALTER TABLE user ADD COLUMN user_key VARCHAR(100) DEFAULT NULL"
+        'user_key'          => "ALTER TABLE user ADD COLUMN user_key VARCHAR(100) DEFAULT NULL",
+        'user_google_map'   => "ALTER TABLE user ADD COLUMN user_google_map TEXT DEFAULT NULL",
+        'user_website'      => "ALTER TABLE user ADD COLUMN user_website VARCHAR(255) DEFAULT NULL",
+        'user_note'         => "ALTER TABLE user ADD COLUMN user_note TEXT DEFAULT NULL",
+        'user_vip'          => "ALTER TABLE user ADD COLUMN user_vip INT DEFAULT 0"
     ];
 
     foreach ($columnsToEnsure as $col => $sql) {
         try {
             $db->query("SELECT {$col} FROM user LIMIT 1");
+        } catch (Throwable $e) {
+            try {
+                $db->exec($sql);
+            } catch (Throwable $e2) {}
+        }
+    }
+
+    $addrColumnsToEnsure = [
+        'addr_position' => "ALTER TABLE addr ADD COLUMN addr_position INT DEFAULT 0",
+        'addr_detail2'  => "ALTER TABLE addr ADD COLUMN addr_detail2 TEXT DEFAULT NULL",
+        'addr_forword'  => "ALTER TABLE addr ADD COLUMN addr_forword TEXT DEFAULT NULL",
+        'addr_tax_id'   => "ALTER TABLE addr ADD COLUMN addr_tax_id VARCHAR(50) DEFAULT NULL",
+        'addr_branch'   => "ALTER TABLE addr ADD COLUMN addr_branch VARCHAR(20) DEFAULT '00000'",
+        'addr_update'   => "ALTER TABLE addr ADD COLUMN addr_update DATETIME DEFAULT NULL",
+        'save_id'       => "ALTER TABLE addr ADD COLUMN save_id INT DEFAULT 0",
+        'update_id'     => "ALTER TABLE addr ADD COLUMN update_id INT DEFAULT 0"
+    ];
+
+    foreach ($addrColumnsToEnsure as $col => $sql) {
+        try {
+            $db->query("SELECT {$col} FROM addr LIMIT 1");
         } catch (Throwable $e) {
             try {
                 $db->exec($sql);

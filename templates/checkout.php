@@ -123,6 +123,29 @@ $affiliateCookie = (string)($CHECKOUT_DATA['affiliate_cookie'] ?? '');
 
                 <!-- Domestic Form Fields -->
                 <div id="domesticFields">
+                    <?php
+                    $savedAddressesList = (!empty($loggedUser['saved_addresses']) && is_array($loggedUser['saved_addresses'])) ? $loggedUser['saved_addresses'] : [];
+                    if (!empty($savedAddressesList)):
+                    ?>
+                    <div class="checkout-saved-addr-bar">
+                        <div class="checkout-saved-addr-label">
+                            <span>📍 เลือกจากสมุดที่อยู่จัดส่งของคุณ (<?= count($savedAddressesList) ?> ที่อยู่):</span>
+                        </div>
+                        <div class="checkout-saved-addr-chips" id="checkoutSavedAddrChips">
+                            <?php foreach ($savedAddressesList as $idx => $sa):
+                                $isDef = ((int)($sa['addr_position'] ?? 0) === 1) || ($idx === 0);
+                                $shortText = trim(($sa['addr_name'] ?: '') . ' • ' . mb_strimwidth((string)($sa['addr_detail'] ?? ''), 0, 28, '...'));
+                            ?>
+                            <button type="button"
+                                    class="checkout-addr-chip <?= $isDef ? 'active' : '' ?>"
+                                    onclick="applySavedCheckoutAddress(<?= htmlspecialchars(json_encode($sa, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8') ?>, this)">
+                                <?= ((int)($sa['addr_position'] ?? 0) === 1) ? '⭐ ' : '📌 ' ?><?= htmlspecialchars($shortText) ?>
+                            </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <div class="checkout-grid-2">
                         <div class="checkout-form-group">
                             <label class="checkout-label">ชื่อ - นามสกุล / ชื่อร้านสปา *</label>
@@ -452,6 +475,19 @@ let matchedCustomer = null;
 
 let currentDestination = 'domestic';
 let appliedCoupon = null; // { code, discount }
+
+function applySavedCheckoutAddress(addr, btnEl) {
+    if (!addr) return;
+    document.querySelectorAll('#checkoutSavedAddrChips .checkout-addr-chip').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+
+    if (addr.addr_name) document.getElementById('custNameInput').value = addr.addr_name;
+    if (addr.addr_mobile) document.getElementById('custPhoneInput').value = addr.addr_mobile;
+    if (addr.addr_detail !== undefined) document.getElementById('addrDetailInput').value = addr.addr_detail || '';
+    if (addr.addr_detail2 !== undefined) document.getElementById('addrDetail2Input').value = addr.addr_detail2 || '';
+    if (addr.addr_postcode !== undefined) document.getElementById('addrPostcodeInput').value = addr.addr_postcode || '';
+    if (addr.provinces_id) document.getElementById('provinceSelect').value = addr.provinces_id;
+}
 
 function calcDomesticShipping(grams) {
     if (grams <= 0) return 0;

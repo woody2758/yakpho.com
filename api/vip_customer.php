@@ -91,6 +91,10 @@ switch ($action) {
                     'mobile' => $user['user_mobile'] ?? '',
                     'email' => $user['user_email'] ?? '',
                     'line_id' => $user['line_display_name'] ?? ($crmData['line_id'] ?? ''),
+                    'shop_name' => $crmData['shop_name'] ?? '',
+                    'shop_address' => $crmData['shop_address'] ?? '',
+                    'user_google_map' => $user['user_google_map'] ?? ($crmData['user_google_map'] ?? ''),
+                    'user_website' => $user['user_website'] ?? ($crmData['user_website'] ?? ''),
                     'business_type' => $crmData['business_type'] ?? '',
                     'favorite_scents' => $crmData['favorite_scents'] ?? [],
                     'feedback' => $crmData['feedback'] ?? '',
@@ -135,6 +139,10 @@ switch ($action) {
         $nickname = trim((string)($_POST['nickname'] ?? ''));
         $birthdate = trim((string)($_POST['birthdate'] ?? ''));
         $lineId = trim((string)($_POST['line_id'] ?? ''));
+        $shopName = trim((string)($_POST['shop_name'] ?? ''));
+        $shopAddress = trim((string)($_POST['shop_address'] ?? ''));
+        $googleMapUrl = trim((string)($_POST['user_google_map'] ?? ''));
+        $websiteUrl = trim((string)($_POST['user_website'] ?? ''));
         $businessType = trim((string)($_POST['business_type'] ?? ''));
         $favoriteScents = trim((string)($_POST['favorite_scents'] ?? ''));
         $feedback = trim((string)($_POST['feedback'] ?? ''));
@@ -164,6 +172,10 @@ switch ($action) {
             $crmData['nickname'] = $nickname;
             $crmData['birthdate'] = $birthdate;
             $crmData['line_id'] = $lineId;
+            $crmData['shop_name'] = $shopName;
+            $crmData['shop_address'] = $shopAddress;
+            $crmData['user_google_map'] = $googleMapUrl;
+            $crmData['user_website'] = $websiteUrl;
             $crmData['business_type'] = $businessType;
             $crmData['favorite_scents'] = array_filter(array_map('trim', explode(',', $favoriteScents)));
             $crmData['feedback'] = $feedback;
@@ -224,6 +236,12 @@ switch ($action) {
             }
             if (!empty($lineId)) {
                 try { $db->prepare("UPDATE user SET line_display_name = ? WHERE user_id = ?")->execute([$lineId, $userId]); } catch (Throwable $e) {}
+            }
+            if ($googleMapUrl !== '') {
+                try { $db->prepare("UPDATE user SET user_google_map = ? WHERE user_id = ?")->execute([$googleMapUrl, $userId]); } catch (Throwable $e) {}
+            }
+            if ($websiteUrl !== '') {
+                try { $db->prepare("UPDATE user SET user_website = ? WHERE user_id = ?")->execute([$websiteUrl, $userId]); } catch (Throwable $e) {}
             }
             // Mark user_vip = 1 to indicate VIP profile completion
             try { $db->prepare("UPDATE user SET user_vip = 1 WHERE user_id = ?")->execute([$userId]); } catch (Throwable $e) {}
