@@ -276,6 +276,34 @@ try {
     }
     echo " [OK] ตั้งค่าระบบส่งอีเมล (thaiherbfc@gmail.com) และ LINE แจ้งเตือนเรียบร้อย\n\n";
 
+    echo "--- 10. ตรวจสอบตาราง blog_likes และ blog_comments สำหรับบทความ ---\n";
+    $db->exec("
+    CREATE TABLE IF NOT EXISTS `blog_likes` (
+        `like_id` INT AUTO_INCREMENT PRIMARY KEY,
+        `blog_id` INT NOT NULL,
+        `user_id` INT DEFAULT 0,
+        `voter_hash` VARCHAR(64) NOT NULL,
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY `uq_blog_voter` (`blog_id`, `voter_hash`),
+        INDEX `idx_blog_id` (`blog_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
+    $db->exec("
+    CREATE TABLE IF NOT EXISTS `blog_comments` (
+        `comment_id` INT AUTO_INCREMENT PRIMARY KEY,
+        `blog_id` INT NOT NULL,
+        `parent_id` INT DEFAULT 0,
+        `user_id` INT NOT NULL,
+        `comment_text` TEXT NOT NULL,
+        `likes_count` INT NOT NULL DEFAULT 0,
+        `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX `idx_blog_parent` (`blog_id`, `parent_id`),
+        INDEX `idx_user_id` (`user_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
+    echo " [OK] ตาราง blog_likes และ blog_comments พร้อมใช้งาน\n\n";
+
     echo "🎉 การอัปเดตโครงสร้างฐานข้อมูลเสร็จสมบูรณ์ 100% เรียบร้อยแล้ว!\n";
 
 } catch (Throwable $e) {

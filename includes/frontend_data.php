@@ -1685,26 +1685,84 @@ function get_stores_and_faqs_data(PDO $db, string $lang = 'th'): array
 }
 
 /**
- * Get Blog & News articles for frontend listing
+ * Format commenter name: nickname first; if empty, first name only
  */
-function get_blog_posts_data(PDO $db, string $lang = 'th'): array
+function format_blog_commenter_name(array $uRow): string
+{
+    $nick = trim((string)($uRow['user_nickname'] ?? ''));
+    if ($nick !== '') {
+        return $nick;
+    }
+    $fullName = trim((string)($uRow['user_name'] ?? ''));
+    if ($fullName !== '') {
+        $parts = preg_split('/\s+/u', $fullName);
+        if (!empty($parts[0])) {
+            return $parts[0];
+        }
+        return $fullName;
+    }
+    $lineName = trim((string)($uRow['line_display_name'] ?? ''));
+    if ($lineName !== '') {
+        return $lineName;
+    }
+    return 'สมาชิก';
+}
+
+/**
+ * Get Blog & News articles for frontend listing and single article detail
+ */
+function get_blog_posts_data(PDO $db, string $lang = 'th', $detailLookup = null): array
 {
     $posts = [];
     $categories = [];
+    $currentPost = null;
+    $prevPost = null;
+    $nextPost = null;
+    $commentsTree = [];
+    $totalCommentsCount = 0;
+
     try {
+        // Ensure blog_likes and blog_comments tables exist
+        $db->exec("CREATE TABLE IF NOT EXISTS `blog_likes` (
+            `like_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `blog_id` INT(11) NOT NULL,
+            `user_id` INT(11) NOT NULL DEFAULT 0,
+            `visitor_token` VARCHAR(64) NOT NULL DEFAULT '',
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`like_id`),
+            UNIQUE KEY `uniq_blog_visitor` (`blog_id`, `visitor_token`),
+            KEY `idx_blog_id` (`blog_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS `blog_comments` (
+            `comment_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `blog_id` INT(11) NOT NULL,
+            `parent_id` INT(11) NOT NULL DEFAULT 0,
+            `user_id` INT(11) NOT NULL,
+            `comment_text` TEXT NOT NULL,
+            `likes_count` INT(11) NOT NULL DEFAULT 0,
+            `comment_status` TINYINT(1) NOT NULL DEFAULT 1,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`comment_id`),
+            KEY `idx_blog_parent` (`blog_id`, `parent_id`),
+            KEY `idx_user_id` (`user_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
         $stmtCat = $db->query("SELECT blogcat_id, blogcat_name FROM blogcat WHERE blogcat_status = 1 AND blogcat_del = 0 ORDER BY blogcat_index ASC");
         if ($stmtCat) {
             $categories = $stmtCat->fetchAll(PDO::FETCH_ASSOC);
         }
 
         $stmt = $db->query("
-            SELECT b.blog_id, b.blogcat_id, b.blog_name, b.blog_excerpt, b.blog_picture, b.blog_date, b.blog_view,
-                   COALESCE(c.blogcat_name, 'สาระน่ารู้') AS blogcat_name
+            SELECT b.blog_id, b.blogcat_id, b.blog_url, b.blog_name, b.blog_excerpt, b.blog_detail, b.blog_picture, b.blog_date, b.blog_view, b.blog_tag,
+                   COALESCE(c.blogcat_name, 'สาระน่ารู้') AS blogcat_name,
+                   (SELECT COUNT(*) FROM blog_likes bl WHERE bl.blog_id = b.blog_id) AS likes_count,
+                   (SELECT COUNT(*) FROM blog_comments bc WHERE bc.blog_id = b.blog_id AND bc.comment_status = 1) AS comments_count
             FROM blog b
             LEFT JOIN blogcat c ON b.blogcat_id = c.blogcat_id
             WHERE b.blog_status = 1 AND b.blog_del = 0
             ORDER BY b.blog_date DESC, b.blog_id DESC
-            LIMIT 24
+            LIMIT 48
         ");
         if ($stmt) {
             $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1729,14 +1787,128 @@ function get_blog_posts_data(PDO $db, string $lang = 'th'): array
                     }
                 }
                 $item['image_url'] = $img;
+                $item['detail_url'] = $urlBase . '/' . $lang . '/blog/' . (int)$item['blog_id'];
                 $posts[] = $item;
+            }
+        }
+
+        // If looking up a specific article (by ID or slug)
+        $lookupStr = trim((string)($detailLookup ?? ''));
+        if ($lookupStr !== '') {
+            $foundIdx = null;
+            foreach ($posts as $idx => $p) {
+                if ((string)$p['blog_id'] === $lookupStr || (!empty($p['blog_url']) && $p['blog_url'] === $lookupStr)) {
+                    $foundIdx = $idx;
+                    break;
+                }
+            }
+
+            if ($foundIdx !== null) {
+                $currentPost = $posts[$foundIdx];
+                $blogId = (int)$currentPost['blog_id'];
+
+                // Increment view count once per request
+                try {
+                    $db->prepare("UPDATE blog SET blog_view = blog_view + 1 WHERE blog_id = ?")->execute([$blogId]);
+                    $currentPost['blog_view'] = (int)$currentPost['blog_view'] + 1;
+                } catch (Throwable $e) {}
+
+                // Previous and Next articles (Left = newer/previous in list, Right = older/next in list)
+                if (isset($posts[$foundIdx - 1])) {
+                    $prevPost = $posts[$foundIdx - 1];
+                }
+                if (isset($posts[$foundIdx + 1])) {
+                    $nextPost = $posts[$foundIdx + 1];
+                }
+
+                // Check if current visitor liked this post
+                $userId = (int)($_SESSION['user_id'] ?? 0);
+                if (empty($_SESSION['blog_visitor_token'])) {
+                    $_SESSION['blog_visitor_token'] = bin2hex(random_bytes(16));
+                }
+                $visitorToken = $userId > 0 ? ('u_' . $userId) : ('s_' . $_SESSION['blog_visitor_token']);
+                $chkLike = $db->prepare("SELECT like_id FROM blog_likes WHERE blog_id = ? AND visitor_token = ? LIMIT 1");
+                $chkLike->execute([$blogId, $visitorToken]);
+                $currentPost['user_liked'] = (bool)$chkLike->fetchColumn();
+
+                // Load comments & replies (Facebook-style 2-level tree)
+                $cStmt = $db->prepare("
+                    SELECT c.*, u.user_name, u.user_nickname, u.line_display_name, u.line_picture_url
+                    FROM blog_comments c
+                    LEFT JOIN user u ON c.user_id = u.user_id
+                    WHERE c.blog_id = ? AND c.comment_status = 1
+                    ORDER BY c.created_at ASC, c.comment_id ASC
+                ");
+                $cStmt->execute([$blogId]);
+                $allComms = $cStmt->fetchAll(PDO::FETCH_ASSOC);
+                $totalCommentsCount = count($allComms);
+
+                $parents = [];
+                $repliesByParent = [];
+                foreach ($allComms as $cRow) {
+                    $dispName = format_blog_commenter_name($cRow);
+                    $cItem = [
+                        'comment_id'   => (int)$cRow['comment_id'],
+                        'parent_id'    => (int)$cRow['parent_id'],
+                        'user_id'      => (int)$cRow['user_id'],
+                        'display_name' => $dispName,
+                        'avatar_url'   => !empty($cRow['line_picture_url']) ? (string)$cRow['line_picture_url'] : '',
+                        'initial'      => mb_strtoupper(mb_substr($dispName, 0, 1, 'UTF-8'), 'UTF-8') ?: 'U',
+                        'comment_text' => (string)$cRow['comment_text'],
+                        'likes_count'  => (int)$cRow['likes_count'],
+                        'user_liked'   => !empty($_SESSION['liked_comment_' . (int)$cRow['comment_id']]),
+                        'created_at'   => (string)$cRow['created_at'],
+                        'created_text' => date('d M Y H:i', strtotime((string)$cRow['created_at'])),
+                        'replies'      => [],
+                    ];
+                    if ($cItem['parent_id'] === 0) {
+                        $parents[$cItem['comment_id']] = $cItem;
+                    } else {
+                        $repliesByParent[$cItem['parent_id']][] = $cItem;
+                    }
+                }
+                foreach ($parents as $cid => &$pComm) {
+                    if (!empty($repliesByParent[$cid])) {
+                        $pComm['replies'] = $repliesByParent[$cid];
+                    }
+                }
+                unset($pComm);
+                // Show newest parent comments first or chronological (chronological like FB comments with replies inside)
+                $commentsTree = array_values($parents);
             }
         }
     } catch (Exception $e) {
         $posts = [];
     }
+
+    // Current logged-in user summary for comment box
+    $currentUserInfo = null;
+    $sessUid = (int)($_SESSION['user_id'] ?? 0);
+    if ($sessUid > 0) {
+        try {
+            $uSt = $db->prepare("SELECT user_id, user_name, user_nickname, line_display_name, line_picture_url FROM user WHERE user_id = ? LIMIT 1");
+            $uSt->execute([$sessUid]);
+            $uR = $uSt->fetch(PDO::FETCH_ASSOC);
+            if ($uR) {
+                $dName = format_blog_commenter_name($uR);
+                $currentUserInfo = [
+                    'user_id'      => $sessUid,
+                    'display_name' => $dName,
+                    'avatar_url'   => !empty($uR['line_picture_url']) ? (string)$uR['line_picture_url'] : '',
+                    'initial'      => mb_strtoupper(mb_substr($dName, 0, 1, 'UTF-8'), 'UTF-8') ?: 'U',
+                ];
+            }
+        } catch (Throwable $e) {}
+    }
+
     return [
-        'posts' => $posts,
-        'categories' => $categories,
+        'posts'               => $posts,
+        'categories'          => $categories,
+        'current_post'        => $currentPost,
+        'prev_post'           => $prevPost,
+        'next_post'           => $nextPost,
+        'comments'            => $commentsTree,
+        'total_comments'      => $totalCommentsCount,
+        'current_user'        => $currentUserInfo,
     ];
 }

@@ -221,10 +221,18 @@ switch ($template_file) {
         break;
 
     case 'blog.php':
-        $BLOG_DATA = get_blog_posts_data($db, $lang);
-        $SEO['title'] = ($lang === 'th' ? 'บทความสมุนไพรนวดสปา & สาระน่ารู้ | ' : 'Herbal Spa Articles & Insights | ') . 'Yak Pho Aroma';
-        $SEO['description'] = ($lang === 'th' ? 'บทความความรู้เกี่ยวกับสมุนไพรไทย ศาสตร์การบำบัดกลิ่น (Aromatherapy) เคล็ดลับการบริหารร้านสปา และมาตรฐานบาล์มส่งออกสากล' : 'Ancient Thai herbal wisdom, aromatherapy science, spa business insights, and international export standards.');
-        $SEO['keywords'] = 'บทความสมุนไพรนวดสปา, บาล์มนวดร้านสปา, สรรพคุณไพล, น้ำมันทาร์รากอน, เทคนิคการนวดไทย';
+        $blogLookup = $page_id ?? ($_GET['id'] ?? null);
+        $BLOG_DATA = get_blog_posts_data($db, $lang, $blogLookup);
+        if (!empty($BLOG_DATA['current_post'])) {
+            $cp = $BLOG_DATA['current_post'];
+            $SEO['title'] = $cp['blog_name'] . ' | Yak Pho Aroma';
+            $SEO['description'] = $cp['blog_excerpt'] ?: mb_substr(trim(strip_tags((string)($cp['blog_detail'] ?? ''))), 0, 160, 'UTF-8');
+            $SEO['image'] = $cp['image_url'] ?? $SEO['image'];
+        } else {
+            $SEO['title'] = ($lang === 'th' ? 'บทความสมุนไพรนวดสปา & สาระน่ารู้ | ' : 'Herbal Spa Articles & Insights | ') . 'Yak Pho Aroma';
+            $SEO['description'] = ($lang === 'th' ? 'บทความความรู้เกี่ยวกับสมุนไพรไทย ศาสตร์การบำบัดกลิ่น (Aromatherapy) เคล็ดลับการบริหารร้านสปา และมาตรฐานบาล์มส่งออกสากล' : 'Ancient Thai herbal wisdom, aromatherapy science, spa business insights, and international export standards.');
+            $SEO['keywords'] = 'บทความสมุนไพรนวดสปา, บาล์มนวดร้านสปา, สรรพคุณไพล, น้ำมันทาร์รากอน, เทคนิคการนวดไทย';
+        }
         break;
 
     case 'checkout.php':

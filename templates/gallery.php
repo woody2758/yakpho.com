@@ -33,7 +33,7 @@ $allImages = $STORES_DATA['gallery'] ?? [];
         </button>
         <?php foreach ($galleryCategories as $cat): ?>
             <button type="button" class="gallery-filter-pill" onclick="filterGallery(<?= (int)$cat['category_id'] ?>, this)">
-                <?= htmlspecialchars($cat['category_name']) ?> (<?= count($cat['images'] ?? []) ?>)
+                <?= htmlspecialchars((string)$cat['category_name']) ?> (<?= count($cat['images'] ?? []) ?>)
             </button>
         <?php endforeach; ?>
     </div>
@@ -46,23 +46,51 @@ $allImages = $STORES_DATA['gallery'] ?? [];
         </div>
     <?php else: ?>
         <div class="gallery-photos-grid" id="galleryGrid">
-            <?php foreach ($allImages as $img): ?>
-                <div class="gallery-photo-card" data-cat="<?= (int)$img['category_id'] ?>" onclick="viewPhoto('<?= htmlspecialchars($img['image_url']) ?>')">
-                    <img src="<?= htmlspecialchars($img['image_url']) ?>" alt="Yak Pho Gallery" class="gallery-photo-img" loading="lazy">
+            <?php foreach ($allImages as $idx => $img): ?>
+                <div class="gallery-photo-card" data-cat="<?= (int)$img['category_id'] ?>" data-url="<?= htmlspecialchars((string)$img['image_url']) ?>" onclick="openGalleryLightbox(this)">
+                    <img src="<?= htmlspecialchars((string)$img['image_url']) ?>" alt="Yak Pho Gallery" class="gallery-photo-img" loading="lazy">
                 </div>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 </div>
 
+<!-- Fullscreen Lightbox with Left/Right Arrows, Touch Swipe & Thumbnail Strip -->
+<div class="yp-lightbox-backdrop d-none" id="ypGalleryLightbox" role="dialog" aria-modal="true">
+    <button type="button" class="yp-lightbox-close" onclick="closeGalleryLightbox()" aria-label="Close">✕</button>
+
+    <div class="yp-lightbox-stage" id="ypLightboxStage">
+        <button type="button" class="yp-lightbox-nav yp-lightbox-prev" onclick="stepGalleryLightbox(-1)" aria-label="Previous photo">
+            ‹
+        </button>
+
+        <div class="yp-lightbox-main-wrap" onclick="if(event.target === this) closeGalleryLightbox()">
+            <img src="" alt="Gallery Preview" id="ypLightboxMainImg" class="yp-lightbox-main-img">
+            <div class="yp-lightbox-counter" id="ypLightboxCounter">1 / 1</div>
+        </div>
+
+        <button type="button" class="yp-lightbox-nav yp-lightbox-next" onclick="stepGalleryLightbox(1)" aria-label="Next photo">
+            ›
+        </button>
+    </div>
+
+    <!-- Bottom Thumbnail Strip -->
+    <div class="yp-lightbox-thumbs-bar" id="ypLightboxThumbs"></div>
+</div>
+
 <script>
+let activeGalleryList = [];
+let activeGalleryIndex = 0;
+let touchStartX = 0;
+let touchEndX = 0;
+
 function filterGallery(catId, btn) {
     document.querySelectorAll('.gallery-filter-pill').forEach(b => b.classList.remove('is-active'));
     btn.classList.add('is-active');
 
     const cards = document.querySelectorAll('.gallery-photo-card');
     cards.forEach(card => {
-        if (catId === 0 || parseInt(card.dataset.cat) === catId) {
+        if (catId === 0 || parseInt(card.dataset.cat, 10) === catId) {
             card.style.display = 'block';
         } else {
             card.style.display = 'none';
@@ -70,19 +98,126 @@ function filterGallery(catId, btn) {
     });
 }
 
-function viewPhoto(url) {
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            imageUrl: url,
-            imageAlt: 'Gallery Photo',
-            showConfirmButton: false,
-            showCloseButton: true,
-            background: 'rgba(12, 40, 35, 0.96)',
-            customClass: { popup: 'gallery-swal-modal' }
-        });
-    } else {
-        window.open(url, '_blank');
-    }
+function getVisibleGalleryUrls() {
+    const cards = Array.from(document.querySelectorAll('.gallery-photo-card'));
+    return cards
+        .filter(c => c.style.display !== 'none')
+        .map(c => c.getAttribute('data-url'))
+        .filter(Boolean);
 }
-</script>
 
+function openGalleryLightbox(cardEl) {
+    const clickedUrl = cardEl.getAttribute('data-url');
+    activeGalleryList = getVisibleGalleryUrls();
+    if (!activeGalleryList.length) return;
+
+    activeGalleryIndex = activeGalleryList.indexOf(clickedUrl);
+    if (activeGalleryIndex < 0) activeGalleryIndex = 0;
+
+    renderLightboxThumbnails();
+    updateLightboxSlide();
+
+    const modal = document.getElementById('ypGalleryLightbox');
+    modal.classList.remove('d-none');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGalleryLightbox() {
+    const modal = document.getElementById('ypGalleryLightbox');
+    if (modal) modal.classList.add('d-none');
+    document.body.style.overflow = '';
+}
+
+function stepGalleryLightbox(delta) {
+    if (!activeGalleryList.length) return;
+    activeGalleryIndex = (activeGalleryIndex + delta + activeGalleryList.length) % activeGalleryList.length;
+    updateLightboxSlide();
+}
+
+function selectGalleryThumbnail(idx) {
+    if (idx < 0 || idx >= activeGalleryList.length) return;
+    activeGalleryIndex = idx;
+    updateLightboxSlide();
+}
+
+function renderLightboxThumbnails() {
+    const bar = document.getElementById('ypLightboxThumbs');
+    if (!bar) return;
+    bar.innerHTML = activeGalleryList.map((url, idx) => `
+        <button type="button" class="yp-lightbox-thumb-btn ${idx === activeGalleryIndex ? 'is-active' : ''}" data-idx="${idx}" onclick="selectGalleryThumbnail(${idx})">
+            <img src="${url}" alt="Thumb ${idx + 1}" class="yp-lightbox-thumb-img" loading="lazy">
+        </button>
+    `).join('');
+}
+
+function updateLightboxSlide() {
+    const mainImg = document.getElementById('ypLightboxMainImg');
+    const counter = document.getElementById('ypLightboxCounter');
+    const url = activeGalleryList[activeGalleryIndex] || '';
+
+    if (mainImg) {
+        mainImg.classList.add('is-switching');
+        setTimeout(() => {
+            mainImg.src = url;
+            mainImg.classList.remove('is-switching');
+        }, 90);
+    }
+    if (counter) {
+        counter.textContent = (activeGalleryIndex + 1) + ' / ' + activeGalleryList.length;
+    }
+
+    const thumbBtns = document.querySelectorAll('#ypLightboxThumbs .yp-lightbox-thumb-btn');
+    thumbBtns.forEach((btn, idx) => {
+        if (idx === activeGalleryIndex) {
+            btn.classList.add('is-active');
+            btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        } else {
+            btn.classList.remove('is-active');
+        }
+    });
+}
+
+// Keyboard navigation (Left / Right / Escape)
+document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('ypGalleryLightbox');
+    if (!modal || modal.classList.contains('d-none')) return;
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stepGalleryLightbox(-1);
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        stepGalleryLightbox(1);
+    } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeGalleryLightbox();
+    }
+});
+
+// Touch Swipe Left / Right for Mobile
+(function initGallerySwipe() {
+    const stage = document.getElementById('ypLightboxStage');
+    if (!stage) return;
+
+    stage.addEventListener('touchstart', function(e) {
+        if (e.changedTouches && e.changedTouches.length > 0) {
+            touchStartX = e.changedTouches[0].screenX;
+        }
+    }, { passive: true });
+
+    stage.addEventListener('touchend', function(e) {
+        if (e.changedTouches && e.changedTouches.length > 0) {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 42) {
+                if (diff > 0) {
+                    // Swipe Left -> Next
+                    stepGalleryLightbox(1);
+                } else {
+                    // Swipe Right -> Previous
+                    stepGalleryLightbox(-1);
+                }
+            }
+        }
+    }, { passive: true });
+})();
+</script>

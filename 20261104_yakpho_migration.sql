@@ -183,7 +183,33 @@ CREATE TABLE IF NOT EXISTS `line_broadcast_logs` (
     `sent_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-UPDATE `sitesettings` SET `setting_value` = 'Yak Pho Aroma <orders@thaispa.app>' WHERE `setting_name` = 'resend_from_email' AND `setting_value` LIKE '%@gmail.com%';
+UPDATE `sitesettings` SET `setting_value` = 'Yak Pho Aroma <orders@yakpho.com>' WHERE `setting_name` = 'resend_from_email' AND (`setting_value` LIKE '%@gmail.com%' OR `setting_value` LIKE '%@thaispa.app%');
+
+-- ------------------------------------------------------------------------------
+-- 9. Tables: blog_likes & blog_comments (Blog Likes & Facebook-style Comments)
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `blog_likes` (
+    `like_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `blog_id` INT NOT NULL,
+    `user_id` INT DEFAULT 0,
+    `voter_hash` VARCHAR(64) NOT NULL,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `uq_blog_voter` (`blog_id`, `voter_hash`),
+    INDEX `idx_blog_id` (`blog_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `blog_comments` (
+    `comment_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `blog_id` INT NOT NULL,
+    `parent_id` INT DEFAULT 0,
+    `user_id` INT NOT NULL,
+    `comment_text` TEXT NOT NULL,
+    `likes_count` INT NOT NULL DEFAULT 0,
+    `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_blog_parent` (`blog_id`, `parent_id`),
+    INDEX `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
