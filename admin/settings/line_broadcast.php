@@ -13,8 +13,8 @@ require_once __DIR__ . '/../../includes/line_helper.php';
 
 $alert = null;
 
-// Handle Settings Save
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_settings') {
+// Handle Settings Save (also auto-saves before running test_admin_notify)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['action'] ?? '', ['save_settings', 'test_admin_notify'], true)) {
     $keys = [
         'resend_api_key'             => trim((string)($_POST['resend_api_key'] ?? '')),
         'resend_from_email'          => trim((string)($_POST['resend_from_email'] ?? '')),
