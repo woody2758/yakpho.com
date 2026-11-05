@@ -332,8 +332,20 @@ document.addEventListener('DOMContentLoaded', function() {
                             </a>
                         </div>
                         <input type="text" name="admin_line_user_id" class="form-control form-control-sm font-monospace" 
-                               value="<?= htmlspecialchars($settings['admin_line_user_id'] ?? '') ?>" placeholder="เช่น U1234567890abcdef... (ผูกอัตโนมัติเมื่อกดปุ่มด้านบน)">
-                        <div class="form-text text-fs-11">นอกจาก ID ในช่องนี้แล้ว ระบบยังส่งแจ้งเตือนไปยังบัญชีผู้ใช้ที่มีสิทธิ์ <code>owner / admin / staff</code> ที่ผูก LINE แล้วทุกบัญชีโดยอัตโนมัติ</div>
+                               value="<?= htmlspecialchars($settings['admin_line_user_id'] ?? '') ?>" placeholder="เช่น U123456... หรือ C123456... (คั่นด้วย , ได้หลายไอดี)">
+                        <div class="form-text text-fs-11">รองรับทั้ง LINE ส่วนตัว (<code>U...</code>) และ LINE กลุ่ม (<code>C...</code>) รวมถึงส่งหาผู้ใช้สิทธิ์ <code>owner / admin / staff</code> ที่ผูก LINE แล้วทุกบัญชีอัตโนมัติ</div>
+                    </div>
+                    <div class="callback-url-box mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="small text-gold-accent">
+                                <i data-lucide="webhook" class="me-1 icon-xs"></i>Webhook URL (สำหรับดึงบอทเข้า LINE กลุ่มแอดมิน):
+                            </strong>
+                            <button type="button" class="btn btn-sm btn-outline-gold py-0 px-2 text-fs-11" onclick="navigator.clipboard.writeText('<?= ROOT_URL ?>/api/line_webhook.php'); Swal.fire({toast:true, position:'top-end', icon:'success', title:'คัดลอก Webhook URL แล้ว', timer:1500, showConfirmButton:false});">
+                                <i data-lucide="copy" class="icon-xs me-1"></i>คัดลอก
+                            </button>
+                        </div>
+                        <code class="callback-url-text"><?= ROOT_URL ?>/api/line_webhook.php</code>
+                        <div class="form-text text-fs-11 mt-1">เมื่อเชิญบอทเข้ากลุ่ม หรือพิมพ์ <code>#ผูกกลุ่ม</code> ในกลุ่ม บอทจะบันทึก Group ID (<code>C...</code>) ให้อัตโนมัติ</div>
                     </div>
 
                     <hr>
