@@ -1,4 +1,4 @@
-Replaced step5_discount_breakdown (CRLF) Replaced step4_pay_btn (CRLF) Replaced step3_home_btn (CRLF) Replaced step2_home_css (CRLF) Replaced step1_cod_and_stamps (CRLF) <?php
+<?php
 require_once __DIR__ . "/admin/includes/config.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -828,8 +828,17 @@ $carrierName = !empty($order['transcat_nshort']) ? $order['transcat_nshort'] : (
                 <span>ข้อมูลการจัดส่ง</span>
             </h6>
 
-            <div class="d-flex justify-content-between mb-2" style="font-size: 0.88rem;">
-                <span class="text-muted">ผู้รับ:</span>
+            <?php $customerCodeStr = !empty($order['user_id']) ? ('C' . (int)$order['user_id']) : ''; ?>
+            <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 0.88rem;">
+                <span class="text-muted d-inline-flex align-items-center gap-1" style="font-size: 0.88rem;">
+                    <span>ผู้รับ:</span>
+                    <?php if ($customerCodeStr !== ''): ?>
+                        <span class="text-dark fw-semibold d-inline-flex align-items-center gap-1" style="font-size: 0.88rem; cursor: pointer;" onclick="copyTracking('<?= htmlspecialchars($customerCodeStr) ?>', this)" title="คลิกเพื่อคัดลอกรหัสลูกค้า">
+                            <span><?= htmlspecialchars($customerCodeStr) ?></span>
+                            <i data-lucide="copy" style="width: 13px; height: 13px; color: #64748b;"></i>
+                        </span>
+                    <?php endif; ?>
+                </span>
                 <span class="fw-bold text-dark">
                     <?= htmlspecialchars($order['user_name'] ?? ($order['addr_name'] ?? 'ลูกค้า')) ?> 
                     <?= maskInfo($order['user_lastname'] ?? '', 'lastname') ?>
@@ -878,13 +887,28 @@ $carrierName = !empty($order['transcat_nshort']) ? $order['transcat_nshort'] : (
             <div class="d-flex flex-column gap-3">
                 <?php foreach ($items as $item): ?>
                     <?php
-                        $filename = $item['product_picture'] ?? '';
+                        $filename = trim((string)($item['product_picture'] ?? ''));
                         $img_url = ROOT_URL . '/catalog/assets/img/YakPhoAromaLogo.webp';
-                        if (!empty($filename)) {
-                            if (strpos($filename, 'uploads/products/') !== false) {
-                                $img_url = ROOT_URL . '/' . ltrim($filename, '/');
+                        if ($filename !== '') {
+                            $cleanFile = basename($filename);
+                            $candidates = [
+                                'uploads/products/small-' . $cleanFile,
+                                'uploads/products/large-' . $cleanFile,
+                                'uploads/products/original-' . $cleanFile,
+                                'uploads/products/' . $cleanFile,
+                                'catalog/assets/img/' . $cleanFile,
+                            ];
+                            $matchedRel = '';
+                            foreach ($candidates as $relPath) {
+                                if (file_exists(__DIR__ . '/' . $relPath)) {
+                                    $matchedRel = $relPath;
+                                    break;
+                                }
+                            }
+                            if ($matchedRel !== '') {
+                                $img_url = ROOT_URL . '/' . $matchedRel;
                             } else {
-                                $img_url = ROOT_URL . '/uploads/products/' . $filename;
+                                $img_url = ROOT_URL . '/uploads/products/small-' . $cleanFile;
                             }
                         }
                         $unitPrice = (float)(!empty($item['unit_price']) ? $item['unit_price'] : ($item['product_price'] ?? 0));

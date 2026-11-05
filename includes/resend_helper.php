@@ -186,31 +186,15 @@ function send_resend_email(PDO $db, string $to, string $subject, string $htmlCon
 }
 
 /**
- * Send email using a template code from resend_email_templates
- * Falls back to built-in HTML layout if template table/record does not exist on server
+ * Built-in default definitions for all 6 standard email templates
  */
-function send_templated_email(PDO $db, string $to, string $templateCode, array $mergeTags = []): array {
-    $subject = '';
-    $body = '';
-
-    try {
-        $stmt = $db->prepare("SELECT email_subject, email_body_html, is_active FROM resend_email_templates WHERE template_code = ? LIMIT 1");
-        $stmt->execute([$templateCode]);
-        $tmpl = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($tmpl && !empty($tmpl['is_active'])) {
-            $subject = (string)$tmpl['email_subject'];
-            $body = (string)$tmpl['email_body_html'];
-        }
-    } catch (Throwable $e) {
-        // Table might not exist yet on server; use built-in fallback below
-    }
-
-    // Built-in fallback template for customer order_confirmation
-    if ($subject === '' || $body === '') {
-        if ($templateCode === 'order_confirmation') {
-            $subject = 'ยืนยันคำสั่งซื้อ #{order_no} - Yak Pho Aroma (ยักษ์โพธิ์ อโรม่า)';
-            $body = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Prompt,Arial,sans-serif;background:#f4f6f8;padding:20px;color:#1e293b;">'
+function get_default_resend_templates(): array {
+    return [
+        'order_confirmation' => [
+            'template_name'        => 'ยืนยันคำสั่งซื้อ & ใบเสร็จรับเงิน (Order Confirmation & Receipt)',
+            'email_subject'        => 'ยืนยันคำสั่งซื้อ #{order_no} - Yak Pho Aroma (ยักษ์โพธิ์ อโรม่า)',
+            'available_merge_tags' => '{customer_name}, {order_no}, {order_date}, {order_items_html}, {subtotal}, {discount_amount}, {delivery_cost}, {grand_total}, {payment_method}, {shipping_address}, {m_stamp_earned}, {m_stamp_balance}, {tracking_url}',
+            'email_body_html'      => '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Prompt,Arial,sans-serif;background:#f4f6f8;padding:20px;color:#1e293b;">'
                   . '<div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">'
                   . '<div style="background:#0B3B35;padding:22px;text-align:center;color:#ffffff;">'
                   . '<h2 style="margin:0;font-size:20px;">YAK PHO AROMA (ยักษ์โพธิ์ อโรม่า)</h2>'
@@ -241,10 +225,13 @@ function send_templated_email(PDO $db, string $to, string $templateCode, array $
                   . '</div>'
                   . '</div>'
                   . '<div style="background:#f1f5f9;padding:14px;text-align:center;font-size:12px;color:#64748b;">© Yak Pho Aroma • บริษัท เอสเธอร์ อโรม่า จำกัด</div>'
-                  . '</div></body></html>';
-        } elseif ($templateCode === 'shipping_tracking') {
-            $subject = 'แจ้งเลขพัสดุคำสั่งซื้อ #{order_no} ({courier_name}: {tracking_number}) - Yak Pho Aroma';
-            $body = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Prompt,Arial,sans-serif;background:#f4f6f8;padding:20px;color:#1e293b;">'
+                  . '</div></body></html>',
+        ],
+        'shipping_tracking' => [
+            'template_name'        => 'แจ้งสถานะจัดส่ง & เลขพัสดุ (Shipping Tracking)',
+            'email_subject'        => 'แจ้งเลขพัสดุคำสั่งซื้อ #{order_no} ({courier_name}: {tracking_number}) - Yak Pho Aroma',
+            'available_merge_tags' => '{customer_name}, {order_no}, {courier_name}, {tracking_number}, {tracking_url}, {shipping_address}',
+            'email_body_html'      => '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Prompt,Arial,sans-serif;background:#f4f6f8;padding:20px;color:#1e293b;">'
                   . '<div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">'
                   . '<div style="background:#0B3B35;padding:20px;text-align:center;color:#ffffff;"><h2 style="margin:0;font-size:19px;">🚚 พัสดุของท่านถูกจัดส่งเรียบร้อยแล้ว</h2></div>'
                   . '<div style="padding:24px;font-size:14px;line-height:1.6;">'
@@ -255,7 +242,139 @@ function send_templated_email(PDO $db, string $to, string $templateCode, array $
                   . '<div style="font-size:22px;font-weight:bold;color:#0B3B35;letter-spacing:1px;margin:6px 0;">{tracking_number}</div>'
                   . '</div>'
                   . '<div style="text-align:center;margin-top:20px;"><a href="{tracking_url}" style="display:inline-block;background:#16a34a;color:#ffffff;padding:12px 26px;text-decoration:none;border-radius:25px;font-weight:bold;">ติดตามสถานะพัสดุ</a></div>'
-                  . '</div></div></body></html>';
+                  . '</div></div></body></html>',
+        ],
+        'email_verification_welcome' => [
+            'template_name'        => 'ยืนยันอีเมล & แต้มต้อนรับสมาชิกใหม่ (Email Verification & Welcome)',
+            'email_subject'        => 'ยืนยันอีเมลของคุณเพื่อรับสิทธิ์และแต้มต้อนรับ +{m_stamp_bonus} E-Stamp - Yak Pho Aroma',
+            'available_merge_tags' => '{customer_name}, {verify_url}, {m_stamp_bonus}',
+            'email_body_html'      => '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Prompt,Arial,sans-serif;background:#f4f6f8;padding:20px;color:#1e293b;">'
+                  . '<div style="max-width:580px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">'
+                  . '<div style="background:#0B3B35;padding:22px;text-align:center;color:#ffffff;">'
+                  . '<h2 style="margin:0;font-size:20px;">🌿 YAK PHO AROMA (ยักษ์โพธิ์ อโรม่า)</h2>'
+                  . '<p style="margin:4px 0 0;font-size:13px;color:#FBBF24;">ยืนยันอีเมลสมาชิกเพื่อรับแต้มสะสม E-Stamp</p>'
+                  . '</div>'
+                  . '<div style="padding:26px;font-size:14px;line-height:1.7;">'
+                  . '<p style="font-size:16px;font-weight:bold;color:#0B3B35;margin-top:0;">สวัสดีครับ คุณ {customer_name},</p>'
+                  . '<p>ขอบพระคุณที่ผูกอีเมลกับบัญชีสมาชิก <strong>Yak Pho Aroma</strong> กรุณาคลิกปุ่มด้านล่างเพื่อยืนยันอีเมลของคุณ และรับโบนัส <strong>+{m_stamp_bonus} E-Stamp</strong> เข้าสู่บัญชีทันที:</p>'
+                  . '<div style="text-align:center;margin:26px 0;">'
+                  . '<a href="{verify_url}" style="display:inline-block;background:#16a34a;color:#ffffff;padding:13px 30px;text-decoration:none;border-radius:25px;font-weight:bold;font-size:15px;">✅ คลิกยืนยันอีเมล & รับ +{m_stamp_bonus} E-Stamp</a>'
+                  . '</div>'
+                  . '<p style="font-size:12px;color:#64748b;">เมื่อยืนยันอีเมลเรียบร้อยแล้ว คุณจะได้รับใบเสร็จดิจิทัลและแจ้งเตือนสถานะพัสดุทางอีเมลนี้โดยอัตโนมัติ</p>'
+                  . '</div>'
+                  . '<div style="background:#f1f5f9;padding:14px;text-align:center;font-size:12px;color:#64748b;">© Yak Pho Aroma • บริษัท เอสเธอร์ อโรม่า จำกัด</div>'
+                  . '</div></body></html>',
+        ],
+        'm_stamp_summary' => [
+            'template_name'        => 'สรุปยอดแต้มสะสม M-Stamp (M-Stamp Monthly Summary)',
+            'email_subject'        => 'สรุปแต้ม E-Stamp ของคุณ: {m_stamp_balance} แต้ม พร้อมใช้แลกส่วนลด - Yak Pho Aroma',
+            'available_merge_tags' => '{customer_name}, {m_stamp_balance}, {member_tier_name}, {recommended_products_url}',
+            'email_body_html'      => '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Prompt,Arial,sans-serif;background:#f4f6f8;padding:20px;color:#1e293b;">'
+                  . '<div style="max-width:580px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">'
+                  . '<div style="background:#0B3B35;padding:20px;text-align:center;color:#ffffff;"><h2 style="margin:0;font-size:19px;">🪙 สรุปคะแนนสะสม E-Stamp ของคุณ</h2></div>'
+                  . '<div style="padding:24px;font-size:14px;line-height:1.7;text-align:center;">'
+                  . '<p>สวัสดีครับ คุณ <strong>{customer_name}</strong> ({member_tier_name}),</p>'
+                  . '<div style="background:#ecfdf5;border:1px solid #10b981;border-radius:12px;padding:18px;margin:16px 0;">'
+                  . '<div style="font-size:13px;color:#065f46;">คะแนนสะสมคงเหลือพร้อมใช้เป็นส่วนลดเงินสด:</div>'
+                  . '<div style="font-size:28px;font-weight:bold;color:#0B3B35;margin:6px 0;">{m_stamp_balance} E-Stamp (= ฿{m_stamp_balance})</div>'
+                  . '</div>'
+                  . '<a href="{recommended_products_url}" style="display:inline-block;background:#0B3B35;color:#ffffff;padding:12px 26px;text-decoration:none;border-radius:25px;font-weight:bold;">ช้อปสินค้าและใช้แต้มลดทันที</a>'
+                  . '</div></div></body></html>',
+        ],
+        'affiliate_commission_monthly' => [
+            'template_name'        => 'รายงานค่าคอมมิชชันหมอนวด Partner (Affiliate Commission Report)',
+            'email_subject'        => 'สรุปรายได้ค่าคอมมิชชัน Yak Pho Partner ประจำงวด: ฿{commission_amount} บาท',
+            'available_merge_tags' => '{partner_name}, {period_month}, {total_orders}, {total_sales}, {commission_amount}, {payout_status}, {affiliate_dashboard_url}',
+            'email_body_html'      => '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Prompt,Arial,sans-serif;background:#f4f6f8;padding:20px;color:#1e293b;">'
+                  . '<div style="max-width:580px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">'
+                  . '<div style="background:#0B3B35;padding:20px;text-align:center;color:#ffffff;"><h2 style="margin:0;font-size:19px;">⭐ รายงานค่าคอมมิชชัน Yak Pho Partner</h2></div>'
+                  . '<div style="padding:24px;font-size:14px;line-height:1.7;">'
+                  . '<p>เรียน คุณ <strong>{partner_name}</strong> (ประจำงวด {period_month}),</p>'
+                  . '<p>จำนวนออเดอร์แนะนำ: <strong>{total_orders} รายการ</strong> (ยอดขายรวม ฿{total_sales})<br>ค่าคอมมิชชันสะสม: <strong style="color:#16a34a;font-size:18px;">฿{commission_amount} บาท</strong><br>สถานะ: {payout_status}</p>'
+                  . '<div style="text-align:center;margin-top:20px;"><a href="{affiliate_dashboard_url}" style="display:inline-block;background:#0B3B35;color:#ffffff;padding:12px 26px;text-decoration:none;border-radius:25px;font-weight:bold;">เปิดแดชบอร์ด Yak Pho Partner</a></div>'
+                  . '</div></div></body></html>',
+        ],
+        'reorder_spa_reminder' => [
+            'template_name'        => 'แจ้งเตือนสั่งซื้อซ้ำร้านนวดสปา VIP (VIP Spa Reorder Reminder)',
+            'email_subject'        => 'ยาหม่องนวด 1 กก. ของคุณใกล้หมดหรือยัง? สั่งซ้ำเรทโรงงานส่งด่วน - Yak Pho Aroma',
+            'available_merge_tags' => '{spa_name}, {last_order_date}, {reorder_url}, {wholesale_rate_summary}',
+            'email_body_html'      => '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Prompt,Arial,sans-serif;background:#f4f6f8;padding:20px;color:#1e293b;">'
+                  . '<div style="max-width:580px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">'
+                  . '<div style="background:#0B3B35;padding:20px;text-align:center;color:#ffffff;"><h2 style="margin:0;font-size:19px;">👑 สิทธิพิเศษเรทราคาส่งร้านนวด & สปา VIP</h2></div>'
+                  . '<div style="padding:24px;font-size:14px;line-height:1.7;">'
+                  . '<p>เรียน <strong>{spa_name}</strong>,</p>'
+                  . '<p>คำสั่งซื้อล่าสุดของท่านเมื่อวันที่ {last_order_date} หากบาล์มนวดของท่านใกล้หมดแล้ว สามารถสั่งซื้อซ้ำในเรทราคาส่งโรงงานพร้อมรับแต้มสะสม E-Stamp ได้ทันทีครับ</p>'
+                  . '<div style="text-align:center;margin-top:20px;"><a href="{reorder_url}" style="display:inline-block;background:#0B3B35;color:#ffffff;padding:12px 26px;text-decoration:none;border-radius:25px;font-weight:bold;">สั่งซื้อเรทส่งร้านสปาทันที</a></div>'
+                  . '</div></div></body></html>',
+        ],
+    ];
+}
+
+/**
+ * Ensure the resend_email_templates table exists and has the 6 default templates seeded
+ */
+function ensure_default_resend_templates(PDO $db): void {
+    try {
+        $db->exec("CREATE TABLE IF NOT EXISTS `resend_email_templates` (
+            `template_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `template_code` VARCHAR(100) NOT NULL,
+            `template_name` VARCHAR(255) NOT NULL,
+            `email_subject` VARCHAR(255) NOT NULL,
+            `email_body_html` LONGTEXT NOT NULL,
+            `available_merge_tags` TEXT DEFAULT NULL,
+            `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+            `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`template_id`),
+            UNIQUE KEY `template_code` (`template_code`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $defaults = get_default_resend_templates();
+        $ins = $db->prepare("INSERT IGNORE INTO `resend_email_templates` (`template_code`, `template_name`, `email_subject`, `email_body_html`, `available_merge_tags`, `is_active`) VALUES (?, ?, ?, ?, ?, 1)");
+        foreach ($defaults as $code => $item) {
+            $ins->execute([
+                $code,
+                $item['template_name'],
+                $item['email_subject'],
+                $item['email_body_html'],
+                $item['available_merge_tags'],
+            ]);
+        }
+    } catch (Throwable $e) {}
+}
+
+/**
+ * Send email using a template code from resend_email_templates
+ * Falls back to built-in HTML layout if template table/record does not exist on server
+ */
+function send_templated_email(PDO $db, string $to, string $templateCode, array $mergeTags = []): array {
+    $subject = '';
+    $body = '';
+
+    try {
+        $stmt = $db->prepare("SELECT email_subject, email_body_html, is_active FROM resend_email_templates WHERE template_code = ? LIMIT 1");
+        $stmt->execute([$templateCode]);
+        $tmpl = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$tmpl) {
+            ensure_default_resend_templates($db);
+            $stmt->execute([$templateCode]);
+            $tmpl = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        if ($tmpl && !empty($tmpl['is_active'])) {
+            $subject = (string)$tmpl['email_subject'];
+            $body = (string)$tmpl['email_body_html'];
+        }
+    } catch (Throwable $e) {
+        // Table might not exist yet on server; use built-in fallback below
+    }
+
+    // Built-in fallback templates for all 6 standard template codes
+    if ($subject === '' || $body === '') {
+        $defaults = get_default_resend_templates();
+        if (isset($defaults[$templateCode])) {
+            $subject = $defaults[$templateCode]['email_subject'];
+            $body    = $defaults[$templateCode]['email_body_html'];
         } else {
             return [
                 'success' => false,

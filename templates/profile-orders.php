@@ -259,7 +259,7 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
                             <div class="order-items-list-box">
                                 <?php foreach ($orderItems as $it): ?>
                                 <?php
-                                $thumb = !empty($it['product_picture']) ? (URL_PATH . '/uploads/products/' . htmlspecialchars($it['product_picture'])) : (URL_PATH . '/catalog/assets/img/YakPhoAromaLogo.webp');
+                                $thumb = function_exists('resolve_product_image') ? resolve_product_image((string)($it['product_picture'] ?? ''), 'small') : (!empty($it['product_picture']) ? (URL_PATH . '/uploads/products/small-' . htmlspecialchars(basename((string)$it['product_picture']))) : (URL_PATH . '/catalog/assets/img/YakPhoAromaLogo.webp'));
                                 $pPrice = (float)($it['product_price'] ?? 0);
                                 $pQty = (int)($it['ordetail_qty'] ?? 1);
                                 $pTotal = (float)($it['ordetail_total'] ?? ($pPrice * $pQty));
@@ -531,8 +531,8 @@ $renderOrderStatusGrid = function(bool $isOrdersView = false) use ($currentLang,
                 </div>
 
                 <div class="profile-partner-stats">
-                    <span>ยอดขายแนะนำ: <strong><?= number_format($affiliateData['total_shops'] ?? 0) ?> ออเดอร์</strong></span>
-                    <span>คอมมิชชันสะสม: <strong class="text-warning">฿<?= number_format($affiliateData['total_commission'] ?? 0, 2) ?> บาท</strong></span>
+                    <span>ยอดขายแนะนำ: <strong><?= number_format((float)($affiliateData['total_shops'] ?? 0)) ?> ออเดอร์</strong></span>
+                    <span>คอมมิชชันสะสม: <strong class="text-warning">฿<?= number_format((float)($affiliateData['total_commission'] ?? 0), 2) ?> บาท</strong></span>
                 </div>
             </div>
             <?php else: ?>
