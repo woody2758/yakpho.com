@@ -30,6 +30,7 @@ $allFaqs = $STORES_DATA['faqs'] ?? [];
             <p class="text-muted"><?= $currentLang === 'th' ? 'ยังไม่มีข้อมูลคำถามในขณะนี้' : 'No FAQs available at the moment.' ?></p>
         </div>
     <?php else: ?>
+        <?php $firstOpened = false; ?>
         <?php foreach ($faqCategories as $cat): ?>
             <?php $catItems = $cat['items'] ?? []; ?>
             <?php if (empty($catItems)) continue; ?>
@@ -38,10 +39,17 @@ $allFaqs = $STORES_DATA['faqs'] ?? [];
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                     <span><?= htmlspecialchars($cat['category_name']) ?></span>
                 </div>
+                <?php if (!empty($cat['category_detail'])): ?>
+                    <p class="faq-group-desc"><?= htmlspecialchars($cat['category_detail']) ?></p>
+                <?php endif; ?>
 
                 <div>
                     <?php foreach ($catItems as $faq): ?>
-                        <div class="faq-accordion-item" id="faq-item-<?= (int)$faq['faq_id'] ?>">
+                        <?php
+                        $isOpen = !$firstOpened;
+                        $firstOpened = true;
+                        ?>
+                        <div class="faq-accordion-item<?= $isOpen ? ' is-open' : '' ?>" id="faq-item-<?= (int)$faq['faq_id'] ?>">
                             <button type="button" class="faq-question-btn" onclick="toggleFaq(<?= (int)$faq['faq_id'] ?>)">
                                 <span><?= htmlspecialchars($faq['question']) ?></span>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="faq-chevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -77,4 +85,3 @@ function toggleFaq(id) {
     el.classList.toggle('is-open');
 }
 </script>
-

@@ -1589,16 +1589,175 @@ function get_profile_page_data(PDO $db, string $lang = 'th'): array
     ];
 }
 
+function ensure_default_yakpho_faqs(PDO $db): void
+{
+    try {
+        // Ensure tables exist on both local and production databases
+        $db->exec("CREATE TABLE IF NOT EXISTS `faqscat` (
+            `faqscat_id` INT AUTO_INCREMENT PRIMARY KEY,
+            `faqscat_name` VARCHAR(255) DEFAULT NULL,
+            `faqscat_detail` TEXT DEFAULT NULL,
+            `faqscat_index` INT DEFAULT 0,
+            `faqscat_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
+            `faqscat_status` INT DEFAULT 1,
+            `faqscat_del` INT DEFAULT 0
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS `faqscat_translations` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `faqscat_id` INT NOT NULL,
+            `lang_code` VARCHAR(10) NOT NULL,
+            `faqscat_name` VARCHAR(255) DEFAULT NULL,
+            `faqscat_detail` TEXT DEFAULT NULL,
+            UNIQUE KEY `uniq_faqscat_lang` (`faqscat_id`, `lang_code`),
+            INDEX `idx_faqscat_id` (`faqscat_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS `faqs` (
+            `faqs_id` INT AUTO_INCREMENT PRIMARY KEY,
+            `faqscat_id` INT NOT NULL DEFAULT 1,
+            `faqs_name` VARCHAR(500) DEFAULT NULL,
+            `faqs_detail` TEXT DEFAULT NULL,
+            `faqs_index` INT DEFAULT 0,
+            `faqs_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
+            `faqs_status` INT DEFAULT 1,
+            `faqs_del` INT DEFAULT 0,
+            `faqs_view` INT DEFAULT 0,
+            INDEX `idx_faqscat_id` (`faqscat_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS `faqs_translations` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `faqs_id` INT NOT NULL,
+            `lang_code` VARCHAR(10) NOT NULL,
+            `faqs_name` VARCHAR(500) DEFAULT NULL,
+            `faqs_detail` TEXT DEFAULT NULL,
+            UNIQUE KEY `uniq_faqs_lang` (`faqs_id`, `lang_code`),
+            INDEX `idx_faqs_id` (`faqs_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $cnt = (int)$db->query("SELECT COUNT(*) FROM faqs WHERE faqs_del = 0 AND faqs_status = 1")->fetchColumn();
+        if ($cnt > 0) {
+            return;
+        }
+
+        // Seed 3 default Yak Pho FAQ Categories if faqscat has no active categories
+        $catCnt = (int)$db->query("SELECT COUNT(*) FROM faqscat WHERE faqscat_del = 0 AND faqscat_status = 1")->fetchColumn();
+        if ($catCnt === 0) {
+            $defaultCats = [
+                1 => [
+                    'th_name' => 'สั่งซื้อและเรทราคาส่งสปา (Ordering & Wholesale)',
+                    'th_desc' => 'ข้อมูลการสั่งซื้อ เรทราคาส่งร้านนวด และเงื่อนไขการเปิดบิล B2B',
+                    'en_name' => 'Ordering & Spa Wholesale',
+                    'en_desc' => 'Orders, spa wholesale pricing tiers, and B2B ordering procedures.',
+                ],
+                2 => [
+                    'th_name' => 'ผลิตภัณฑ์และสรรพคุณ (Products & Ingredients)',
+                    'th_desc' => 'สูตรบาล์ม ส่วนผสมสมุนไพรธรรมชาติ และวิธีใช้เพื่อผลลัพธ์สูงสุด',
+                    'en_name' => 'Products & Ingredients',
+                    'en_desc' => 'Balm formulas, herbal active ingredients, and application guides.',
+                ],
+                3 => [
+                    'th_name' => 'การจัดส่งและบริการส่งออก (Shipping & Global Export)',
+                    'th_desc' => 'รอบจัดส่งพัสดุในประเทศ และการจัดส่งสินค้าไปยังต่างประเทศตามมาตรฐาน GMP',
+                    'en_name' => 'Shipping & Global Export',
+                    'en_desc' => 'Domestic fulfillment timelines and international export with GMP compliance.',
+                ],
+            ];
+            $insCat = $db->prepare("INSERT IGNORE INTO faqscat (faqscat_id, faqscat_name, faqscat_detail, faqscat_index, faqscat_date, faqscat_status, faqscat_del) VALUES (?, ?, ?, ?, NOW(), 1, 0)");
+            $insCatTr = $db->prepare("INSERT IGNORE INTO faqscat_translations (faqscat_id, lang_code, faqscat_name, faqscat_detail) VALUES (?, ?, ?, ?)");
+            foreach ($defaultCats as $cid => $cData) {
+                $insCat->execute([$cid, $cData['th_name'], $cData['th_desc'], $cid]);
+                $insCatTr->execute([$cid, 'th', $cData['th_name'], $cData['th_desc']]);
+                $insCatTr->execute([$cid, 'en', $cData['en_name'], $cData['en_desc']]);
+            }
+        }
+
+        // Fetch active category IDs
+        $catIds = $db->query("SELECT faqscat_id FROM faqscat WHERE faqscat_del = 0 AND faqscat_status = 1 ORDER BY faqscat_index ASC, faqscat_id ASC")->fetchAll(PDO::FETCH_COLUMN);
+        $cat1 = (int)($catIds[0] ?? 1);
+        $cat2 = (int)($catIds[1] ?? $cat1);
+        $cat3 = (int)($catIds[2] ?? $cat1);
+
+        $defaultFaqs = [
+            [
+                'cat_id' => $cat1,
+                'index'  => 1,
+                'th_q'   => 'บาล์มสมุนไพรยักษ์โพธิ์ 1 กิโลกรัม เหมาะสำหรับร้านนวดและสปาอย่างไร?',
+                'th_a'   => 'บาล์มขนาด 1 กิโลกรัม บรรจุในถุงฟอยล์สุญญากาศ Food-Grade ช่วยรักษาคุณค่าของน้ำมันหอมระเหยและสมุนไพรสดใหม่ได้ยาวนาน ไม่แห้งระเหยง่าย ให้ต้นทุนต่อหัวการนวดที่คุ้มค่าที่สุด โดย 1 ถุงสามารถใช้บริการลูกค้าได้มากกว่า 60-80 คอร์ส พร้อมเนื้อบาล์มเนียนนุ่ม ซึมซาบพอดีมือ ไม่เหนียวเหนอะหนะตัวลูกค้า',
+                'en_q'   => 'Why is the 1kg Yak Pho Herbal Balm ideal for massage shops and spas?',
+                'en_a'   => 'Packaged in food-grade vacuum foil bags, our 1kg balm preserves essential oils and fresh herbal potency longer while delivering the best cost per massage session (60-80 sessions per bag) with a smooth, non-greasy texture.',
+            ],
+            [
+                'cat_id' => $cat1,
+                'index'  => 2,
+                'th_q'   => 'เรทราคาส่งสปา (Wholesale) เริ่มต้นที่กี่กิโลกรัม และมีเงื่อนไขอย่างไร?',
+                'th_a'   => 'เรทราคาส่งร้านนวดและสปาเริ่มต้นสั่งซื้อตั้งแต่ 1 กิโลกรัมขึ้นไป โดยระบบจะคำนวณส่วนลดตามขั้นบันไดปริมาณสั่งซื้อให้อัตโนมัติ (Tier 1: 1-5 กก., Tier 2: 6-19 กก., Tier 3: 20 กก. ขึ้นไป) สามารถคละสูตรและกลิ่นได้ตามต้องการ พร้อมออกใบกำกับภาษีเต็มรูปแบบได้',
+                'en_q'   => 'What is the minimum order quantity for spa wholesale pricing?',
+                'en_a'   => 'Spa wholesale pricing starts from just 1 kg with automatic volume tier discounts (1-5 kg, 6-19 kg, 20+ kg). You can freely mix formulas and scents, and full tax invoices are supported.',
+            ],
+            [
+                'cat_id' => $cat2,
+                'index'  => 3,
+                'th_q'   => 'น้ำมันสกัดทาร์รากอน (Tarragon Infused Oil) คืออะไร แตกต่างจากบาล์มทั่วไปอย่างไร?',
+                'th_a'   => 'ทาร์รากอน (Tarragon) สายพันธุ์พิเศษที่เราเพาะปลูกในฟาร์มออร์แกนิก มีสารสำคัญกลุ่ม Estragole และฟลาโวนอยด์ธรรมชาติที่มีคุณสมบัติช่วยผ่อนคลายกล้ามเนื้อที่ตึงเกร็งเรื้อรัง เมื่อผสานเข้ากับไพลสด เสลดพังพอน และสมุนไพรไทยแท้ จะช่วยเพิ่มการไหลเวียนโลหิตและกระจายความอบอุ่นลึกสู่ชั้นกล้ามเนื้อได้ดียิ่งขึ้นอย่างเป็นเอกลักษณ์',
+                'en_q'   => 'What is Tarragon Infused Oil and how does it elevate the balm?',
+                'en_a'   => 'Organically grown Tarragon contains natural Estragole and flavonoids that soothe deep muscular tension. Combined with Plai and Clinacanthus nutans, it enhances micro-circulation and deep soothing warmth.',
+            ],
+            [
+                'cat_id' => $cat2,
+                'index'  => 4,
+                'th_q'   => 'สูตรร้อน สูตรเย็น และสูตรนวดตัว แตกต่างกันอย่างไร เลือกรุ่นไหนดี?',
+                'th_a'   => "1. สูตรร้อน (Hot Formula): เหมาะสำหรับอาการปวดเมื่อยลึก เส้นตึง ออฟฟิศซินโดรม และการกดจุดนวดไทย\n2. สูตรเย็น (Cool Formula): เหมาะสำหรับการคลายกล้ามเนื้อหลังออกกำลังกาย อาการบวมล้า และให้ความสดชื่นตื่นตัว\n3. สูตรนวดตัว (Body Massage Formula): เนื้อบาล์มลื่นนุ่มพิเศษ เหมาะสำหรับการนวดน้ำมันอโรม่าและนวดสวีดิชผ่อนคลายทั้งเรือนร่าง",
+                'en_q'   => 'How do Hot, Cool, and Body Massage formulas differ?',
+                'en_a'   => "1. Hot Formula: Best for deep muscle aches, stiff tendons, office syndrome, and Thai acupressure.\n2. Cool Formula: Ideal for post-workout recovery, swelling, and refreshing aromatherapy.\n3. Body Massage Formula: Extra-smooth glide crafted for full-body aroma and Swedish massage.",
+            ],
+            [
+                'cat_id' => $cat3,
+                'index'  => 5,
+                'th_q'   => 'ผลิตภัณฑ์ของยักษ์โพธิ์มีเลขที่จดแจ้ง อย. และมาตรฐาน GMP หรือไม่?',
+                'th_a'   => 'ผลิตภัณฑ์ทุกชิ้นภายใต้เครือ เอสเธอร์ อโรม่า และยักษ์โพธิ์ ผ่านการรับรองมาตรฐานการผลิตสากล GMP (Good Manufacturing Practice) และมีเลขที่ใบรับจดแจ้งจากสำนักงานคณะกรรมการอาหารและยา (อย.) ครบถ้วน ถูกต้องตามกฎหมาย ปลอดภัย 100%',
+                'en_q'   => 'Are Yak Pho products certified by Thai FDA and GMP compliant?',
+                'en_a'   => 'Every product under Esther Aroma and Yak Pho is manufactured in GMP-certified facilities with full Thai FDA registration numbers for 100% safety and legal compliance.',
+            ],
+            [
+                'cat_id' => $cat3,
+                'index'  => 6,
+                'th_q'   => 'ทางบริษัทมีบริการส่งออกต่างประเทศและเอกสาร COA / MSDS หรือไม่?',
+                'th_a'   => 'เราให้บริการส่งออกผลิตภัณฑ์สปาไทยไปยังกว่า 10 ประเทศทั่วโลก (เช่น ยุโรป, อเมริกา, ออสเตรเลีย, ญี่ปุ่น) พร้อมจัดเตรียมเอกสาร Certificate of Analysis (COA), Material Safety Data Sheet (MSDS) และ Certificate of Free Sale (CFS) สำหรับดำเนินพิธีการศุลกากรครบวงจร',
+                'en_q'   => 'Do you support international export with COA and MSDS documentation?',
+                'en_a'   => 'Yes, we export to over 10 countries worldwide and provide full Certificate of Analysis (COA), Material Safety Data Sheet (MSDS), and Certificate of Free Sale (CFS) documentation.',
+            ],
+        ];
+
+        $insFaq = $db->prepare("INSERT INTO faqs (faqscat_id, faqs_name, faqs_detail, faqs_index, faqs_date, faqs_status, faqs_del, faqs_view) VALUES (?, ?, ?, ?, NOW(), 1, 0, 100)");
+        $insFaqTr = $db->prepare("INSERT IGNORE INTO faqs_translations (faqs_id, lang_code, faqs_name, faqs_detail) VALUES (?, ?, ?, ?)");
+        foreach ($defaultFaqs as $f) {
+            $insFaq->execute([$f['cat_id'], $f['th_q'], $f['th_a'], $f['index']]);
+            $newFaqId = (int)$db->lastInsertId();
+            if ($newFaqId > 0) {
+                $insFaqTr->execute([$newFaqId, 'th', $f['th_q'], $f['th_a']]);
+                $insFaqTr->execute([$newFaqId, 'en', $f['en_q'], $f['en_a']]);
+            }
+        }
+    } catch (Exception $e) {
+        // Ignore if tables do not exist
+    }
+}
+
 /**
  * Get FAQs (with multi-language translations & categories) and Gallery (with categories & images)
  */
 function get_stores_and_faqs_data(PDO $db, string $lang = 'th'): array
 {
+    ensure_default_yakpho_faqs($db);
+
     $faqCategories = [];
     try {
         $stmtCat = $db->prepare("
             SELECT c.faqscat_id,
-                   COALESCE(NULLIF(t_req.faqscat_name, ''), NULLIF(t_en.faqscat_name, ''), NULLIF(t_th.faqscat_name, ''), 'FAQs') AS category_name
+                   COALESCE(NULLIF(t_req.faqscat_name, ''), NULLIF(t_en.faqscat_name, ''), NULLIF(t_th.faqscat_name, ''), NULLIF(c.faqscat_name, ''), 'FAQs') AS category_name,
+                   COALESCE(NULLIF(t_req.faqscat_detail, ''), NULLIF(t_en.faqscat_detail, ''), NULLIF(t_th.faqscat_detail, ''), NULLIF(c.faqscat_detail, ''), '') AS category_detail
             FROM faqscat c
             LEFT JOIN faqscat_translations t_req ON c.faqscat_id = t_req.faqscat_id AND t_req.lang_code = ?
             LEFT JOIN faqscat_translations t_en  ON c.faqscat_id = t_en.faqscat_id  AND t_en.lang_code = 'en'
@@ -1619,7 +1778,7 @@ function get_stores_and_faqs_data(PDO $db, string $lang = 'th'): array
                    f.faqscat_id,
                    COALESCE(NULLIF(ft_req.faqs_name, ''), NULLIF(ft_en.faqs_name, ''), NULLIF(ft_th.faqs_name, ''), f.faqs_name) AS faqs_name,
                    COALESCE(NULLIF(ft_req.faqs_detail, ''), NULLIF(ft_en.faqs_detail, ''), NULLIF(ft_th.faqs_detail, ''), f.faqs_detail) AS faqs_detail,
-                   COALESCE(NULLIF(ct_req.faqscat_name, ''), NULLIF(ct_en.faqscat_name, ''), NULLIF(ct_th.faqscat_name, ''), '') AS category_name
+                   COALESCE(NULLIF(ct_req.faqscat_name, ''), NULLIF(ct_en.faqscat_name, ''), NULLIF(ct_th.faqscat_name, ''), NULLIF(c.faqscat_name, ''), '') AS category_name
             FROM faqs f
             LEFT JOIN faqscat c ON f.faqscat_id = c.faqscat_id
             LEFT JOIN faqs_translations ft_req ON f.faqs_id = ft_req.faqs_id AND ft_req.lang_code = ?
@@ -1633,10 +1792,46 @@ function get_stores_and_faqs_data(PDO $db, string $lang = 'th'): array
             ORDER BY COALESCE(c.faqscat_index, 99) ASC, f.faqs_index ASC, f.faqs_id ASC
         ");
         $stmt->execute([$lang, $lang]);
-        $faqs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rawFaqs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rawFaqs as $rf) {
+            $rf['faq_id']   = (int)$rf['faqs_id'];
+            $rf['question'] = (string)$rf['faqs_name'];
+            $rf['answer']   = str_replace('\\n', "\n", (string)$rf['faqs_detail']);
+            $faqs[] = $rf;
+        }
     } catch (Exception $e) {
         $faqs = [];
     }
+
+    // Attach grouped items into each faqCategory
+    $faqsByCatId = [];
+    foreach ($faqs as $fItem) {
+        $cid = (int)($fItem['faqscat_id'] ?? 0);
+        $faqsByCatId[$cid][] = $fItem;
+    }
+
+    $populatedFaqCategories = [];
+    foreach ($faqCategories as $cat) {
+        $cid = (int)$cat['faqscat_id'];
+        $cat['items'] = $faqsByCatId[$cid] ?? [];
+        if (!empty($cat['items'])) {
+            $populatedFaqCategories[] = $cat;
+            unset($faqsByCatId[$cid]);
+        }
+    }
+
+    // If any FAQs belong to uncategorized or other categories, group them as well
+    foreach ($faqsByCatId as $cid => $orphanItems) {
+        if (!empty($orphanItems)) {
+            $populatedFaqCategories[] = [
+                'faqscat_id'      => $cid,
+                'category_name'   => $orphanItems[0]['category_name'] ?: ($lang === 'th' ? 'คำถามทั่วไปเกี่ยวกับยักษ์โพธิ์' : 'General Questions'),
+                'category_detail' => '',
+                'items'           => $orphanItems,
+            ];
+        }
+    }
+    $faqCategories = $populatedFaqCategories;
 
     $galleryCategories = [];
     $gallery = [];

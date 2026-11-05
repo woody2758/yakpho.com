@@ -7,8 +7,13 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/frontend_data.php';
 
 try {
+    if (function_exists('ensure_default_yakpho_faqs')) {
+        ensure_default_yakpho_faqs($db);
+    }
+
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
     $limit = 15;
     $offset = ($page - 1) * $limit;
@@ -20,8 +25,9 @@ try {
     
     // Search filter
     if (!empty($search)) {
-        $where .= " AND (fct.faqscat_name LIKE ? OR fct.faqscat_detail LIKE ?)";
+        $where .= " AND (fct.faqscat_name LIKE ? OR fct.faqscat_detail LIKE ? OR fc.faqscat_name LIKE ?)";
         $searchTerm = "%$search%";
+        $params[] = $searchTerm;
         $params[] = $searchTerm;
         $params[] = $searchTerm;
     }
@@ -44,7 +50,7 @@ try {
             fc.faqscat_id,
             fc.faqscat_index,
             fc.faqscat_status,
-            fct_th.faqscat_name as name_th,
+            COALESCE(NULLIF(fct_th.faqscat_name, ''), fc.faqscat_name) as name_th,
             fct_en.faqscat_name as name_en
         FROM faqscat fc
         LEFT JOIN faqscat_translations fct_th ON fc.faqscat_id = fct_th.faqscat_id AND fct_th.lang_code = 'th'

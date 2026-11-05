@@ -14157,10 +14157,17 @@ button.member-login-btn-cancel:hover {
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--yp-text, #0f172a);
-    margin-bottom: 12px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.faq-group-desc {
+    font-size: 0.84rem;
+    color: var(--yp-text-muted, #8E9C98);
+    margin: 0 0 12px 28px;
+    line-height: 1.5;
 }
 
 .faq-accordion-item {

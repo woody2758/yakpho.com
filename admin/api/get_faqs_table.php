@@ -7,8 +7,13 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../../includes/frontend_data.php';
 
 try {
+    if (function_exists('ensure_default_yakpho_faqs')) {
+        ensure_default_yakpho_faqs($db);
+    }
+
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
     $limit = 15;
     $offset = ($page - 1) * $limit;
@@ -27,8 +32,9 @@ try {
     
     // Search filter
     if (!empty($search)) {
-        $where .= " AND (ft.faqs_name LIKE ? OR ft.faqs_detail LIKE ?)";
+        $where .= " AND (ft.faqs_name LIKE ? OR ft.faqs_detail LIKE ? OR f.faqs_name LIKE ?)";
         $searchTerm = "%$search%";
+        $params[] = $searchTerm;
         $params[] = $searchTerm;
         $params[] = $searchTerm;
     }
@@ -53,16 +59,16 @@ try {
             f.faqs_index,
             f.faqs_status,
             f.faqs_view,
-            ft_th.faqs_name as name_th,
+            COALESCE(NULLIF(ft_th.faqs_name, ''), f.faqs_name) as name_th,
             ft_en.faqs_name as name_en,
-            fct.faqscat_name as category_name
+            COALESCE(NULLIF(fct.faqscat_name, ''), fc.faqscat_name) as category_name
         FROM faqs f
         LEFT JOIN faqs_translations ft_th ON f.faqs_id = ft_th.faqs_id AND ft_th.lang_code = 'th'
         LEFT JOIN faqs_translations ft_en ON f.faqs_id = ft_en.faqs_id AND ft_en.lang_code = 'en'
         LEFT JOIN faqscat fc ON f.faqscat_id = fc.faqscat_id
         LEFT JOIN faqscat_translations fct ON fc.faqscat_id = fct.faqscat_id AND fct.lang_code = 'th'
         $where
-        ORDER BY f.faqs_index ASC, f.faqs_id ASC
+        ORDER BY COALESCE(fc.faqscat_index, 99) ASC, f.faqs_index ASC, f.faqs_id ASC
         LIMIT $limit OFFSET $offset
     ";
     
