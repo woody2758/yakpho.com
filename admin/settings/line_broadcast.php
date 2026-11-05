@@ -344,8 +344,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="mb-3">
                         <label class="form-label small fw-bold">อีเมลผู้ส่ง (From Email):</label>
                         <input type="text" name="resend_from_email" class="form-control form-control-sm" 
-                               value="<?= htmlspecialchars($settings['resend_from_email'] ?? 'Yak Pho Aroma <orders@thaispa.app>') ?>">
-                        <div class="form-text text-fs-11">ระบบใช้โดเมนที่ Verify แล้วอัตโนมัติ (เช่น <code>orders@thaispa.app</code>) และตั้ง Reply-To ไปที่อีเมลแอดมิน</div>
+                               value="<?= htmlspecialchars($settings['resend_from_email'] ?? 'Yak Pho Aroma <orders@yakpho.com>') ?>">
+                        <div class="form-text text-fs-11">โดเมน <code>yakpho.com</code> ยืนยันแล้ว ใช้รูปแบบ <code>Yak Pho Aroma &lt;orders@yakpho.com&gt;</code> ได้เลยครับ</div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-success"><i data-lucide="bell-ring" class="me-1 icon-xs"></i>อีเมล Admin สำหรับรับแจ้งเตือนคำสั่งซื้อใหม่:</label>

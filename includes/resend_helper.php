@@ -27,7 +27,7 @@ if (!function_exists('get_site_setting')) {
  * Normalize From Email so free webmail domains (gmail.com, etc.) don't trigger Resend HTTP 403
  */
 function resolve_resend_from_address(PDO $db): array {
-    $rawFrom = trim(get_site_setting($db, 'resend_from_email', 'Yak Pho Aroma <orders@thaispa.app>'));
+    $rawFrom = trim(get_site_setting($db, 'resend_from_email', 'Yak Pho Aroma <orders@yakpho.com>'));
     $replyTo = trim(get_site_setting($db, 'admin_notify_email', 'thaiherbfc@gmail.com'));
     if ($replyTo === '') {
         $replyTo = 'thaiherbfc@gmail.com';
@@ -52,7 +52,7 @@ function resolve_resend_from_address(PDO $db): array {
         if (filter_var($emailOnly, FILTER_VALIDATE_EMAIL)) {
             $replyTo = $emailOnly;
         }
-        $from = 'Yak Pho Aroma <orders@thaispa.app>';
+        $from = 'Yak Pho Aroma <orders@yakpho.com>';
     } elseif (strpos($rawFrom, '<') === false && filter_var($rawFrom, FILTER_VALIDATE_EMAIL)) {
         $from = 'Yak Pho Aroma <' . $rawFrom . '>';
     } else {

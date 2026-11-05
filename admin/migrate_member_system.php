@@ -259,7 +259,7 @@ try {
 
     // Ensure default notification settings exist in sitesettings (secrets configured via Admin UI)
     $defaultSiteSettings = [
-        'resend_from_email'  => 'Yak Pho Aroma <orders@thaispa.app>',
+        'resend_from_email'  => 'Yak Pho Aroma <orders@yakpho.com>',
         'admin_notify_email' => 'thaiherbfc@gmail.com',
     ];
     foreach ($defaultSiteSettings as $sKey => $sVal) {
@@ -269,7 +269,7 @@ try {
         if (!$rowS) {
             $insS = $db->prepare("INSERT INTO sitesettings (setting_name, setting_value, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
             $insS->execute([$sKey, $sVal]);
-        } elseif ($sKey === 'resend_from_email' && stripos((string)$rowS['setting_value'], '@gmail.com') !== false) {
+        } elseif ($sKey === 'resend_from_email' && (stripos((string)$rowS['setting_value'], '@gmail.com') !== false || stripos((string)$rowS['setting_value'], '@thaispa.app') !== false)) {
             $updS = $db->prepare("UPDATE sitesettings SET setting_value = ?, updated_at = NOW() WHERE setting_id = ?");
             $updS->execute([$sVal, $rowS['setting_id']]);
         }
