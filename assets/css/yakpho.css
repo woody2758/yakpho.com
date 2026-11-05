@@ -15835,6 +15835,7 @@ button.member-login-btn-cancel:hover {
     user-select: none;
 }
 
+.yp-lightbox-backdrop:not(.d-none),
 .yp-lightbox-backdrop.is-open {
     opacity: 1;
     pointer-events: auto;

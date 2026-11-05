@@ -119,12 +119,16 @@ function openGalleryLightbox(cardEl) {
 
     const modal = document.getElementById('ypGalleryLightbox');
     modal.classList.remove('d-none');
+    modal.classList.add('is-open');
     document.body.style.overflow = 'hidden';
 }
 
 function closeGalleryLightbox() {
     const modal = document.getElementById('ypGalleryLightbox');
-    if (modal) modal.classList.add('d-none');
+    if (modal) {
+        modal.classList.remove('is-open');
+        modal.classList.add('d-none');
+    }
     document.body.style.overflow = '';
 }
 
