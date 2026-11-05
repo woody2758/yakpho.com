@@ -15359,16 +15359,16 @@ button.member-login-btn-cancel:hover {
 .blog-prev-next-nav {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 14px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-top: 16px;
+    margin-bottom: 24px;
 }
 
 .blog-nav-btn {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 12px;
+    padding: 10px 14px;
     border-radius: 12px;
     border: 1px solid rgba(16, 185, 129, 0.16);
     background: rgba(16, 185, 129, 0.03);
@@ -15436,16 +15436,16 @@ button.member-login-btn-cancel:hover {
 
 /* --- Minimal Facebook-Style Comments Section --- */
 .fb-comments-section {
-    background: transparent;
-    border-top: 1px solid rgba(16, 185, 129, 0.16);
-    padding: 18px 0 6px;
-    margin-top: 8px;
+    background: rgba(16, 185, 129, 0.03);
+    border: 1px solid rgba(16, 185, 129, 0.16);
+    border-radius: 16px;
+    padding: 20px 22px;
+    margin-top: 22px;
 }
 
 [data-theme="dark"] .fb-comments-section {
-    background: transparent !important;
-    border: none !important;
-    border-top: 1px solid rgba(52, 211, 153, 0.16) !important;
+    background: rgba(6, 22, 19, 0.45) !important;
+    border: 1px solid rgba(52, 211, 153, 0.16) !important;
     box-shadow: none !important;
 }
 
@@ -15465,13 +15465,13 @@ button.member-login-btn-cancel:hover {
 .fb-comment-composer {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 18px;
 }
 
 .fb-avatar {
-    width: 38px;
-    height: 38px;
+    width: 38px !important;
+    height: 38px !important;
     border-radius: 50% !important;
     overflow: hidden !important;
     background: linear-gradient(135deg, #10B981 0%, #047857 100%);
@@ -15498,8 +15498,8 @@ button.member-login-btn-cancel:hover {
 }
 
 .fb-avatar-sm {
-    width: 30px;
-    height: 30px;
+    width: 30px !important;
+    height: 30px !important;
     font-size: 0.78rem;
 }
 
@@ -15509,7 +15509,7 @@ button.member-login-btn-cancel:hover {
     background: rgba(16, 185, 129, 0.05);
     border: 1px solid rgba(16, 185, 129, 0.2);
     border-radius: 14px;
-    padding: 10px 12px;
+    padding: 12px 14px;
 }
 
 [data-theme="dark"] .fb-composer-box {
@@ -15521,7 +15521,7 @@ button.member-login-btn-cancel:hover {
 .fb-composer-as {
     font-size: 0.76rem;
     color: var(--yp-text-muted, #6B7280);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 [data-theme="dark"] .fb-composer-user-tag,
@@ -15536,30 +15536,34 @@ button.member-login-btn-cancel:hover {
 
 .fb-composer-input-row {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: flex-end;
+    gap: 10px;
+    width: 100%;
 }
 
 .fb-composer-textarea,
 .fb-composer-input {
-    width: 100%;
-    border: 1px solid rgba(16, 185, 129, 0.18);
-    border-radius: 10px;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.9);
+    flex: 1;
+    width: 100% !important;
+    min-height: 44px;
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.92);
     color: #111827;
     font-size: 0.88rem;
     line-height: 1.45;
     resize: none;
     outline: none;
     font-family: inherit;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    box-sizing: border-box;
 }
 
 [data-theme="dark"] .fb-composer-textarea,
 [data-theme="dark"] .fb-composer-input {
-    background: rgba(4, 15, 13, 0.75) !important;
-    border-color: rgba(52, 211, 153, 0.22) !important;
+    background: rgba(4, 15, 13, 0.82) !important;
+    border: 1px solid rgba(52, 211, 153, 0.24) !important;
     color: #F9FAFB !important;
 }
 
@@ -15575,18 +15579,18 @@ button.member-login-btn-cancel:hover {
 
 .fb-composer-send-btn,
 .fb-submit-btn {
-    align-self: flex-end;
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
     color: #FFFFFF !important;
-    border: none;
-    border-radius: 999px;
-    padding: 6px 18px;
-    font-size: 0.82rem;
-    font-weight: 700;
+    border: none !important;
+    border-radius: 999px !important;
+    padding: 9px 20px !important;
+    font-size: 0.84rem !important;
+    font-weight: 700 !important;
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(16, 185, 129, 0.28);
     transition: all 0.2s ease;
@@ -16067,7 +16071,16 @@ button.member-login-btn-cancel:hover {
         font-size: 0.76rem;
     }
     .fb-comments-section {
-        padding: 16px 0 4px;
+        padding: 16px 14px;
+        margin-top: 18px;
+    }
+    .fb-composer-input-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .fb-composer-send-btn,
+    .fb-submit-btn {
+        align-self: flex-end;
     }
     .yp-lightbox-backdrop {
         padding: 12px 10px;
