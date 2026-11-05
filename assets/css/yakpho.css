@@ -16127,3 +16127,28 @@ button.member-login-btn-cancel:hover {
     }
 }
 
+/* --- Fancybox 5 Gallery Polish (Borderless + Subtle Shadow + Emerald Thumbs) --- */
+.fancybox__backdrop {
+    background: rgba(4, 15, 13, 0.92) !important;
+    backdrop-filter: blur(8px);
+}
+
+.fancybox__content > .f-panzoom__content,
+.fancybox__slide .fancybox__content img {
+    border: none !important;
+    border-radius: 14px !important;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.65) !important;
+}
+
+.f-thumbs__slide__button {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.f-thumbs__slide.is-nav-selected .f-thumbs__slide__button {
+    box-shadow: 0 0 0 2px #10B981, 0 6px 16px rgba(0, 0, 0, 0.55) !important;
+}
+
+
